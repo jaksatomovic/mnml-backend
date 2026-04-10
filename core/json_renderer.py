@@ -23,6 +23,8 @@ from .patterns.utils import (
     EINK_FG,
     apply_text_fontmode,
     draw_dashed_line,
+    draw_footer,
+    draw_status_bar,
     load_font,
     load_font_by_name,
     paste_icon_onto,
@@ -31,7 +33,6 @@ from .patterns.utils import (
     has_cjk,
 )
 from .mode_catalog import builtin_catalog_map
-from .render_chrome import build_render_chrome
 from .render_tiers import merge_layout_for_screen
 
 logger = logging.getLogger(__name__)
@@ -129,6 +130,29 @@ def _localized_footer_attribution(mode_id: str, attribution: str, language: str)
         return attribution
     localized = _BUILTIN_STATIC_ATTRIBUTIONS.get(language, {}).get((mode_id or "").upper())
     return localized or attribution
+
+
+def _footer_strings_from_layout(
+    mode_def: dict,
+    content: dict,
+    layout: dict,
+    language: str,
+) -> tuple[str, str]:
+    ft = layout.get("footer", {}) if isinstance(layout.get("footer"), dict) else {}
+    mid = str(mode_def.get("mode_id", "") or "")
+    label = _localized_footer_label(mid, str(ft.get("label", mid) or mid), language)
+    attr_t = str(ft.get("attribution_template", "") or "")
+
+    def _replace(m: re.Match) -> str:
+        key = m.group(1)
+        val = content.get(key, "")
+        if isinstance(val, list):
+            return ", ".join(str(v) for v in val)
+        return str(val)
+
+    attribution = re.sub(r"\{(\w+)\}", _replace, attr_t) if attr_t else ""
+    attribution = _localized_footer_attribution(mid, attribution, language)
+    return label, attribution
 
 
 def _convert_image_block(src: Image.Image, width: int, height: int, colors: int) -> Image.Image:
@@ -248,11 +272,12 @@ def render_json_mode(
     screen_h: int = SCREEN_HEIGHT,
     colors: int = 2,
     language: str = "zh",
-    chrome_weather_str: str | None = None,
-) -> tuple[Image.Image, dict]:
+    omit_chrome: bool = False,
+) -> Image.Image:
     """Render a JSON-defined mode to an e-ink image (1-bit or 4-color palette).
 
-    Status bar and footer are not drawn; :func:`build_render_chrome` fills metadata for firmware.
+    When ``omit_chrome`` is False (default), status bar and footer are drawn in the bitmap.
+    When True (e.g. surface tiles), only the body is drawn so a composite can add one global chrome.
     """
     if colors >= 3:
         img = Image.new("P", (screen_w, screen_h), EINK_BG)
@@ -271,12 +296,35 @@ def render_json_mode(
         screen_h=screen_h,
     )
 
-    # Body uses full canvas; status bar / footer are handled by device firmware (see build_render_chrome).
-    status_bar_bottom = 0
-    footer_height = 0
-    footer_top = screen_h
+    if omit_chrome:
+        status_bar_bottom = 0
+        footer_height = 0
+        footer_top = screen_h
+    else:
+        footer_pct = 0.08 if screen_h < 200 else 0.10
+        y_line_footer = screen_h - int(screen_h * footer_pct)
+        footer_height = screen_h - y_line_footer
+        footer_top = y_line_footer
+        status_line_y = int(screen_h * 0.11)
+        status_bar_bottom = min(status_line_y + 1, max(1, footer_top - 20))
+        sb_c = layout.get("status_bar", {}) if isinstance(layout.get("status_bar"), dict) else {}
+        draw_status_bar(
+            draw,
+            img,
+            date_str,
+            weather_str,
+            int(battery_pct),
+            weather_code,
+            int(sb_c.get("line_width", 1)),
+            bool(sb_c.get("dashed", False)),
+            time_str,
+            screen_w,
+            screen_h,
+            colors,
+            language,
+        )
 
-    # 2. Body blocks
+    # Body blocks
     body = layout.get("body", [])
     body_align = layout.get("body_align", "center")
     _has_vcenter = any(
@@ -327,22 +375,33 @@ def render_json_mode(
                 break
             _render_block(ctx, block)
 
-    mode_id = str(mode_def.get("mode_id", "") or "")
-    header_weather = chrome_weather_str if chrome_weather_str is not None else weather_str
-    chrome = build_render_chrome(
-        mode_def,
-        content,
-        mode_id=mode_id.upper(),
-        date_str=date_str,
-        time_str=time_str,
-        weather_str=header_weather,
-        battery_pct=battery_pct,
-        weather_code=weather_code,
-        language=language,
-        screen_w=screen_w,
-        screen_h=screen_h,
-    )
-    return img, chrome
+    if not omit_chrome:
+        mode_id = str(mode_def.get("mode_id", "") or "")
+        ft = layout.get("footer", {}) if isinstance(layout.get("footer"), dict) else {}
+        label, attribution = _footer_strings_from_layout(mode_def, content, layout, language)
+        footer_wcode = content.get("today_code", content.get("code"))
+        try:
+            footer_wcode_i = int(footer_wcode) if footer_wcode is not None else None
+        except (TypeError, ValueError):
+            footer_wcode_i = None
+        draw_footer(
+            draw,
+            img,
+            label,
+            attribution,
+            mode_id=mode_id.upper(),
+            weather_code=footer_wcode_i,
+            line_width=int(ft.get("line_width", 1)),
+            dashed=bool(ft.get("dashed", False)),
+            attr_font=ft.get("attribution_font"),
+            attr_font_size=ft.get("attribution_font_size"),
+            screen_w=screen_w,
+            screen_h=screen_h,
+            colors=colors,
+            time_str=time_str,
+        )
+
+    return img
 
 
 # ── Block dispatcher ─────────────────────────────────────────

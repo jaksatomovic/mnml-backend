@@ -9,7 +9,7 @@ from typing import Any
 from PIL import Image, ImageDraw
 
 from core.context import extract_location_settings, get_date_context, get_weather
-from core.patterns.utils import apply_text_fontmode, load_font
+from core.patterns.utils import apply_text_fontmode, draw_footer, draw_status_bar, load_font
 from core.pipeline import generate_and_render
 from core.surface_engine import build_surface_render_payload
 
@@ -48,7 +48,7 @@ def _preset_for_surface(surface_id: str) -> tuple[tuple[float, float, float, flo
 
 
 def _body_box(screen_w: int, screen_h: int) -> tuple[int, int, int, int]:
-    """Mosaic area only; modes no longer draw status/footer in the bitmap."""
+    """Mosaic area inside padded margins; per-tile renders omit mode chrome."""
     pad = max(5, min(10, screen_w // 48))
     return (pad, pad, screen_w - pad, screen_h - pad)
 
@@ -111,6 +111,56 @@ def _fit_tile(tile: Image.Image, tw: int, th: int) -> Image.Image:
     return tile.resize((tw, th), Image.Resampling.LANCZOS)
 
 
+def _draw_surface_chrome(
+    img: Image.Image,
+    *,
+    date_ctx: dict,
+    weather: dict,
+    battery_pct: float,
+    screen_w: int,
+    screen_h: int,
+    language: str,
+    surface_label: str,
+) -> None:
+    """One status bar + footer for the full surface (tiles are body-only)."""
+    from core.pipeline import _format_date_str
+
+    date_str = _format_date_str(date_ctx, language)
+    time_str = str(date_ctx.get("time_str", "") or "")
+    wstr = str(weather.get("weather_str", "") or "")
+    wcode = int(weather.get("weather_code", -1) or -1)
+    draw = ImageDraw.Draw(img)
+    apply_text_fontmode(draw)
+    draw_status_bar(
+        draw,
+        img,
+        date_str,
+        wstr,
+        int(battery_pct),
+        wcode,
+        1,
+        False,
+        time_str,
+        screen_w,
+        screen_h,
+        2,
+        language,
+    )
+    label = (surface_label or "SURFACE").strip().upper() or "SURFACE"
+    draw_footer(
+        draw,
+        img,
+        label,
+        "InkSight",
+        mode_id="SURFACE",
+        weather_code=None,
+        screen_w=screen_w,
+        screen_h=screen_h,
+        colors=2,
+        time_str=time_str,
+    )
+
+
 def _draw_error_tile(tw: int, th: int, msg: str) -> Image.Image:
     im = Image.new("L", (max(1, tw), max(1, th)), 255)
     d = ImageDraw.Draw(im)
@@ -163,7 +213,7 @@ async def render_surface_preview_image(
         tw = max(96, rx1 - rx0)
         th = max(72, ry1 - ry0)
         try:
-            tile, _c, _chrome = await generate_and_render(
+            tile, _c = await generate_and_render(
                 persona,
                 cfg,
                 date_ctx,
@@ -173,6 +223,7 @@ async def render_surface_preview_image(
                 screen_h=th,
                 mac=mac or "",
                 colors=2,
+                omit_chrome=True,
             )
             return _fit_tile(tile, tw, th)
         except Exception:
@@ -193,5 +244,23 @@ async def render_surface_preview_image(
         tile = tiles[i]
         tile = _fit_tile(tile, tw, th)
         img.paste(tile, (rx0, ry0))
+
+    lang = "zh"
+    if isinstance(cfg, dict):
+        lang = str(cfg.get("mode_language") or cfg.get("modeLanguage") or "zh").strip() or "zh"
+    title = (
+        str(meta.get("title") or normalized.get("name") or surface_id or "Surface").strip()
+        or "Surface"
+    )
+    _draw_surface_chrome(
+        img,
+        date_ctx=date_ctx,
+        weather=weather,
+        battery_pct=battery_pct,
+        screen_w=screen_w,
+        screen_h=screen_h,
+        language=lang,
+        surface_label=title,
+    )
 
     return img.point(lambda p: 255 if p > 135 else 0).convert("1")

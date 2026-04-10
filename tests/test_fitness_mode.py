@@ -40,7 +40,7 @@ async def main():
     print(f"  Exercises: {len(content.get('exercises', []))} items")
     print(f"  Tip: {content.get('tip', '')[:50]}...")
 
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/14 Sat",
         weather_str="sunny 15°C",

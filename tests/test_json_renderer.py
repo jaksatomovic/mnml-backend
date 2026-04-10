@@ -32,7 +32,7 @@ def test_render_produces_correct_size_image():
         {"type": "centered_text", "field": "text", "font_size": 16, "vertical_center": True}
     ])
     content = {"text": "Hello World"}
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="1/1", weather_str="sunny 20°C", battery_pct=85,
     )
@@ -46,7 +46,7 @@ def test_render_centered_text():
         {"type": "centered_text", "field": "quote", "font_size": 14, "vertical_center": True}
     ])
     content = {"quote": "testtextChinesetext"}
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18", weather_str="cloudy 15°C", battery_pct=90,
     )
@@ -60,7 +60,7 @@ def test_render_text_block():
         {"type": "text", "template": "text: {author}", "font_size": 12, "align": "center"},
     ])
     content = {"title": "Quiet Night Thought", "author": "Li Bai"}
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18", weather_str="sunny", battery_pct=75,
     )
@@ -76,7 +76,7 @@ def test_render_separator():
         {"type": "spacer", "height": 10},
         {"type": "separator", "style": "short", "width": 60},
     ])
-    img, _ = render_json_mode(
+    img = render_json_mode(
         _make_mode_def([
             {"type": "spacer", "height": 50},
             {"type": "separator", "style": "solid"},
@@ -110,7 +110,7 @@ def test_render_list_with_dicts():
             {"name": "plank", "reps": "30text"},
         ]
     }
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18", weather_str="sunny", battery_pct=80,
     )
@@ -132,7 +132,7 @@ def test_render_list_with_strings():
         },
     ])
     content = {"lines": ["Moonlight before my bed", "Like frost upon the ground", "I raise my head to the moon", "I lower my head and think of home"]}
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18", weather_str="sunny", battery_pct=80,
     )
@@ -152,7 +152,7 @@ def test_render_section_with_icon():
         },
     ])
     content = {"tip": "text"}
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18", weather_str="sunny", battery_pct=80,
     )
@@ -173,7 +173,7 @@ def test_render_vertical_stack():
         },
     ])
     content = {"a": "text", "b": "text"}
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18", weather_str="sunny", battery_pct=80,
     )
@@ -202,14 +202,14 @@ def test_render_conditional():
     ])
 
     # count = 10 -> "text"
-    img1, _ = render_json_mode(
+    img1 = render_json_mode(
         mode_def, {"count": 10},
         date_str="2/18", weather_str="sunny", battery_pct=80,
     )
     assert img1.size == (SCREEN_W, SCREEN_H)
 
     # count = 3 -> fallback "text"
-    img2, _ = render_json_mode(
+    img2 = render_json_mode(
         mode_def, {"count": 3},
         date_str="2/18", weather_str="sunny", battery_pct=80,
     )
@@ -221,7 +221,7 @@ def test_render_icon_text():
         {"type": "spacer", "height": 40},
         {"type": "icon_text", "icon": "book", "text": "recommended reading", "font_size": 14, "margin_x": 24},
     ])
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, {},
         date_str="2/18", weather_str="sunny", battery_pct=80,
     )
@@ -234,7 +234,7 @@ def test_render_with_footer_template():
         footer={"label": "CUSTOM", "attribution_template": "— {author}", "dashed": True},
     )
     content = {"quote": "Test", "author": "Author"}
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18", weather_str="sunny", battery_pct=80,
     )
@@ -255,7 +255,7 @@ def test_render_image_block_preserves_palette_colors():
         "image_url": "prefetched://artwall",
         "_prefetched_image_url": buf.getvalue(),
     }
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18", weather_str="sunny", battery_pct=80,
         colors=4,
@@ -287,7 +287,7 @@ def test_render_with_dashed_status_bar():
         },
     }
     content = {"word": "text"}
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18", weather_str="sunny", battery_pct=80,
     )
@@ -319,7 +319,7 @@ def test_render_stoic_json():
         "quote": "The impediment to action advances action.",
         "author": "Marcus Aurelius",
     }
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18 Tue", weather_str="sunny 15°C", battery_pct=85,
         weather_code=0, time_str="14:30",
@@ -346,7 +346,7 @@ def test_render_fitness_json():
         ],
         "tip": "Warm up fully before exercise to avoid injury.",
     }
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18 Tue", weather_str="cloudy 12°C", battery_pct=70,
         weather_code=3, time_str="07:00",
@@ -368,7 +368,7 @@ def test_render_poetry_json():
         "lines": ["Moonlight before my bed", "Like frost upon the ground", "I raise my head to the moon", "I lower my head and think of home"],
         "note": "classic poem of homesickness",
     }
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def, content,
         date_str="2/18 Tue", weather_str="sunny", battery_pct=90,
     )

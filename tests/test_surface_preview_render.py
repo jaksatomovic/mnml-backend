@@ -9,7 +9,7 @@ from core.surface_preview_render import render_surface_preview_image
 
 
 def _fake_tile(*_a, **_k):
-    return Image.new("L", (100, 80), 200), {}, {}
+    return Image.new("L", (100, 80), 200), {}
 
 
 @pytest.mark.asyncio

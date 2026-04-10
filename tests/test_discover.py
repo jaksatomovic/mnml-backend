@@ -296,7 +296,7 @@ class TestDiscoverAPI:
             # Mock text
             from PIL import Image
             mock_img = Image.new("RGB", (400, 300), color="white")
-            mock_render.return_value = (mock_img, {})
+            mock_render.return_value = mock_img
             
             resp = await client.post(
                 "/api/discover/modes/publish",
@@ -365,7 +365,7 @@ class TestDiscoverAPI:
             # Mock text
             from PIL import Image
             mock_img = Image.new("RGB", (400, 300), color="white")
-            mock_render.return_value = (mock_img, {})
+            mock_render.return_value = mock_img
             
             resp = await client.post(
                 "/api/discover/modes/publish",
@@ -514,7 +514,7 @@ class TestDiscoverAPI:
                 
                 from PIL import Image
                 mock_img = Image.new("RGB", (400, 300), color="white")
-                mock_render.return_value = (mock_img, {})
+                mock_render.return_value = mock_img
                 
                 resp = await client.post(
                     "/api/discover/modes/publish",
@@ -615,7 +615,7 @@ class TestDiscoverAPI:
             
             from PIL import Image
             mock_img = Image.new("RGB", (400, 300), color="white")
-            mock_render.return_value = (mock_img, {})
+            mock_render.return_value = mock_img
             
             resp = await client.post(
                 "/api/discover/modes/publish",
@@ -663,7 +663,7 @@ class TestDiscoverAPI:
             mock_gen.return_value = {"text": "testtext", "title": "testtext"}
             from PIL import Image
             mock_img = Image.new("RGB", (400, 300), color="white")
-            mock_render.return_value = (mock_img, {})
+            mock_render.return_value = mock_img
             
             resp = await client.post(
                 "/api/discover/modes/publish",
@@ -717,7 +717,7 @@ class TestDiscoverAPI:
             mock_gen.return_value = {"text": "testtext", "title": "testtext"}
             from PIL import Image
             mock_img = Image.new("RGB", (400, 300), color="white")
-            mock_render.return_value = (mock_img, {})
+            mock_render.return_value = mock_img
             
             resp = await client.post(
                 "/api/discover/modes/publish",

@@ -55,7 +55,7 @@ async def main():
     print(f"  text: {content['dinner']['staple']}")
     print(f"\ntext: {content['nutrition']}")
     
-    img, _ = render_json_mode(
+    img = render_json_mode(
         mode_def,
         content,
         date_str="2/14 Sat",

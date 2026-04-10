@@ -53,17 +53,6 @@ from core.stats_store import get_latest_heartbeat
 router = APIRouter(tags=["render"])
 
 
-def _chrome_header_value(chrome: Optional[dict]) -> Optional[str]:
-    """Compact JSON (UTF-8) as URL-safe base64 without padding, for X-InkSight-Chrome."""
-    if not chrome:
-        return None
-    try:
-        raw = json.dumps(chrome, ensure_ascii=False, separators=(",", ":"))
-        return base64.urlsafe_b64encode(raw.encode("utf-8")).decode("ascii").rstrip("=")
-    except (TypeError, ValueError):
-        return None
-
-
 def _sse_event(event: str, payload: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
@@ -328,7 +317,6 @@ async def render(
             api_key_invalid,
             llm_mode_requires_quota,
             _usage_source,
-            chrome_meta,
         ) = await build_image(
             params.v,
             mac,
@@ -382,9 +370,6 @@ async def render(
             headers["X-Pending-Refresh"] = "1"
         if content_fallback:
             headers["X-Content-Fallback"] = "1"
-        ch = _chrome_header_value(chrome_meta)
-        if ch:
-            headers["X-InkSight-Chrome"] = ch
 
         return Response(content=out_bytes, media_type=out_media, headers=headers)
     except (OSError, RuntimeError, TypeError, UnidentifiedImageError, ValueError) as exc:
@@ -431,7 +416,7 @@ async def get_widget(
     timezone_name = str(config.get("timezone", "") or "").strip()
     date_ctx = await get_date_context(timezone_name=timezone_name)
     weather = await get_weather(**location_args)
-    img, _, _ = await generate_and_render(
+    img, _ = await generate_and_render(
         persona,
         config,
         date_ctx,
@@ -509,7 +494,6 @@ async def preview(
             api_key_invalid,
             llm_mode_requires_quota,
             usage_source,
-            chrome_meta,
         ) = await build_image(
             effective_v,
             mac,
@@ -580,9 +564,6 @@ async def preview(
             "X-Preview-Status": status_msg,
             "X-Llm-Required": "1" if llm_mode_requires_quota else "0",
         }
-        ch = _chrome_header_value(chrome_meta)
-        if ch:
-            prev_headers["X-InkSight-Chrome"] = ch
         return Response(
             content=png_bytes,
             media_type="image/png",
@@ -657,7 +638,6 @@ async def preview_stream(
                 api_key_invalid,
                 llm_mode_requires_quota,
                 usage_source,
-                chrome_meta,
             ) = await build_image(
                 effective_v,
                 mac,
@@ -708,8 +688,6 @@ async def preview_stream(
                 "preview_status": status_msg,
                 "llm_required": bool(llm_mode_requires_quota),
             }
-            if chrome_meta is not None:
-                result_payload["chrome"] = chrome_meta
             yield _sse_event("result", result_payload)
         except (OSError, RuntimeError, TypeError, ValueError, UnidentifiedImageError) as exc:
             logger.exception("[PREVIEW_STREAM] Streaming preview failed")

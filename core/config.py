@@ -11,10 +11,8 @@ logger = logging.getLogger(__name__)
 SCREEN_WIDTH = 400   # Default; overridable per-request via w/h query params
 SCREEN_HEIGHT = 300  # Default; overridable per-request via w/h query params
 
-# Device chrome (drawn by firmware, not in the BMP). Must match firmware `config.h`
-# (INKSIGHT_STATUS_BAR_PX / INKSIGHT_FOOTER_PX). The render bitmap is the *body*:
-#   body_h = panel_h - STATUS - FOOTER
-# Request w/h to /api/render and /api/preview are the body pixel size.
+# Layout hints (status/footer bands in json_renderer / firmware partial-refresh region).
+# Full-frame BMP from /api/render includes status bar + body + footer; w/h are panel size.
 DEVICE_STATUS_BAR_HEIGHT_PX = 36
 DEVICE_FOOTER_HEIGHT_PX = 30
 
