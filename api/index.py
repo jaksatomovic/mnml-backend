@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from urllib.parse import urlsplit
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+
+# Load backend .env before importing modules that resolve DB backend at import time.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 from api.routes import api_routers, page_routers
 from api.shared import (

@@ -197,6 +197,10 @@ async def init_db():
                 await db.execute("ALTER TABLE configs ADD COLUMN focus_listening INTEGER DEFAULT 0")
                 await db.commit()
         except Exception:
+            try:
+                await db.rollback()
+            except Exception:
+                pass
             logger.warning("[MIGRATION] Failed to add focus_listening column", exc_info=True)
 
         # Migration: add alert token columns if missing
@@ -210,6 +214,10 @@ async def init_db():
                 await db.execute("ALTER TABLE device_state ADD COLUMN alert_token_created_at TEXT DEFAULT ''")
             await db.commit()
         except Exception:
+            try:
+                await db.rollback()
+            except Exception:
+                pass
             logger.warning("[MIGRATION] Failed to add alert token columns", exc_info=True)
 
         # Migration: add OTA columns if missing
@@ -229,6 +237,10 @@ async def init_db():
                 await db.execute("ALTER TABLE device_state ADD COLUMN ota_result TEXT DEFAULT ''")
             await db.commit()
         except Exception:
+            try:
+                await db.rollback()
+            except Exception:
+                pass
             logger.warning("[MIGRATION] Failed to add OTA columns", exc_info=True)
 
         # User system tables
@@ -250,12 +262,18 @@ async def init_db():
             await db.execute("ALTER TABLE users ADD COLUMN phone TEXT")
             await db.commit()
         except Exception:
-            pass
+            try:
+                await db.rollback()
+            except Exception:
+                pass
         try:
             await db.execute("ALTER TABLE users ADD COLUMN email TEXT")
             await db.commit()
         except Exception:
-            pass
+            try:
+                await db.rollback()
+            except Exception:
+                pass
 
         # Enforce uniqueness (NULL allowed) via indexes
         await db.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_unique ON users(phone)")
@@ -266,14 +284,20 @@ async def init_db():
             await db.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'")
             await db.commit()
         except Exception:
-            pass
+            try:
+                await db.rollback()
+            except Exception:
+                pass
 
         # Migration: add invite_code column if missing
         try:
             await db.execute("ALTER TABLE users ADD COLUMN invite_code TEXT DEFAULT ''")
             await db.commit()
         except Exception:
-            pass
+            try:
+                await db.rollback()
+            except Exception:
+                pass
 
         # Invitation codes table 
         await db.execute("""
@@ -281,7 +305,7 @@ async def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 code TEXT NOT NULL UNIQUE,
                 is_used INTEGER DEFAULT 0,
-                generated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 used_by_user_id INTEGER,
                 FOREIGN KEY (used_by_user_id) REFERENCES users(id)
             )
@@ -308,7 +332,7 @@ async def init_db():
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         code TEXT NOT NULL UNIQUE,
                         is_used INTEGER DEFAULT 0,
-                        generated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         used_by_user_id INTEGER,
                         FOREIGN KEY (used_by_user_id) REFERENCES users(id)
                     )
@@ -493,7 +517,10 @@ async def init_db():
                     await db.execute("DROP INDEX IF EXISTS idx_custom_modes_user")
                     await db.execute("DROP INDEX IF EXISTS idx_custom_modes_mode_id")
                 except Exception:
-                    pass
+                    try:
+                        await db.rollback()
+                    except Exception:
+                        pass
                 
                 # Drop and recreate table with mac column
                 await db.execute("DROP TABLE custom_modes")
