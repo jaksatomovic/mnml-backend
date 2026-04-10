@@ -5,6 +5,7 @@ __pycache__/
 .pytest_cache/
 tests/
 runtime_uploads/
+fonts/icons/
 *.db
 *.sqlite
 .env
