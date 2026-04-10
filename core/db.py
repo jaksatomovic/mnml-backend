@@ -7,7 +7,7 @@ import re
 import weakref
 from typing import Any, Sequence
 
-import aiosqlite
+from . import db_adapter as aiosqlite
 
 logger = logging.getLogger(__name__)
 

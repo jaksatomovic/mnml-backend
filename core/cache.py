@@ -8,7 +8,7 @@ import os
 from datetime import datetime, timedelta
 from typing import Optional
 
-import aiosqlite
+from . import db_adapter as aiosqlite
 from PIL import Image
 
 logger = logging.getLogger(__name__)

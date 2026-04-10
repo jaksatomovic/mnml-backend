@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-import aiosqlite
+from core import db_adapter as aiosqlite
 from typing import Optional
 
 from fastapi import APIRouter, Cookie, Depends, Request

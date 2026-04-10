@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from datetime import datetime
 
-import aiosqlite
+from core import db_adapter as aiosqlite
 import phonenumbers
 from fastapi import APIRouter, Depends, Response
 from fastapi.responses import JSONResponse

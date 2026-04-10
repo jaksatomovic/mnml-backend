@@ -6,7 +6,7 @@ import logging
 import secrets
 import hashlib
 import hmac
-import aiosqlite
+from . import db_adapter as aiosqlite
 from datetime import datetime, timedelta
 from typing import Optional
 
