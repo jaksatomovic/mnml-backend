@@ -35,7 +35,7 @@ _LLM_RECOVERABLE_ERRORS = (
 def _chat_completion_extra_body(provider: str, model: str) -> dict | None:
     """Return provider/model-specific extra_body parameters.
 
-    DashScope exposes Qwen thinking control via OpenAI-compatible extra_body.
+    Aliyun exposes Qwen thinking control via its OpenAI-compatible endpoint.
     Keep qwen3.5-flash on non-thinking mode unless the caller explicitly
     implements a separate switch later.
     """
@@ -52,13 +52,6 @@ def _extract_llm_base_url(ctx) -> str | None:
         v = (ctx.get("llm_base_url") or "").strip()
         return v or None
     return getattr(ctx, "llm_base_url", None)
-
-try:
-    import dashscope
-    from dashscope import MultiModalConversation
-except ImportError:
-    dashscope = None
-    MultiModalConversation = None
 
 # LLM Provider configurations
 LLM_CONFIGS = {
@@ -1064,16 +1057,14 @@ Requirements:
                 "prompt": image_prompt,
             }
 
-        # 处理 image_api_key：优先使用用户配置的，如果用户没有配置则使用环境变量
-        user_provided_image_key = image_api_key is not None  # 记录用户是否提供了 image_api_key
+        # Prefer a user-provided image API key; otherwise fall back to the environment value.
+        user_provided_image_key = image_api_key is not None
         if image_api_key is None:
-            # 用户没有传递 image_api_key，从环境变量获取
             image_api_key = os.getenv("DASHSCOPE_API_KEY", "")
         
         if not image_api_key or image_api_key.startswith("sk-your-"):
-            # 如果用户提供了 image_api_key 但为空或无效，给出明确提示
             if user_provided_image_key:
-                logger.warning("[ARTWALL] 您配置的图像 API key 为空或无效，请检查设备配置")
+                logger.warning("[ARTWALL] Configured image API key is empty or invalid; using fallback")
             else:
                 logger.warning("[ARTWALL] No valid DASHSCOPE_API_KEY, using fallback")
             return {
@@ -1083,61 +1074,15 @@ Requirements:
                 "prompt": image_prompt,
             }
         
-        api_key = image_api_key  # 用于后续调用
-
-        if MultiModalConversation is None:
-            logger.warning("[ARTWALL] dashscope not installed, using fallback")
-            return {
-                "artwork_title": artwork_title,
-                "image_url": "",
-                "description": art_description,
-                "prompt": image_prompt,
-            }
-
-        import asyncio as _asyncio
-
-        dashscope.base_http_api_url = "https://dashscope.aliyuncs.com/api/v1"
-
-        messages = [{"role": "user", "content": [{"text": image_prompt}]}]
-
-        # Wrap synchronous DashScope SDK call to avoid blocking the event loop
-        response = await _asyncio.to_thread(
-            MultiModalConversation.call,
-            api_key=api_key,
-            model=image_model,
-            messages=messages,
-            result_format="message",
-            stream=False,
-            watermark=False,
-            prompt_extend=True,
-            negative_prompt=(
-                "低分辨率，复杂细节，文字，标签，过度装饰，花哨元素，照片质感，渐变，半透明，真实阴影，脏污纹理"
-                if supports_color
-                else "低分辨率，彩色，复杂细节，文字，标签，过度装饰，花哨元素，浓墨重彩，密集笔触"
-            ),
-            size="512*512",
+        logger.warning(
+            "[ARTWALL] DashScope SDK integration was removed; using fallback until a replacement image backend is added"
         )
-
-        if response.status_code == 200:
-            image_url = response.output.choices[0].message.content[0].get("image", "")
-            logger.info(f"[ARTWALL] Image generated: {image_url[:50]}...")
-
-            return {
-                "artwork_title": artwork_title,
-                "image_url": image_url,
-                "description": art_description,
-                "prompt": image_prompt,
-                "model_name": image_model,
-            }
-        else:
-            logger.error(f"[ARTWALL] Image generation failed: {response.status_code}")
-            logger.error(f"Error: {response.code} - {response.message}")
-            return {
-                "artwork_title": artwork_title,
-                "image_url": "",
-                "description": art_description,
-                "prompt": image_prompt,
-            }
+        return {
+            "artwork_title": artwork_title,
+            "image_url": "",
+            "description": art_description,
+            "prompt": image_prompt,
+        }
 
     except (
         httpx.HTTPError,

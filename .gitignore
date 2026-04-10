@@ -1,6 +1,9 @@
 # Vercel
 .vercel
 
+.venv/
+venv/
+
 # Environment variables
 .env
 

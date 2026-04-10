@@ -15,7 +15,6 @@ slowapi~=0.1.9
 PyJWT~=2.8.0
 zhdate~=0.1
 qrcode~=7.4
-dashscope~=1.14.0
 cryptography~=41.0.0
 phonenumbers~=9.0.26
 

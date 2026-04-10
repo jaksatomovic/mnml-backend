@@ -30,6 +30,7 @@ def _build_allowed_hosts() -> list[str]:
         "www.inksight.site",
         "inksight.site",
         "web.inksight.site",
+        "*.vercel.app",
         "localhost",
         "127.0.0.1",
         "::1",
@@ -85,6 +86,8 @@ def _build_cors_settings() -> tuple[list[str], str | None]:
             r"|172\.(?:1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}"
             r")(?::\d+)?$"
         )
+    else:
+        origin_regex = r"^https://(?:[a-z0-9-]+\.)*vercel\.app(?::\d+)?$"
     return origins, origin_regex
 
 
