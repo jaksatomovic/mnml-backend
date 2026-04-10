@@ -82,14 +82,18 @@ def _build_cors_settings() -> tuple[list[str], str | None]:
     origin_regex = None
     flag = os.getenv("INKSIGHT_CORS_ALLOW_LAN", "").strip().lower()
     if flag in ("1", "true", "yes", "on"):
-        # RFC1918 + loopback; any port (Expo / dev servers on arbitrary ports).
+        # Dev LAN mode: allow private network origins AND keep Vercel origins
+        # available so production web deployments are not accidentally blocked.
         origin_regex = (
-            r"^https?://("
+            r"^("
+            r"https?://("
             r"localhost|127\.0\.0\.1"
             r"|192\.168\.\d{1,3}\.\d{1,3}"
             r"|10\.\d{1,3}\.\d{1,3}\.\d{1,3}"
             r"|172\.(?:1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}"
-            r")(?::\d+)?$"
+            r")(?::\d+)?"
+            r"|https://(?:[a-z0-9-]+\.)*vercel\.app(?::\d+)?"
+            r")$"
         )
     else:
         origin_regex = r"^https://(?:[a-z0-9-]+\.)*vercel\.app(?::\d+)?$"
