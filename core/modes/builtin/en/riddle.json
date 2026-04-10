@@ -208,6 +208,89 @@
           "align": "center"
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "text",
+          "field": "category",
+          "font_size": 9,
+          "align": "center"
+        },
+        {
+          "type": "centered_text",
+          "field": "question",
+          "font": "noto_serif_regular",
+          "font_size": 12,
+          "max_width_ratio": 0.9,
+          "vertical_center": false
+        },
+        {
+          "type": "text",
+          "field": "answer",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 1
+        }
+      ],
+      "footer": {
+        "label": "RIDDLE"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "question",
+          "font": "noto_serif_regular",
+          "font_size": 11,
+          "max_width_ratio": 0.92,
+          "vertical_center": true
+        },
+        {
+          "type": "text",
+          "field": "answer",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1
+        }
+      ],
+      "footer": {
+        "label": "RIDDLE",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "question",
+          "font": "noto_serif_regular",
+          "font_size": 10,
+          "max_width_ratio": 0.94,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "RIDDLE",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "question",
+          "font": "noto_serif_regular",
+          "font_size": 9,
+          "max_width_ratio": 0.95,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "RIDDLE",
+        "height": 16
+      }
     }
   }
 }

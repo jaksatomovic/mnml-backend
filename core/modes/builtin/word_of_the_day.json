@@ -8,10 +8,22 @@
     "type": "llm_json",
     "prompt_template": "translated。Get by translated，translated，translated。\ntranslated JSON translated：{{\"word\": \"translated\", \"phonetic\": \"translated（translated）\", \"definition\": \"translated（15translated）\", \"example\": \"translated（translated，20translated）\"}}\ntranslated。\ntranslated：{context}",
     "output_schema": {
-      "word": { "type": "string", "default": "Serendipity" },
-      "phonetic": { "type": "string", "default": "/ˌser.ənˈdɪp.ə.ti/" },
-      "definition": { "type": "string", "default": "translated" },
-      "example": { "type": "string", "default": "Traveling is full of serendipity." }
+      "word": {
+        "type": "string",
+        "default": "Serendipity"
+      },
+      "phonetic": {
+        "type": "string",
+        "default": "/ˌser.ənˈdɪp.ə.ti/"
+      },
+      "definition": {
+        "type": "string",
+        "default": "translated"
+      },
+      "example": {
+        "type": "string",
+        "default": "Traveling is full of serendipity."
+      }
     },
     "temperature": 0.8,
     "fallback": {
@@ -22,7 +34,9 @@
     }
   },
   "layout": {
-    "status_bar": { "line_width": 1 },
+    "status_bar": {
+      "line_width": 1
+    },
     "body": [
       {
         "type": "centered_text",
@@ -32,7 +46,10 @@
         "max_width_ratio": 0.9,
         "vertical_center": true
       },
-      { "type": "spacer", "height": 8 },
+      {
+        "type": "spacer",
+        "height": 8
+      },
       {
         "type": "text",
         "field": "phonetic",
@@ -41,7 +58,10 @@
         "align": "center",
         "max_lines": 1
       },
-      { "type": "spacer", "height": 20 },
+      {
+        "type": "spacer",
+        "height": 20
+      },
       {
         "type": "text",
         "field": "definition",
@@ -50,7 +70,10 @@
         "align": "center",
         "max_lines": 2
       },
-      { "type": "spacer", "height": 15 },
+      {
+        "type": "spacer",
+        "height": 15
+      },
       {
         "type": "text",
         "field": "example",
@@ -60,7 +83,117 @@
         "max_lines": 2
       }
     ],
-    "footer": { "label": "WORD", "attribution_template": "— Daily Learning" }
+    "footer": {
+      "label": "WORD",
+      "attribution_template": "— Daily Learning"
+    }
+  },
+  "layout_overrides": {
+    "slot_lg": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "word",
+          "font": "noto_serif_bold",
+          "font_size": 48,
+          "max_width_ratio": 0.88,
+          "vertical_center": false
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "text",
+          "field": "phonetic",
+          "font": "noto_serif_light",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 1
+        },
+        {
+          "type": "text",
+          "field": "definition",
+          "font": "noto_serif_regular",
+          "font_size": 13,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 8
+        }
+      ],
+      "footer": {
+        "label": "WORD",
+        "attribution_template": "— Daily Learning"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "word",
+          "font": "noto_serif_bold",
+          "font_size": 36,
+          "max_width_ratio": 0.9,
+          "vertical_center": true
+        },
+        {
+          "type": "text",
+          "field": "definition",
+          "font": "noto_serif_regular",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 8
+        }
+      ],
+      "footer": {
+        "label": "WORD",
+        "attribution_template": "— Daily Learning",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "word",
+          "font": "noto_serif_bold",
+          "font_size": 28,
+          "max_width_ratio": 0.92,
+          "vertical_center": true
+        },
+        {
+          "type": "text",
+          "field": "definition",
+          "font": "noto_serif_regular",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 6
+        }
+      ],
+      "footer": {
+        "label": "WORD",
+        "attribution_template": "— Daily Learning",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "word",
+          "font": "noto_serif_bold",
+          "font_size": 22,
+          "max_width_ratio": 0.94,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "WORD",
+        "attribution_template": "— Daily Learning",
+        "height": 16
+      }
+    }
   }
 }
-

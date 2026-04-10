@@ -86,14 +86,14 @@ async def generate_and_render(
     screen_h: int = SCREEN_HEIGHT,
     mac: str = "",
     colors: int = 2,
-) -> tuple[Image.Image, dict | None]:
+) -> tuple[Image.Image, dict | None, dict]:
     """Generate content for a persona and render to an e-ink image.
 
     Dispatches to either a builtin Python mode or a JSON-defined mode
     via the mode registry.
 
     Returns:
-        Tuple of (rendered image, content dict).
+        Tuple of (rendered image, content dict, chrome metadata for firmware).
     """
     time_str = date_ctx.get("time_str", "")
     weather_str = weather["weather_str"]
@@ -114,7 +114,7 @@ async def generate_and_render(
     _eff_lang = eff_cfg.get("mode_language", "") or DEFAULT_LANGUAGE
     date_str = _format_date_str(date_ctx, _eff_lang)
 
-    img = _render_for_persona(
+    img, chrome = _render_for_persona(
         persona,
         content,
         date_str=date_str,
@@ -129,7 +129,7 @@ async def generate_and_render(
         colors=colors,
         language=_eff_lang,
     )
-    return img, content
+    return img, content, chrome
 
 
 async def generate_content_only(
@@ -283,7 +283,7 @@ def _render_for_persona(
     mac: str = "",
     colors: int = 2,
     language: str = "zh",
-) -> Image.Image:
+) -> tuple[Image.Image, dict]:
     """Dispatch rendering to the appropriate handler."""
     from .mode_registry import get_registry
     from .renderer import render_mode
@@ -307,9 +307,10 @@ def _render_for_persona(
             weather_code=weather_code_for_bar, time_str=time_str,
             screen_w=screen_w, screen_h=screen_h, colors=colors,
             language=language,
+            chrome_weather_str=weather_str,
         )
 
-    # Builtin Python mode - use original render_mode dispatcher
+    # Builtin Python mode — always raises; kept for stack traces
     return render_mode(
         persona, content,
         date_str=date_str, weather_str=weather_str, battery_pct=battery_pct,

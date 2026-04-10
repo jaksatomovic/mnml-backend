@@ -25,6 +25,7 @@ _VALID_TONES = {"positive", "neutral", "deep", "humor"}
 
 # allowed refresh strategy
 _VALID_STRATEGIES = {"random", "cycle", "time_slot", "smart"}
+_VALID_DEVICE_RENDER_MODES = {"mode", "surface"}
 
 # translatedtonetranslated：translated、translated、translated
 _SAFE_TONE_RE = re.compile(
@@ -94,6 +95,11 @@ class ConfigRequest(BaseModel):
         default=False,
         description="translated",
     )
+    deviceMode: str = Field(default="mode", description="Device render mode: mode | surface")
+    assignedMode: str = Field(default="", description="Assigned legacy mode id")
+    assignedSurface: str = Field(default="", description="Assigned surface id")
+    surfaces: list[dict] = Field(default_factory=list, max_length=50, description="Surface definitions")
+    surfaceSchedule: list[dict] = Field(default_factory=list, max_length=48, description="Surface schedule rules")
 
     @field_validator("mac")
     @classmethod
@@ -238,6 +244,30 @@ class ConfigRequest(BaseModel):
 
             if item:
                 cleaned[key] = item
+        return cleaned
+
+    @field_validator("deviceMode")
+    @classmethod
+    def validate_device_mode(cls, v: str) -> str:
+        mode = str(v or "").strip().lower()
+        if mode not in _VALID_DEVICE_RENDER_MODES:
+            raise ValueError("deviceMode must be 'mode' or 'surface'")
+        return mode
+
+    @field_validator("surfaces")
+    @classmethod
+    def validate_surfaces(cls, v: list[dict]) -> list[dict]:
+        cleaned: list[dict] = []
+        for item in v:
+            if not isinstance(item, dict):
+                continue
+            surface_id = str(item.get("id") or "").strip()
+            if not surface_id:
+                continue
+            normalized = dict(item)
+            normalized["id"] = surface_id
+            normalized["type"] = "surface"
+            cleaned.append(normalized)
         return cleaned
 
 

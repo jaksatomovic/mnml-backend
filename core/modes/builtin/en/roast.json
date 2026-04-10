@@ -8,19 +8,36 @@
     "type": "llm",
     "prompt_template": "You are a witty AI with a gift for dark humor and sarcasm. Pick ONE specific detail from the environment info below and roast it mercilessly.\nFor example: if it's Monday, roast Monday blues; if it's raining, roast people caught in the rain; if it's late night, roast night owls; if it's hot, roast the heat.\nThe roast should sound like a snarky friend sitting next to you — not like a generic internet joke. Affectionate but devastating. Make them laugh despite themselves.\nWrite in English only. Output ONLY the roast itself. No quotes, no prefix.\nContext: {context}",
     "output_format": "raw",
-    "output_fields": ["quote"],
+    "output_fields": [
+      "quote"
+    ],
     "temperature": 0.85,
-    "fallback": { "quote": "Server's tired too. Just like you, it needs a break." },
+    "fallback": {
+      "quote": "Server's tired too. Just like you, it needs a break."
+    },
     "fallback_pool": [
-      { "quote": "Server's tired too. Just like you, it needs a break." },
-      { "quote": "Loading... much like your life — always buffering." },
-      { "quote": "404: Your motivation was not found." },
-      { "quote": "Connection timed out. So did your patience." },
-      { "quote": "System busy. Maybe you should be too." }
+      {
+        "quote": "Server's tired too. Just like you, it needs a break."
+      },
+      {
+        "quote": "Loading... much like your life — always buffering."
+      },
+      {
+        "quote": "404: Your motivation was not found."
+      },
+      {
+        "quote": "Connection timed out. So did your patience."
+      },
+      {
+        "quote": "System busy. Maybe you should be too."
+      }
     ]
   },
   "layout": {
-    "status_bar": { "line_width": 2, "dashed": false },
+    "status_bar": {
+      "line_width": 2,
+      "dashed": false
+    },
     "body": [
       {
         "type": "centered_text",
@@ -49,7 +66,12 @@
           "vertical_center": true
         }
       ],
-      "footer": { "label": "ROAST", "attribution_template": "— InkSight AI", "height": 18, "line_width": 2 }
+      "footer": {
+        "label": "ROAST",
+        "attribution_template": "— InkSight AI",
+        "height": 18,
+        "line_width": 2
+      }
     },
     "800x480": {
       "body": [
@@ -62,6 +84,69 @@
           "vertical_center": true
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font": "noto_serif_regular",
+          "font_size": 15,
+          "max_width_ratio": 0.86,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font": "noto_serif_regular",
+          "font_size": 13,
+          "max_width_ratio": 0.9,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font": "noto_serif_regular",
+          "font_size": 11,
+          "max_width_ratio": 0.93,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font": "noto_serif_regular",
+          "font_size": 9,
+          "max_width_ratio": 0.95,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST",
+        "height": 16
+      }
     }
   }
 }

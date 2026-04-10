@@ -15,17 +15,32 @@
   "content": {
     "type": "computed",
     "provider": "memo",
-    "fallback": {"memo_text": "Set your memo in the config page."},
+    "fallback": {
+      "memo_text": "Set your memo in the config page."
+    },
     "fallback_pool": [
-      {"memo_text": "Set your memo in the config page."},
-      {"memo_text": "Stay positive and keep going!"},
-      {"memo_text": "Focus on the present moment."},
-      {"memo_text": "Remember to stay hydrated."},
-      {"memo_text": "Take a break and look into the distance."}
+      {
+        "memo_text": "Set your memo in the config page."
+      },
+      {
+        "memo_text": "Stay positive and keep going!"
+      },
+      {
+        "memo_text": "Focus on the present moment."
+      },
+      {
+        "memo_text": "Remember to stay hydrated."
+      },
+      {
+        "memo_text": "Take a break and look into the distance."
+      }
     ]
   },
   "layout": {
-    "status_bar": {"line_width": 1, "dashed": false},
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
     "body": [
       {
         "type": "centered_text",
@@ -36,7 +51,9 @@
         "max_width_ratio": 0.85
       }
     ],
-    "footer": {"label": "MEMO"}
+    "footer": {
+      "label": "MEMO"
+    }
   },
   "layout_overrides": {
     "296x128": {
@@ -50,7 +67,10 @@
           "max_width_ratio": 0.92
         }
       ],
-      "footer": {"label": "MEMO", "height": 18}
+      "footer": {
+        "label": "MEMO",
+        "height": 18
+      }
     },
     "800x480": {
       "body": [
@@ -63,6 +83,69 @@
           "max_width_ratio": 0.82
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "memo_text",
+          "font_name": "NotoSerifSC-Light.ttf",
+          "font_size": 15,
+          "vertical_center": true,
+          "max_width_ratio": 0.86
+        }
+      ],
+      "footer": {
+        "label": "MEMO"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "memo_text",
+          "font_name": "NotoSerifSC-Light.ttf",
+          "font_size": 14,
+          "vertical_center": true,
+          "max_width_ratio": 0.9
+        }
+      ],
+      "footer": {
+        "label": "MEMO",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "memo_text",
+          "font_name": "NotoSerifSC-Light.ttf",
+          "font_size": 13,
+          "vertical_center": true,
+          "max_width_ratio": 0.92
+        }
+      ],
+      "footer": {
+        "label": "MEMO",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "memo_text",
+          "font_name": "NotoSerifSC-Light.ttf",
+          "font_size": 10,
+          "vertical_center": true,
+          "max_width_ratio": 0.95
+        }
+      ],
+      "footer": {
+        "label": "MEMO",
+        "height": 16
+      }
     }
   }
 }

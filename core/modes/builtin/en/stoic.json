@@ -104,6 +104,73 @@
           "vertical_center": true
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 18,
+          "max_width_ratio": 0.88,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "???",
+        "attribution_template": "— {author}"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 16,
+          "max_width_ratio": 0.9,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "???",
+        "attribution_template": "— {author}",
+        "height": 24
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 14,
+          "max_width_ratio": 0.92,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "???",
+        "attribution_template": "— {author}",
+        "height": 20
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 11,
+          "max_width_ratio": 0.94,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "???",
+        "attribution_template": "— {author}",
+        "height": 16
+      }
     }
   }
 }

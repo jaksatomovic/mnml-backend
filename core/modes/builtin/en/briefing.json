@@ -268,6 +268,122 @@
           "max_lines": 4
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "section",
+          "title": "HN",
+          "icon": "global",
+          "title_font_size": 12,
+          "children": [
+            {
+              "type": "list",
+              "field": "hn_items",
+              "max_items": 2,
+              "item_template": "{title}",
+              "right_field": "score",
+              "font_size": 11,
+              "item_spacing": 16,
+              "margin_x": 28
+            }
+          ]
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 16
+        },
+        {
+          "type": "text",
+          "field": "insight",
+          "font_size": 11,
+          "align": "left",
+          "margin_x": 16,
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "BRIEFING",
+        "attribution_template": "— AI Brief"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "list",
+          "field": "hn_items",
+          "max_items": 2,
+          "item_template": "{title}",
+          "font_size": 10,
+          "item_spacing": 14,
+          "margin_x": 12
+        },
+        {
+          "type": "text",
+          "field": "insight",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 12,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "BRIEFING",
+        "attribution_template": "— AI Brief",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "list",
+          "field": "hn_items",
+          "max_items": 2,
+          "item_template": "{title}",
+          "font_size": 10,
+          "item_spacing": 12,
+          "margin_x": 8
+        },
+        {
+          "type": "text",
+          "field": "insight",
+          "font_size": 9,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "BRIEFING",
+        "attribution_template": "— AI Brief",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "text",
+          "template": "{ph_name}",
+          "font_size": 10,
+          "align": "center",
+          "margin_x": 6,
+          "max_lines": 1
+        },
+        {
+          "type": "text",
+          "field": "insight",
+          "font_size": 9,
+          "align": "left",
+          "margin_x": 6,
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "BRIEFING",
+        "attribution_template": "— AI Brief",
+        "height": 16
+      }
     }
   }
 }

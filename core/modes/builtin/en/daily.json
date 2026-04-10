@@ -409,6 +409,147 @@
           ]
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "two_column",
+          "left_width": 100,
+          "gap": 8,
+          "left": [
+            {
+              "type": "text",
+              "field": "year",
+              "font_size": 11,
+              "align": "center",
+              "margin_x": 6
+            },
+            {
+              "type": "big_number",
+              "field": "day",
+              "font_size": 40,
+              "align": "center"
+            },
+            {
+              "type": "text",
+              "field": "month_cn",
+              "font_size": 12,
+              "align": "center",
+              "margin_x": 6
+            }
+          ],
+          "right": [
+            {
+              "type": "text",
+              "field": "quote",
+              "font_size": 12,
+              "align": "left",
+              "margin_x": 4,
+              "max_lines": 3
+            },
+            {
+              "type": "text",
+              "template": "— {author}",
+              "font_size": 10,
+              "align": "right",
+              "margin_x": 4,
+              "max_lines": 1
+            }
+          ]
+        }
+      ],
+      "footer": {
+        "label": "DAILY",
+        "attribution_template": "— Carpe Diem"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "big_number",
+          "field": "day",
+          "font_size": 34,
+          "align": "left",
+          "margin_x": 8
+        },
+        {
+          "type": "text",
+          "template": "{month_cn} · {weekday_cn}",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 1
+        },
+        {
+          "type": "text",
+          "field": "quote",
+          "font_size": 11,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "DAILY",
+        "attribution_template": "— Carpe Diem",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "big_number",
+          "field": "day",
+          "font_size": 30,
+          "align": "left",
+          "margin_x": 8
+        },
+        {
+          "type": "text",
+          "field": "quote",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 2
+        },
+        {
+          "type": "text",
+          "template": "— {author}",
+          "font_size": 9,
+          "align": "right",
+          "margin_x": 8,
+          "max_lines": 1
+        }
+      ],
+      "footer": {
+        "label": "DAILY",
+        "attribution_template": "— Carpe Diem",
+        "height": 20
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "big_number",
+          "field": "day",
+          "font_size": 26,
+          "align": "center",
+          "margin_x": 8
+        },
+        {
+          "type": "text",
+          "field": "quote",
+          "font_size": 9,
+          "align": "center",
+          "margin_x": 6,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "DAILY",
+        "attribution_template": "— Carpe Diem",
+        "height": 16
+      }
     }
   }
 }

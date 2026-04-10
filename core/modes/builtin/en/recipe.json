@@ -314,6 +314,98 @@
           "max_lines": 2
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "text",
+          "field": "season",
+          "font": "noto_serif_bold",
+          "font_size": 13,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "breakfast",
+          "font_size": 11,
+          "align": "left",
+          "margin_x": 12,
+          "max_lines": 1
+        },
+        {
+          "type": "text",
+          "field": "tip",
+          "font": "noto_serif_light",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "RECIPE"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "text",
+          "field": "season",
+          "font": "noto_serif_bold",
+          "font_size": 12,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "tip",
+          "font": "noto_serif_light",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 10,
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "RECIPE",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "text",
+          "field": "season",
+          "font": "noto_serif_bold",
+          "font_size": 11,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "tip",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "RECIPE",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "text",
+          "field": "season",
+          "font": "noto_serif_bold",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "RECIPE",
+        "height": 16
+      }
     }
   }
 }

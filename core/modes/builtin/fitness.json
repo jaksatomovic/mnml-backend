@@ -247,9 +247,26 @@
   "layout_overrides": {
     "296x128": {
       "body": [
-        { "type": "text", "field": "workout_name", "font": "noto_serif_bold", "font_size": 13, "align": "left", "margin_x": 8 },
-        { "type": "text", "field": "duration", "font_size": 10, "align": "left", "margin_x": 8 },
-        { "type": "separator", "style": "short", "width": 40 },
+        {
+          "type": "text",
+          "field": "workout_name",
+          "font": "noto_serif_bold",
+          "font_size": 13,
+          "align": "left",
+          "margin_x": 8
+        },
+        {
+          "type": "text",
+          "field": "duration",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 8
+        },
+        {
+          "type": "separator",
+          "style": "short",
+          "width": 40
+        },
         {
           "type": "list",
           "field": "exercises",
@@ -262,16 +279,49 @@
           "numbered": true
         }
       ],
-      "footer": { "label": "FITNESS", "height": 20 }
+      "footer": {
+        "label": "FITNESS",
+        "height": 20
+      }
     },
     "648x480": {
       "body": [
-        { "type": "spacer", "height": 20 },
-        { "type": "text", "field": "workout_name", "font": "noto_serif_bold", "font_size": 22, "align": "center" },
-        { "type": "text", "field": "duration", "font": "noto_serif_regular", "font_size": 18, "align": "center" },
-        { "type": "spacer", "height": 4 },
-        { "type": "separator", "style": "solid", "margin_x": 40, "line_width": 1 },
-        { "type": "icon_text", "icon": "exercise", "text": "translated", "font": "noto_serif_regular", "font_size": 18, "margin_x": 40 },
+        {
+          "type": "spacer",
+          "height": 20
+        },
+        {
+          "type": "text",
+          "field": "workout_name",
+          "font": "noto_serif_bold",
+          "font_size": 22,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "duration",
+          "font": "noto_serif_regular",
+          "font_size": 18,
+          "align": "center"
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "margin_x": 40,
+          "line_width": 1
+        },
+        {
+          "type": "icon_text",
+          "icon": "exercise",
+          "text": "translated",
+          "font": "noto_serif_regular",
+          "font_size": 18,
+          "margin_x": 40
+        },
         {
           "type": "list",
           "field": "exercises",
@@ -284,17 +334,150 @@
           "margin_x": 50,
           "numbered": true
         },
-        { "type": "spacer", "height": 6 },
-        { "type": "separator", "style": "solid", "margin_x": 40, "line_width": 1 },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "margin_x": 40,
+          "line_width": 1
+        },
         {
           "type": "section",
           "title": "",
           "icon": "tips",
           "children": [
-            { "type": "text", "field": "tip", "font": "noto_serif_light", "font_size": 16, "align": "left", "margin_x": 60, "max_lines": 3 }
+            {
+              "type": "text",
+              "field": "tip",
+              "font": "noto_serif_light",
+              "font_size": 16,
+              "align": "left",
+              "margin_x": 60,
+              "max_lines": 3
+            }
           ]
         }
       ]
+    },
+    "slot_lg": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "text",
+          "field": "workout_name",
+          "font_size": 13,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 12
+        },
+        {
+          "type": "text",
+          "field": "duration",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 12
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "list",
+          "field": "exercises",
+          "max_items": 4,
+          "item_template": "{name} · {reps}",
+          "font_size": 10,
+          "item_spacing": 10,
+          "margin_x": 12
+        }
+      ],
+      "footer": {
+        "label": "FITNESS",
+        "attribution_template": "Stay Healthy"
+      }
+    },
+    "slot_md": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "text",
+          "field": "workout_name",
+          "font_size": 12,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 10
+        },
+        {
+          "type": "list",
+          "field": "exercises",
+          "max_items": 3,
+          "item_template": "{name}",
+          "font_size": 10,
+          "item_spacing": 8,
+          "margin_x": 10
+        }
+      ],
+      "footer": {
+        "label": "FITNESS",
+        "attribution_template": "Stay Healthy",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "text",
+          "field": "workout_name",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 8
+        },
+        {
+          "type": "text",
+          "field": "tip",
+          "font_size": 9,
+          "align": "left",
+          "max_lines": 3,
+          "margin_x": 8
+        }
+      ],
+      "footer": {
+        "label": "FITNESS",
+        "attribution_template": "Stay Healthy",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "text",
+          "field": "workout_name",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 6
+        },
+        {
+          "type": "text",
+          "field": "duration",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 6
+        }
+      ],
+      "footer": {
+        "label": "FITNESS",
+        "attribution_template": "Stay Healthy",
+        "height": 16
+      }
     }
   }
 }

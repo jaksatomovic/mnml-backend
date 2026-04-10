@@ -258,6 +258,93 @@
           "max_lines": 2
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 12,
+          "align": "center"
+        },
+        {
+          "type": "list",
+          "field": "lines",
+          "max_items": 5,
+          "item_template": "{_value}",
+          "font": "noto_serif_regular",
+          "font_size": 13,
+          "item_spacing": 14,
+          "margin_x": 16,
+          "align": "center"
+        }
+      ],
+      "footer": {
+        "label": "??",
+        "attribution_template": "— {author}",
+        "dashed": true
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "list",
+          "field": "lines",
+          "max_items": 4,
+          "item_template": "{_value}",
+          "font": "noto_serif_regular",
+          "font_size": 11,
+          "item_spacing": 12,
+          "margin_x": 12,
+          "align": "center"
+        }
+      ],
+      "footer": {
+        "label": "??",
+        "attribution_template": "— {author}",
+        "dashed": true,
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "list",
+          "field": "lines",
+          "max_items": 3,
+          "item_template": "{_value}",
+          "font": "noto_serif_regular",
+          "font_size": 10,
+          "item_spacing": 10,
+          "margin_x": 8,
+          "align": "center"
+        }
+      ],
+      "footer": {
+        "label": "??",
+        "attribution_template": "— {author}",
+        "dashed": true,
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "??",
+        "attribution_template": "— {author}",
+        "dashed": true,
+        "height": 16
+      }
     }
   }
 }

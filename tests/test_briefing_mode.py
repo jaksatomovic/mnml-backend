@@ -48,7 +48,7 @@ async def main():
     print(f"\n=== AI Insight ===")
     print(content['insight'])
     
-    img = render_json_mode(
+    img, _ = render_json_mode(
         mode_def,
         content,
         date_str="2/14 Sat",

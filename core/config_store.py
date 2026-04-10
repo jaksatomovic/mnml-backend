@@ -82,6 +82,11 @@ async def init_db():
                 time_slot_rules TEXT DEFAULT '[]',
                 memo_text TEXT DEFAULT '',
                 mode_overrides TEXT DEFAULT '{}',
+                device_mode TEXT DEFAULT 'mode',
+                assigned_mode TEXT DEFAULT '',
+                assigned_surface TEXT DEFAULT '',
+                surfaces_json TEXT DEFAULT '[]',
+                surface_schedule_json TEXT DEFAULT '[]',
                 focus_listening INTEGER DEFAULT 0,
                 always_active INTEGER DEFAULT 0,
                 is_active INTEGER DEFAULT 1,
@@ -124,6 +129,11 @@ async def init_db():
                         time_slot_rules TEXT DEFAULT '[]',
                         memo_text TEXT DEFAULT '',
                         mode_overrides TEXT DEFAULT '{}',
+                        device_mode TEXT DEFAULT 'mode',
+                        assigned_mode TEXT DEFAULT '',
+                        assigned_surface TEXT DEFAULT '',
+                        surfaces_json TEXT DEFAULT '[]',
+                        surface_schedule_json TEXT DEFAULT '[]',
                         focus_listening INTEGER DEFAULT 0,
                         always_active INTEGER DEFAULT 0,
                         is_active INTEGER DEFAULT 1,
@@ -167,6 +177,11 @@ async def init_db():
             "memo_text": "TEXT DEFAULT ''",
             "mode_overrides": "TEXT DEFAULT '{}'",
             "mode_language": "TEXT DEFAULT ''",
+            "device_mode": "TEXT DEFAULT 'mode'",
+            "assigned_mode": "TEXT DEFAULT ''",
+            "assigned_surface": "TEXT DEFAULT ''",
+            "surfaces_json": "TEXT DEFAULT '[]'",
+            "surface_schedule_json": "TEXT DEFAULT '[]'",
             "focus_listening": "INTEGER DEFAULT 0",
             "always_active": "INTEGER DEFAULT 0",
             "latitude": "REAL",
@@ -553,6 +568,17 @@ async def init_db():
         await db.execute("CREATE INDEX IF NOT EXISTS idx_custom_modes_mode_id ON custom_modes(mode_id)")
         await db.execute("CREATE INDEX IF NOT EXISTS idx_custom_modes_mac ON custom_modes(mac)")
         await db.execute("CREATE INDEX IF NOT EXISTS idx_custom_modes_user_mac ON custom_modes(user_id, mac)")
+
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS surface_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type TEXT NOT NULL,
+                priority TEXT DEFAULT 'normal',
+                payload_json TEXT DEFAULT '{}',
+                created_at TEXT NOT NULL
+            )
+        """)
+        await db.execute("CREATE INDEX IF NOT EXISTS idx_surface_events_created_at ON surface_events(created_at DESC)")
 
         await run_main_db_migrations(
             db,
@@ -1452,6 +1478,8 @@ async def save_config(mac: str, data: dict) -> int:
     mode_overrides_json = json.dumps(
         data.get("modeOverrides", {}), ensure_ascii=False
     )
+    surfaces_json = json.dumps(data.get("surfaces", []), ensure_ascii=False)
+    surface_schedule_json = json.dumps(data.get("surfaceSchedule", []), ensure_ascii=False)
     # API keys are no longer stored in device configs.
     # They now live in the user-level user_llm_config table.
     # We rely on the configs table default for is_active=1 instead of writing it explicitly.
@@ -1461,8 +1489,8 @@ async def save_config(mac: str, data: dict) -> int:
            (mac, nickname, modes, refresh_strategy, character_tones,
             language, mode_language, content_tone, city, latitude, longitude, timezone, admin1, country,
             refresh_interval, llm_provider, llm_model, image_provider, image_model,
-            countdown_events, time_slot_rules, memo_text, mode_overrides, focus_listening, always_active, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            countdown_events, time_slot_rules, memo_text, mode_overrides, device_mode, assigned_mode, assigned_surface, surfaces_json, surface_schedule_json, focus_listening, always_active, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             mac,
             data.get("nickname", ""),
@@ -1487,6 +1515,11 @@ async def save_config(mac: str, data: dict) -> int:
             time_slot_rules_json,
             memo_text,
             mode_overrides_json,
+            str(data.get("deviceMode", "mode") or "mode").strip().lower(),
+            str(data.get("assignedMode", "") or "").strip().upper(),
+            str(data.get("assignedSurface", "") or "").strip(),
+            surfaces_json,
+            surface_schedule_json,
             1 if bool(data.get("is_focus_listening", False)) else 0,
             1 if bool(data.get("always_active", False)) else 0,
             now,
@@ -1540,6 +1573,10 @@ async def update_focus_listening(mac: str, enabled: bool) -> bool:
     time_slot_rules_json = tsr_val if isinstance(tsr_val, str) else json.dumps(tsr_val, ensure_ascii=False)
     mo_val = prev.get("mode_overrides", "{}")
     mode_overrides_json = mo_val if isinstance(mo_val, str) else json.dumps(mo_val, ensure_ascii=False)
+    surfaces_val = prev.get("surfaces_json", "[]")
+    surfaces_json = surfaces_val if isinstance(surfaces_val, str) else json.dumps(surfaces_val, ensure_ascii=False)
+    schedule_val = prev.get("surface_schedule_json", "[]")
+    schedule_json = schedule_val if isinstance(schedule_val, str) else json.dumps(schedule_val, ensure_ascii=False)
 
     for attempt in range(5):
         try:
@@ -1547,8 +1584,8 @@ async def update_focus_listening(mac: str, enabled: bool) -> bool:
                 """INSERT INTO configs
                    (mac, nickname, modes, refresh_strategy, character_tones,
                     language, mode_language, content_tone, city, refresh_interval, llm_provider, llm_model, image_provider, image_model,
-                    countdown_events, time_slot_rules, memo_text, mode_overrides, focus_listening, always_active, is_active, created_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)""",
+                    countdown_events, time_slot_rules, memo_text, mode_overrides, device_mode, assigned_mode, assigned_surface, surfaces_json, surface_schedule_json, focus_listening, always_active, is_active, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)""",
                 (
                     normalized_mac,
                     prev.get("nickname", "") or "",
@@ -1568,6 +1605,11 @@ async def update_focus_listening(mac: str, enabled: bool) -> bool:
                     time_slot_rules_json,
                     str(prev.get("memo_text", "") or ""),
                     mode_overrides_json,
+                    str(prev.get("device_mode", "mode") or "mode").strip().lower(),
+                    str(prev.get("assigned_mode", "") or "").strip().upper(),
+                    str(prev.get("assigned_surface", "") or "").strip(),
+                    surfaces_json,
+                    schedule_json,
                     1 if enabled else 0,
                     1 if bool(prev.get("always_active", False)) else 0,
                     datetime.now().isoformat(),
@@ -1675,6 +1717,28 @@ def _row_to_dict(row, columns) -> dict:
         mo = {}
     d["mode_overrides"] = mo
     d["modeOverrides"] = mo
+    d["device_mode"] = str(d.get("device_mode", "mode") or "mode").strip().lower()
+    d["deviceMode"] = d["device_mode"]
+    d["assigned_mode"] = str(d.get("assigned_mode", "") or "").strip().upper()
+    d["assignedMode"] = d["assigned_mode"]
+    d["assigned_surface"] = str(d.get("assigned_surface", "") or "").strip()
+    d["assignedSurface"] = d["assigned_surface"]
+    surfaces_raw = d.get("surfaces_json", "[]")
+    try:
+        surfaces = json.loads(surfaces_raw) if isinstance(surfaces_raw, str) else surfaces_raw
+    except (json.JSONDecodeError, TypeError):
+        surfaces = []
+    if not isinstance(surfaces, list):
+        surfaces = []
+    d["surfaces"] = surfaces
+    schedule_raw = d.get("surface_schedule_json", "[]")
+    try:
+        schedule = json.loads(schedule_raw) if isinstance(schedule_raw, str) else schedule_raw
+    except (json.JSONDecodeError, TypeError):
+        schedule = []
+    if not isinstance(schedule, list):
+        schedule = []
+    d["surfaceSchedule"] = schedule
     d["focus_listening"] = int(d.get("focus_listening", 0) or 0)
     d["is_focus_listening"] = bool(d["focus_listening"])
     d["always_active"] = int(d.get("always_active", 0) or 0)
@@ -2090,6 +2154,72 @@ async def validate_device_token(mac: str, token: str) -> bool:
     if not row or not row[0]:
         return False
     return row[0] == token
+
+
+async def append_surface_event(event_type: str, priority: str, payload: dict) -> int:
+    now = datetime.now().isoformat()
+    db = await get_main_db()
+    event_id = await execute_insert_returning_id(
+        db,
+        """INSERT INTO surface_events (event_type, priority, payload_json, created_at)
+           VALUES (?, ?, ?, ?)""",
+        (
+            str(event_type or "").strip(),
+            str(priority or "normal").strip().lower(),
+            json.dumps(payload or {}, ensure_ascii=False),
+            now,
+        ),
+    )
+    await db.execute(
+        """DELETE FROM surface_events
+           WHERE id NOT IN (
+               SELECT id FROM surface_events ORDER BY created_at DESC LIMIT 200
+           )"""
+    )
+    await db.commit()
+    return event_id
+
+
+async def get_recent_surface_events(limit: int = 50) -> list[dict]:
+    safe_limit = max(1, min(int(limit or 50), 200))
+    db = await get_main_db()
+    cursor = await db.execute(
+        """SELECT id, event_type, priority, payload_json, created_at
+           FROM surface_events
+           ORDER BY created_at DESC
+           LIMIT ?""",
+        (safe_limit,),
+    )
+    rows = await cursor.fetchall()
+    results: list[dict] = []
+    for row in rows:
+        try:
+            payload = json.loads(row[3]) if row[3] else {}
+        except (json.JSONDecodeError, TypeError):
+            payload = {}
+        results.append(
+            {
+                "id": row[0],
+                "type": row[1],
+                "priority": row[2] or "normal",
+                "data": payload if isinstance(payload, dict) else {},
+                "timestamp": row[4],
+            }
+        )
+    return results
+
+
+async def list_active_surface_device_configs() -> list[dict]:
+    db = await get_main_db()
+    db.row_factory = None
+    cursor = await db.execute(
+        "SELECT * FROM configs WHERE is_active = 1 AND LOWER(COALESCE(device_mode, 'mode')) = 'surface'"
+    )
+    rows = await cursor.fetchall()
+    if not rows:
+        return []
+    columns = [desc[0] for desc in cursor.description]
+    return [_row_to_dict(row, columns) for row in rows]
 
 
 # ── User LLM Config (Global user-level settings) ──────────────────────

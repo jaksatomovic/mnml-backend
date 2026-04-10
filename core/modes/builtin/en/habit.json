@@ -7,15 +7,38 @@
   "content": {
     "type": "computed",
     "provider": "habit",
-    "fallback": {"habits": [], "summary": "Set up habits to track in the config page.", "week_progress": 0, "week_total": 7},
+    "fallback": {
+      "habits": [],
+      "summary": "Set up habits to track in the config page.",
+      "week_progress": 0,
+      "week_total": 7
+    },
     "fallback_pool": [
-      {"habits": [], "summary": "Set up habits to track in the config page.", "week_progress": 0, "week_total": 7},
-      {"habits": [], "summary": "Consistency is the key to success.", "week_progress": 0, "week_total": 7},
-      {"habits": [], "summary": "Every day is a fresh start.", "week_progress": 0, "week_total": 7}
+      {
+        "habits": [],
+        "summary": "Set up habits to track in the config page.",
+        "week_progress": 0,
+        "week_total": 7
+      },
+      {
+        "habits": [],
+        "summary": "Consistency is the key to success.",
+        "week_progress": 0,
+        "week_total": 7
+      },
+      {
+        "habits": [],
+        "summary": "Every day is a fresh start.",
+        "week_progress": 0,
+        "week_total": 7
+      }
     ]
   },
   "layout": {
-    "status_bar": {"line_width": 1, "dashed": false},
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
     "body": [
       {
         "type": "centered_text",
@@ -26,7 +49,9 @@
         "vertical_center": true
       }
     ],
-    "footer": {"label": "HABIT"}
+    "footer": {
+      "label": "HABIT"
+    }
   },
   "layout_overrides": {
     "296x128": {
@@ -40,7 +65,10 @@
           "vertical_center": true
         }
       ],
-      "footer": {"label": "HABIT", "height": 18}
+      "footer": {
+        "label": "HABIT",
+        "height": 18
+      }
     },
     "800x480": {
       "body": [
@@ -53,6 +81,69 @@
           "vertical_center": true
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "summary",
+          "font": "noto_serif_regular",
+          "font_size": 15,
+          "max_width_ratio": 0.86,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "HABIT"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "summary",
+          "font": "noto_serif_regular",
+          "font_size": 14,
+          "max_width_ratio": 0.88,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "HABIT",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "summary",
+          "font": "noto_serif_regular",
+          "font_size": 12,
+          "max_width_ratio": 0.92,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "HABIT",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "summary",
+          "font": "noto_serif_regular",
+          "font_size": 10,
+          "max_width_ratio": 0.95,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "HABIT",
+        "height": 16
+      }
     }
   }
 }

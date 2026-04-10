@@ -343,6 +343,26 @@ def _to_json_safe(value: Any) -> Any:
     return value
 
 
+async def get_latest_render_content_for_mode(mac: str, mode_id: str) -> Optional[dict]:
+    """Latest stored content for a device/mode (footer template resolution on cache hits)."""
+    if not mac or not mode_id:
+        return None
+    db = await get_main_db()
+    cursor = await db.execute(
+        """SELECT content FROM content_history
+           WHERE mac = ? AND mode_id = ?
+           ORDER BY created_at DESC LIMIT 1""",
+        (mac, mode_id.upper()),
+    )
+    row = await cursor.fetchone()
+    if not row or not row[0]:
+        return None
+    try:
+        return json.loads(row[0]) if isinstance(row[0], str) else None
+    except (json.JSONDecodeError, TypeError, ValueError):
+        return None
+
+
 async def save_render_content(mac: str, mode_id: str, content: Optional[dict]):
     """Save rendered content to history for dedup and browsing."""
     now = datetime.now().isoformat()

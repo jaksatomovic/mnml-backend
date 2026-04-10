@@ -31,5 +31,71 @@
     "footer": {
       "line_width": 0
     }
+  },
+  "layout_overrides": {
+    "slot_lg": {
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "width": 320,
+          "height": 216,
+          "x": 0,
+          "y": 0,
+          "margin_bottom": 0
+        }
+      ],
+      "footer": {
+        "line_width": 0
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "width": 260,
+          "height": 176,
+          "x": 0,
+          "y": 0,
+          "margin_bottom": 0
+        }
+      ],
+      "footer": {
+        "line_width": 0
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "width": 200,
+          "height": 136,
+          "x": 0,
+          "y": 0,
+          "margin_bottom": 0
+        }
+      ],
+      "footer": {
+        "line_width": 0
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "width": 160,
+          "height": 108,
+          "x": 0,
+          "y": 0,
+          "margin_bottom": 0
+        }
+      ],
+      "footer": {
+        "line_width": 0
+      }
+    }
   }
 }

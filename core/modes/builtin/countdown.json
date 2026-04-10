@@ -164,7 +164,10 @@
           "align": "center"
         }
       ],
-      "footer": { "label": "translated", "height": 18 }
+      "footer": {
+        "label": "translated",
+        "height": 18
+      }
     },
     "800x480": {
       "body": [
@@ -219,6 +222,111 @@
           "align": "center"
         }
       ]
+    },
+    "slot_lg": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "text",
+          "field": "message",
+          "font": "noto_serif_regular",
+          "font_size": 14,
+          "align": "center",
+          "margin_x": 20,
+          "max_lines": 2
+        },
+        {
+          "type": "list",
+          "field": "events",
+          "max_items": 1,
+          "item_template": "{name}",
+          "font_size": 12,
+          "align": "center"
+        },
+        {
+          "type": "list",
+          "field": "events",
+          "max_items": 1,
+          "item_template": "{days} translated",
+          "font_size": 40,
+          "align": "center"
+        }
+      ],
+      "footer": {
+        "label": "translated",
+        "attribution_template": "— translated"
+      }
+    },
+    "slot_md": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "text",
+          "field": "message",
+          "font": "noto_serif_regular",
+          "font_size": 12,
+          "align": "center",
+          "margin_x": 14,
+          "max_lines": 1
+        },
+        {
+          "type": "list",
+          "field": "events",
+          "max_items": 1,
+          "item_template": "{days} translated",
+          "font_size": 32,
+          "align": "center"
+        }
+      ],
+      "footer": {
+        "label": "translated",
+        "attribution_template": "— translated",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "list",
+          "field": "events",
+          "max_items": 1,
+          "item_template": "{name}",
+          "font_size": 10,
+          "align": "center"
+        },
+        {
+          "type": "list",
+          "field": "events",
+          "max_items": 1,
+          "item_template": "{days} translated",
+          "font_size": 28,
+          "align": "center"
+        }
+      ],
+      "footer": {
+        "label": "translated",
+        "attribution_template": "— translated",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "list",
+          "field": "events",
+          "max_items": 1,
+          "item_template": "{days} translated",
+          "font_size": 22,
+          "align": "center"
+        }
+      ],
+      "footer": {
+        "label": "translated",
+        "attribution_template": "— translated",
+        "height": 16
+      }
     }
   }
 }

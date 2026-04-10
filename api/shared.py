@@ -686,9 +686,9 @@ async def build_image(
                                     last_persona=persona,
                                     last_refresh_at=datetime.now().isoformat(),
                                 )
-                                return img, persona, False, True, quota_exhausted, False, False, usage_source
+                                return img, persona, False, True, quota_exhausted, False, False, usage_source, None
                             # Web translated：translatedimage，translated JSON translated
-                            return None, persona, False, True, quota_exhausted, False, False, usage_source
+                            return None, persona, False, True, quota_exhausted, False, False, usage_source, None
                         if int(quota.get("free_quota_remaining") or 0) <= 0:
                             quota_exhausted = True
                             logger.info(
@@ -705,9 +705,9 @@ async def build_image(
                                     last_persona=persona,
                                     last_refresh_at=datetime.now().isoformat(),
                                 )
-                                return img, persona, False, True, quota_exhausted, False, False, usage_source
+                                return img, persona, False, True, quota_exhausted, False, False, usage_source, None
                             # Web translated：translatedimage，translated JSON translated
-                            return None, persona, False, True, quota_exhausted, False, False, usage_source
+                            return None, persona, False, True, quota_exhausted, False, False, usage_source, None
                 except Exception:
                     logger.warning(
                         "[QUOTA] Failed to check quota on cache hit for user_id=%s (mac=%s, mode=%s), allowing cache",
@@ -724,6 +724,7 @@ async def build_image(
         img = None
 
     content_data = None
+    render_chrome_out: Optional[dict] = None
     content_fallback = False
 
     # Cache Miss + translated LLM + translated：translated
@@ -775,7 +776,7 @@ async def build_image(
                         last_persona=persona,
                         last_refresh_at=datetime.now().isoformat(),
                     )
-                    return img, persona, False, True, quota_exhausted, False, False, usage_source
+                    return img, persona, False, True, quota_exhausted, False, False, usage_source, None
                 if int(quota.get("free_quota_remaining") or 0) <= 0:
                     quota_exhausted = True
                     logger.info(
@@ -793,8 +794,8 @@ async def build_image(
                             last_persona=persona,
                             last_refresh_at=datetime.now().isoformat(),
                         )
-                        return img, persona, False, True, quota_exhausted, False, False, usage_source
-                    return None, persona, False, True, quota_exhausted, False, False, usage_source
+                        return img, persona, False, True, quota_exhausted, False, False, usage_source, None
+                    return None, persona, False, True, quota_exhausted, False, False, usage_source, None
         except Exception:
             quota = None
             logger.warning(
@@ -821,7 +822,7 @@ async def build_image(
                         last_persona=persona,
                         last_refresh_at=datetime.now().isoformat(),
                     )
-                    return img, persona, False, True, quota_exhausted, False, False, usage_source
+                    return img, persona, False, True, quota_exhausted, False, False, usage_source, None
             except Exception:
                 # translated role translated，translated，translated
                 logger.warning(
@@ -837,17 +838,17 @@ async def build_image(
                     last_persona=persona,
                     last_refresh_at=datetime.now().isoformat(),
                 )
-                return img, persona, False, True, quota_exhausted, False, False, usage_source
+                return img, persona, False, True, quota_exhausted, False, False, usage_source, None
             # translated，translated，translated"translated"image
             await update_device_state(
                 mac,
                 last_persona=persona,
                 last_refresh_at=datetime.now().isoformat(),
             )
-            return img, persona, False, True, quota_exhausted, False, False, usage_source
+            return img, persona, False, True, quota_exhausted, False, False, usage_source, None
 
     if intent_only:
-        return img, persona, cache_hit, content_fallback, quota_exhausted, False, llm_mode_requires_quota, usage_source
+        return img, persona, cache_hit, content_fallback, quota_exhausted, False, llm_mode_requires_quota, usage_source, None
 
     if not cache_hit:
         effective_cfg = get_effective_mode_config(config, persona)
@@ -857,7 +858,7 @@ async def build_image(
             get_date_context(timezone_name=timezone_name),
             get_weather(**location_args),
         )
-        img, content_data = await generate_and_render(
+        img, content_data, render_chrome_out = await generate_and_render(
             persona,
             config,
             date_ctx,
@@ -959,7 +960,47 @@ async def build_image(
                 last_refresh_at=datetime.now().isoformat(),
             )
 
-    return img, persona, cache_hit, content_fallback, quota_exhausted, api_key_invalid, llm_mode_requires_quota, usage_source
+    chrome_meta: Optional[dict] = None
+    try:
+        if img is not None and not api_key_invalid:
+            from core.render_chrome import assemble_render_chrome
+
+            if cache_hit:
+                chrome_meta = await assemble_render_chrome(
+                    mac=mac,
+                    persona=persona,
+                    config=config,
+                    content_data=content_data,
+                    v=v,
+                    screen_w=screen_w,
+                    screen_h=screen_h,
+                )
+            elif render_chrome_out is not None:
+                chrome_meta = render_chrome_out
+            else:
+                chrome_meta = await assemble_render_chrome(
+                    mac=mac,
+                    persona=persona,
+                    config=config,
+                    content_data=content_data,
+                    v=v,
+                    screen_w=screen_w,
+                    screen_h=screen_h,
+                )
+    except Exception:
+        logger.warning("[CHROME] Failed to assemble UI chrome metadata", exc_info=True)
+
+    return (
+        img,
+        persona,
+        cache_hit,
+        content_fallback,
+        quota_exhausted,
+        api_key_invalid,
+        llm_mode_requires_quota,
+        usage_source,
+        chrome_meta,
+    )
 
 
 async def log_render_stats(

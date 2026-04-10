@@ -22,6 +22,7 @@ from openai import OpenAIError
 from .config import DEFAULT_LLM_PROVIDER, DEFAULT_LLM_MODEL, DEFAULT_IMAGE_PROVIDER, DEFAULT_IMAGE_MODEL
 from .content import _build_context_str, _build_style_instructions, _call_llm, _clean_json_response
 from .errors import LLMKeyMissingError
+from .render_tiers import SLOT_TIER_FULL, classify_slot_tier
 
 logger = logging.getLogger(__name__)
 
@@ -299,11 +300,25 @@ async def generate_json_mode_content(
     if style:
         base_prompt += style
 
-    if screen_h < 200:
+    tier = classify_slot_tier(screen_w, screen_h)
+    if tier != SLOT_TIER_FULL:
         if language == "en":
-            base_prompt += "\nNote: Content will be displayed on a tiny screen (296×128px). Keep all text very short."
+            base_prompt += (
+                f"\nNote: Content is shown in a compact tile ({screen_w}×{screen_h}px, layout tier {tier}). "
+                "Keep text short."
+            )
+        elif language == "zh":
+            base_prompt += (
+                f"\n注意：该内容将在较小的显示区域（{screen_w}×{screen_h}像素，档位{tier}）呈现，请保持简短。"
+            )
+        elif language == "hr":
+            base_prompt += (
+                f"\nNapomena: prikaz je u kompaktnom okviru ({screen_w}×{screen_h} px, {tier}). Drži tekst kratak."
+            )
         else:
-            base_prompt += "\ntranslated：translated（296×128translated），translated。"
+            base_prompt += (
+                f"\nNote: Content is shown in a compact tile ({screen_w}×{screen_h}px). Keep text short."
+            )
 
     mode_id = mode_def.get("mode_id", "CUSTOM")
     logger.info(f"[JSONContent] Generating content for {mode_id} via {provider}/{model}")

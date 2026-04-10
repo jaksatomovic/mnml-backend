@@ -189,6 +189,69 @@
           "max_lines": 2
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "body",
+          "font": "noto_serif_regular",
+          "font_size": 15,
+          "max_width_ratio": 0.86,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "LETTER"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "body",
+          "font": "noto_serif_regular",
+          "font_size": 13,
+          "max_width_ratio": 0.9,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "LETTER",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "body",
+          "font": "noto_serif_regular",
+          "font_size": 11,
+          "max_width_ratio": 0.93,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "LETTER",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "body",
+          "font": "noto_serif_regular",
+          "font_size": 9,
+          "max_width_ratio": 0.95,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "LETTER",
+        "height": 16
+      }
     }
   }
 }

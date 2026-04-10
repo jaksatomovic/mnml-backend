@@ -243,7 +243,7 @@ async def test_build_image_prefers_owner_image_provider_over_device_config(sampl
 
     async def _fake_generate_and_render(persona, config, date_ctx, weather, battery_pct, **kwargs):
         captured["config"] = config
-        return Image.new("1", (400, 300), 1), {"quote": "ok"}
+        return Image.new("1", (400, 300), 1), {"quote": "ok"}, {}
 
     async def _fake_get_active_config(mac):
         assert mac == "AA:BB:CC:DD:EE:88"

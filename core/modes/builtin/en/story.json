@@ -214,6 +214,91 @@
           "max_lines": 4
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 14,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "opening",
+          "font_size": 11,
+          "align": "left",
+          "margin_x": 12,
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "STORY"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 12,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "opening",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 10,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "STORY",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 2
+        },
+        {
+          "type": "text",
+          "field": "twist",
+          "font_size": 9,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "STORY",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "STORY",
+        "height": 16
+      }
     }
   }
 }

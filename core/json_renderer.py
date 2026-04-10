@@ -22,8 +22,6 @@ from .patterns.utils import (
     EINK_BG,
     EINK_FG,
     apply_text_fontmode,
-    draw_status_bar,
-    draw_footer,
     draw_dashed_line,
     load_font,
     load_font_by_name,
@@ -33,6 +31,8 @@ from .patterns.utils import (
     has_cjk,
 )
 from .mode_catalog import builtin_catalog_map
+from .render_chrome import build_render_chrome
+from .render_tiers import merge_layout_for_screen
 
 logger = logging.getLogger(__name__)
 
@@ -248,8 +248,12 @@ def render_json_mode(
     screen_h: int = SCREEN_HEIGHT,
     colors: int = 2,
     language: str = "zh",
-) -> Image.Image:
-    """Render a JSON-defined mode to an e-ink image (1-bit or 4-color palette)."""
+    chrome_weather_str: str | None = None,
+) -> tuple[Image.Image, dict]:
+    """Render a JSON-defined mode to an e-ink image (1-bit or 4-color palette).
+
+    Status bar and footer are not drawn; :func:`build_render_chrome` fills metadata for firmware.
+    """
     if colors >= 3:
         img = Image.new("P", (screen_w, screen_h), EINK_BG)
         pal = EINK_4COLOR_PALETTE + [0] * (768 - len(EINK_4COLOR_PALETTE))
@@ -258,39 +262,19 @@ def render_json_mode(
         img = Image.new("1", (screen_w, screen_h), EINK_BG)
     draw = ImageDraw.Draw(img)
     apply_text_fontmode(draw)
-    layout = mode_def.get("layout", {})
-
-    # Select screen-size-specific layout override if available
+    base_layout = mode_def.get("layout", {})
     overrides = mode_def.get("layout_overrides", {})
-    size_key = f"{screen_w}x{screen_h}"
-    if size_key in overrides:
-        layout = {**layout, **overrides[size_key]}
-
-    # 1. Status bar
-    sb = layout.get("status_bar", {})
-    draw_status_bar(
-        draw, img, date_str, weather_str, int(battery_pct), weather_code,
-        line_width=sb.get("line_width", 1),
-        dashed=sb.get("dashed", False),
-        time_str=time_str,
-        screen_w=screen_w, screen_h=screen_h,
-        colors=colors,
-        language=language,
+    layout = merge_layout_for_screen(
+        base_layout if isinstance(base_layout, dict) else {},
+        overrides if isinstance(overrides, dict) else None,
+        screen_w=screen_w,
+        screen_h=screen_h,
     )
 
-    ft_layout = layout.get("footer", {})
-    status_bar_pct = sb.get("bottom_pct")
-    if status_bar_pct is None:
-        status_bar_pct = 0.10 if screen_h < 200 else 0.12
-    try:
-        status_bar_pct = float(status_bar_pct)
-    except (TypeError, ValueError):
-        status_bar_pct = 0.10 if screen_h < 200 else 0.12
-    status_bar_bottom = int(screen_h * status_bar_pct)
-    scale = screen_w / 400.0
-    min_scale = min(scale, screen_h / 300.0)
-    footer_height = int(ft_layout.get("height", 30) * min_scale)
-    footer_top = screen_h - footer_height
+    # Body uses full canvas; status bar / footer are handled by device firmware (see build_render_chrome).
+    status_bar_bottom = 0
+    footer_height = 0
+    footer_top = screen_h
 
     # 2. Body blocks
     body = layout.get("body", [])
@@ -343,28 +327,22 @@ def render_json_mode(
                 break
             _render_block(ctx, block)
 
-    # 3. Footer
-    ft = ft_layout
-    mode_id = mode_def.get("mode_id", "")
-    label = _localized_footer_label(mode_id, ft.get("label", mode_id), language)
-    attribution = ctx.resolve(ft.get("attribution_template", "")) if ft.get("attribution_template") else ""
-    attribution = _localized_footer_attribution(mode_id, attribution, language)
-    _attr_font_size = ft.get("font_size")
-    if _attr_font_size is not None:
-        _attr_font_size = int(_attr_font_size * scale)
-    draw_footer(
-        draw, img, label, attribution,
-        mode_id=mode_id,
-        weather_code=content.get("today_code", content.get("code")),
-        line_width=ft.get("line_width", 1),
-        dashed=ft.get("dashed", False),
-        attr_font_size=_attr_font_size,
-        screen_w=screen_w, screen_h=screen_h,
-        colors=colors,
+    mode_id = str(mode_def.get("mode_id", "") or "")
+    header_weather = chrome_weather_str if chrome_weather_str is not None else weather_str
+    chrome = build_render_chrome(
+        mode_def,
+        content,
+        mode_id=mode_id.upper(),
+        date_str=date_str,
         time_str=time_str,
+        weather_str=header_weather,
+        battery_pct=battery_pct,
+        weather_code=weather_code,
+        language=language,
+        screen_w=screen_w,
+        screen_h=screen_h,
     )
-
-    return img
+    return img, chrome
 
 
 # ── Block dispatcher ─────────────────────────────────────────

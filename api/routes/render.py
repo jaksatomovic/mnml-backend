@@ -7,7 +7,7 @@ from json import JSONDecodeError
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Cookie, Depends, Header, Query, Request, Response
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from PIL import Image, UnidentifiedImageError
 
 from api.shared import (
@@ -27,20 +27,41 @@ from api.shared import (
 from core.auth import require_device_token, validate_mac_param
 from core.config import DEFAULT_REFRESH_INTERVAL, SCREEN_HEIGHT, SCREEN_WIDTH
 from core.config_store import (
+    append_surface_event,
     consume_pending_refresh,
     get_active_config,
     get_device_owner,
     get_device_state,
+    get_recent_surface_events,
     get_or_create_claim_token,
+    list_active_surface_device_configs,
+    set_pending_refresh,
     update_device_state,
 )
 from core.context import extract_location_settings, get_date_context, get_weather
 from core.pipeline import generate_and_render
 from core.renderer import image_to_bmp_bytes, image_to_png_bytes, image_to_raw_2bpp, render_error
 from core.schemas import RenderQuery
+from core.surface_engine import (
+    build_surface_render_payload,
+    evaluate_event_for_device,
+    resolve_device_surface,
+)
+from core.surface_preview_render import render_surface_preview_image
 from core.stats_store import get_latest_heartbeat
 
 router = APIRouter(tags=["render"])
+
+
+def _chrome_header_value(chrome: Optional[dict]) -> Optional[str]:
+    """Compact JSON (UTF-8) as URL-safe base64 without padding, for X-InkSight-Chrome."""
+    if not chrome:
+        return None
+    try:
+        raw = json.dumps(chrome, ensure_ascii=False, separators=(",", ":"))
+        return base64.urlsafe_b64encode(raw.encode("utf-8")).decode("ascii").rstrip("=")
+    except (TypeError, ValueError):
+        return None
 
 
 def _sse_event(event: str, payload: dict) -> str:
@@ -58,6 +79,136 @@ def _configured_refresh_minutes(config: Optional[dict]) -> int:
     if refresh_minutes > 1440:
         return 1440
     return refresh_minutes
+
+
+@router.get("/render-json")
+async def render_json(
+    mac: str = Query(..., description="Device MAC"),
+):
+    mac = validate_mac_param(mac)
+    cfg = await get_active_config(mac, log_load=False)
+    if not cfg:
+        return {"layout": [{"type": "text", "content": "No config", "size": "medium"}], "meta": {"mode": "mode"}}
+
+    device_mode = str(cfg.get("device_mode") or cfg.get("deviceMode") or "mode").strip().lower()
+    if device_mode == "surface":
+        surface, reason = resolve_device_surface(mac, cfg)
+        payload = build_surface_render_payload(surface, reason)
+        payload["meta"]["mode"] = "surface"
+        payload["meta"]["assigned"] = str(cfg.get("assigned_surface") or cfg.get("assignedSurface") or "")
+        return payload
+
+    assigned_mode = str(cfg.get("assigned_mode") or cfg.get("assignedMode") or "").strip().upper()
+    mode_fallback = assigned_mode or (cfg.get("modes", ["STOIC"])[0] if cfg.get("modes") else "STOIC")
+    return {
+        "layout": [{"type": "text", "content": f"Mode: {mode_fallback}", "size": "large"}],
+        "meta": {"mode": "mode", "assigned": mode_fallback, "refresh": {"mode": "polling", "interval": _configured_refresh_minutes(cfg) * 60}},
+    }
+
+
+@router.post("/render-json/preview")
+async def render_json_preview(payload: dict):
+    if not isinstance(payload, dict):
+        return JSONResponse({"error": "invalid_payload"}, status_code=400)
+    surface = payload.get("surface")
+    if not isinstance(surface, dict):
+        return JSONResponse({"error": "surface_required"}, status_code=400)
+    normalized = dict(surface)
+    normalized["type"] = "surface"
+    reason = {"type": "preview"}
+    response = build_surface_render_payload(normalized, reason)
+    response["meta"]["mode"] = "surface"
+    return response
+
+
+@router.post("/preview/surface")
+@limiter.limit("20/minute")
+async def preview_surface(
+    request: Request,
+    x_device_token: Optional[str] = Header(default=None),
+    ink_session: Optional[str] = Cookie(default=None),
+):
+    """PNG preview for Surface layouts (same resolution pipeline as /preview for modes)."""
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "invalid_json"}, status_code=400)
+    if not isinstance(body, dict):
+        return JSONResponse({"error": "invalid_payload"}, status_code=400)
+    surface = body.get("surface")
+    if not isinstance(surface, dict):
+        return JSONResponse({"error": "surface_required"}, status_code=400)
+    try:
+        w = int(body.get("w", SCREEN_WIDTH))
+        h = int(body.get("h", SCREEN_HEIGHT))
+    except (TypeError, ValueError):
+        w, h = SCREEN_WIDTH, SCREEN_HEIGHT
+    w = max(100, min(1600, w))
+    h = max(100, min(1200, h))
+
+    mac_raw = body.get("mac")
+    mac = None
+    if mac_raw not in (None, ""):
+        mac = validate_mac_param(str(mac_raw).strip())
+        await ensure_web_or_device_access(request, mac, x_device_token, ink_session)
+
+    device_config = await get_active_config(mac, log_load=False) if mac else None
+
+    try:
+        img = await render_surface_preview_image(
+            surface,
+            screen_w=w,
+            screen_h=h,
+            device_config=device_config if isinstance(device_config, dict) else None,
+            mac=mac or "",
+        )
+        png_bytes = image_to_png_bytes(img)
+        return Response(
+            content=png_bytes,
+            media_type="image/png",
+            headers={
+                "X-Preview-Surface": "1",
+                "Cache-Control": "no-store",
+            },
+        )
+    except (OSError, RuntimeError, TypeError, ValueError, UnidentifiedImageError):
+        logger.exception("[PREVIEW_SURFACE] render failed")
+        err_img = render_error(mac=mac or "preview", screen_w=w, screen_h=h)
+        return Response(content=image_to_png_bytes(err_img), media_type="image/png", status_code=500)
+
+
+@router.post("/events")
+async def post_event(payload: dict):
+    if not isinstance(payload, dict):
+        return JSONResponse({"error": "invalid_payload"}, status_code=400)
+    event_type = str(payload.get("type") or "").strip()
+    if not event_type:
+        return JSONResponse({"error": "event_type_required"}, status_code=400)
+    priority = str(payload.get("priority") or "normal").strip().lower()
+    event_data = payload.get("data") if isinstance(payload.get("data"), dict) else {}
+    event = {
+        "type": event_type,
+        "priority": priority,
+        "timestamp": payload.get("timestamp") or datetime.now().isoformat(),
+        "data": event_data,
+    }
+    event_id = await append_surface_event(event_type, priority, event)
+    impacted: list[dict] = []
+    for cfg in await list_active_surface_device_configs():
+        mac = str(cfg.get("mac") or "").strip().upper()
+        if not mac:
+            continue
+        matched = evaluate_event_for_device(mac, cfg, event)
+        if matched:
+            impacted.append({"mac": mac, "action": matched.get("action"), "target": matched.get("target")})
+            await set_pending_refresh(mac, True)
+            await update_device_state(mac, pending_mode=str(matched.get("target") or ""))
+    return {"ok": True, "event_id": event_id, "impacted_devices": impacted}
+
+
+@router.get("/events/recent")
+async def recent_events(limit: int = Query(default=20, ge=1, le=200)):
+    return {"events": await get_recent_surface_events(limit)}
 
 
 @router.get("/render")
@@ -168,7 +319,17 @@ async def render(
                     except (TypeError, ValueError, OSError):
                         logger.warning("[RECONNECT] Failed to evaluate reconnect policy for %s", mac, exc_info=True)
 
-        img, resolved_persona, cache_hit, content_fallback, quota_exhausted, api_key_invalid, llm_mode_requires_quota, _usage_source = await build_image(
+        (
+            img,
+            resolved_persona,
+            cache_hit,
+            content_fallback,
+            quota_exhausted,
+            api_key_invalid,
+            llm_mode_requires_quota,
+            _usage_source,
+            chrome_meta,
+        ) = await build_image(
             params.v,
             mac,
             params.persona,
@@ -221,6 +382,9 @@ async def render(
             headers["X-Pending-Refresh"] = "1"
         if content_fallback:
             headers["X-Content-Fallback"] = "1"
+        ch = _chrome_header_value(chrome_meta)
+        if ch:
+            headers["X-InkSight-Chrome"] = ch
 
         return Response(content=out_bytes, media_type=out_media, headers=headers)
     except (OSError, RuntimeError, TypeError, UnidentifiedImageError, ValueError) as exc:
@@ -267,7 +431,7 @@ async def get_widget(
     timezone_name = str(config.get("timezone", "") or "").strip()
     date_ctx = await get_date_context(timezone_name=timezone_name)
     weather = await get_weather(**location_args)
-    img, _ = await generate_and_render(
+    img, _, _ = await generate_and_render(
         persona,
         config,
         date_ctx,
@@ -336,7 +500,17 @@ async def preview(
                 logger.warning("[PREVIEW] Failed to parse mode_override JSON", exc_info=True)
         _ui_lang = (ui_language or "").strip().lower()
         _preview_ui_lang = _ui_lang if _ui_lang in ("zh", "en") else None
-        img, resolved_persona, cache_hit, _content_fallback, quota_exhausted, api_key_invalid, llm_mode_requires_quota, usage_source = await build_image(
+        (
+            img,
+            resolved_persona,
+            cache_hit,
+            _content_fallback,
+            quota_exhausted,
+            api_key_invalid,
+            llm_mode_requires_quota,
+            usage_source,
+            chrome_meta,
+        ) = await build_image(
             effective_v,
             mac,
             persona,
@@ -400,15 +574,19 @@ async def preview(
         # translated（translated）
         status_msg = "no_llm_required" if not llm_mode_requires_quota else ("model_generated" if not _content_fallback else "fallback_used")
         
+        prev_headers = {
+            "X-Cache-Hit": "1" if cache_hit else "0",
+            "X-Preview-Bypass": "1" if no_cache == 1 else "0",
+            "X-Preview-Status": status_msg,
+            "X-Llm-Required": "1" if llm_mode_requires_quota else "0",
+        }
+        ch = _chrome_header_value(chrome_meta)
+        if ch:
+            prev_headers["X-InkSight-Chrome"] = ch
         return Response(
             content=png_bytes,
             media_type="image/png",
-            headers={
-                "X-Cache-Hit": "1" if cache_hit else "0",
-                "X-Preview-Bypass": "1" if no_cache == 1 else "0",
-                "X-Preview-Status": status_msg,
-                "X-Llm-Required": "1" if llm_mode_requires_quota else "0",
-            },
+            headers=prev_headers,
         )
     except (OSError, RuntimeError, TypeError, ValueError, UnidentifiedImageError):
         logger.exception("Exception occurred during preview")
@@ -470,7 +648,17 @@ async def preview_stream(
 
             _ui_lang = (ui_language or "").strip().lower()
             _preview_ui_lang = _ui_lang if _ui_lang in ("zh", "en") else None
-            img, resolved_persona, cache_hit, _content_fallback, quota_exhausted, api_key_invalid, llm_mode_requires_quota, usage_source = await build_image(
+            (
+                img,
+                resolved_persona,
+                cache_hit,
+                _content_fallback,
+                quota_exhausted,
+                api_key_invalid,
+                llm_mode_requires_quota,
+                usage_source,
+                chrome_meta,
+            ) = await build_image(
                 effective_v,
                 mac,
                 persona,
@@ -510,19 +698,19 @@ async def preview_stream(
                 if not llm_mode_requires_quota
                 else ("model_generated" if not _content_fallback else "fallback_used")
             )
-            yield _sse_event(
-                "result",
-                {
-                    "stage": "done",
-                    "message": "translated",
-                    "persona": resolved_persona,
-                    "cache_hit": cache_hit,
-                    "usage_source": usage_source,
-                    "image_url": data_url,
-                    "preview_status": status_msg,
-                    "llm_required": bool(llm_mode_requires_quota),
-                },
-            )
+            result_payload = {
+                "stage": "done",
+                "message": "translated",
+                "persona": resolved_persona,
+                "cache_hit": cache_hit,
+                "usage_source": usage_source,
+                "image_url": data_url,
+                "preview_status": status_msg,
+                "llm_required": bool(llm_mode_requires_quota),
+            }
+            if chrome_meta is not None:
+                result_payload["chrome"] = chrome_meta
+            yield _sse_event("result", result_payload)
         except (OSError, RuntimeError, TypeError, ValueError, UnidentifiedImageError) as exc:
             logger.exception("[PREVIEW_STREAM] Streaming preview failed")
             yield _sse_event("error", {"message": str(exc)})

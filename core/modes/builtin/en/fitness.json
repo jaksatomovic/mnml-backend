@@ -355,6 +355,123 @@
           ]
         }
       ]
+    },
+    "slot_lg": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "text",
+          "field": "workout_name",
+          "font_size": 13,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 12
+        },
+        {
+          "type": "text",
+          "field": "duration",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 12
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "list",
+          "field": "exercises",
+          "max_items": 4,
+          "item_template": "{name} · {reps}",
+          "font_size": 10,
+          "item_spacing": 10,
+          "margin_x": 12
+        }
+      ],
+      "footer": {
+        "label": "FITNESS",
+        "attribution_template": "Stay Healthy"
+      }
+    },
+    "slot_md": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "text",
+          "field": "workout_name",
+          "font_size": 12,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 10
+        },
+        {
+          "type": "list",
+          "field": "exercises",
+          "max_items": 3,
+          "item_template": "{name}",
+          "font_size": 10,
+          "item_spacing": 8,
+          "margin_x": 10
+        }
+      ],
+      "footer": {
+        "label": "FITNESS",
+        "attribution_template": "Stay Healthy",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "text",
+          "field": "workout_name",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 8
+        },
+        {
+          "type": "text",
+          "field": "tip",
+          "font_size": 9,
+          "align": "left",
+          "max_lines": 3,
+          "margin_x": 8
+        }
+      ],
+      "footer": {
+        "label": "FITNESS",
+        "attribution_template": "Stay Healthy",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "text",
+          "field": "workout_name",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 6
+        },
+        {
+          "type": "text",
+          "field": "duration",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 6
+        }
+      ],
+      "footer": {
+        "label": "FITNESS",
+        "attribution_template": "Stay Healthy",
+        "height": 16
+      }
     }
   }
 }

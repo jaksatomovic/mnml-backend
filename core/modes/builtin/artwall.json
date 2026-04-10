@@ -75,7 +75,10 @@
           "height": 86
         }
       ],
-      "footer": { "label": "ARTWALL", "height": 20 }
+      "footer": {
+        "label": "ARTWALL",
+        "height": 20
+      }
     },
     "648x480": {
       "body": [
@@ -93,6 +96,79 @@
           "height": 300
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "text",
+          "field": "artwork_title",
+          "font_size": 12,
+          "align": "center",
+          "max_lines": 1
+        },
+        {
+          "type": "image",
+          "field": "image_url",
+          "width": 220,
+          "height": 148
+        }
+      ],
+      "footer": {
+        "label": "ARTWALL",
+        "attribution_template": "— Ink Art"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "text",
+          "field": "artwork_title",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 1
+        },
+        {
+          "type": "image",
+          "field": "image_url",
+          "width": 180,
+          "height": 120
+        }
+      ],
+      "footer": {
+        "label": "ARTWALL",
+        "attribution_template": "— Ink Art",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "width": 148,
+          "height": 98
+        }
+      ],
+      "footer": {
+        "label": "ARTWALL",
+        "attribution_template": "— Ink Art",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "width": 120,
+          "height": 80
+        }
+      ],
+      "footer": {
+        "label": "ARTWALL",
+        "attribution_template": "— Ink Art",
+        "height": 16
+      }
     }
   }
 }

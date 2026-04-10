@@ -364,6 +364,92 @@
           ]
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "text",
+          "field": "lunar_date",
+          "font_size": 11,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "solar_term",
+          "font_size": 13,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "health_tip",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 12,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "ALMANAC"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "text",
+          "field": "solar_term",
+          "font_size": 12,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "health_tip",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 10,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "ALMANAC",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "text",
+          "field": "lunar_date",
+          "font_size": 10,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "health_tip",
+          "font_size": 9,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "ALMANAC",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "text",
+          "field": "health_tip",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "ALMANAC",
+        "height": 16
+      }
     }
   }
 }

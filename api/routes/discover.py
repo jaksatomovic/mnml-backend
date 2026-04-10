@@ -475,7 +475,7 @@ async def publish_mode(
             )
 
         # translatedimage
-        img = render_json_mode(
+        img, _ = render_json_mode(
             mode_def,
             content,
             date_str=date_ctx["date_str"],

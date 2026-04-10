@@ -38,7 +38,7 @@ async def main():
     print(f"  Image URL: {content.get('image_url', 'N/A')[:50]}...")
     print(f"  Description: {content['description']}")
     
-    img = render_json_mode(
+    img, _ = render_json_mode(
         mode_def,
         content,
         date_str="2/14 Sat",

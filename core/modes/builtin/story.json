@@ -8,11 +8,26 @@
     "type": "llm_json",
     "prompt_template": "translated。translated30translated。\ntranslated JSON translated：\n{{\"title\": \"translated（5translated）\", \"opening\": \"translated（25translated，translated）\", \"twist\": \"translated（30translated，translated）\", \"ending\": \"translated（20translated，translated）\", \"genre\": \"translated（translated/translated/translated/translated）\"}}\ntranslated：\n1. translated，translated\n2. translated/translated\n3. translated，translated\n4. translated（flash fiction），translated\ntranslated JSON。\ntranslated：{context}",
     "output_schema": {
-      "title": { "type": "string", "default": "translated" },
-      "opening": { "type": "string", "default": "translated，translated。" },
-      "twist": { "type": "string", "default": "translated，translated，translated。" },
-      "ending": { "type": "string", "default": "translated：translated。" },
-      "genre": { "type": "string", "default": "translated" }
+      "title": {
+        "type": "string",
+        "default": "translated"
+      },
+      "opening": {
+        "type": "string",
+        "default": "translated，translated。"
+      },
+      "twist": {
+        "type": "string",
+        "default": "translated，translated，translated。"
+      },
+      "ending": {
+        "type": "string",
+        "default": "translated：translated。"
+      },
+      "genre": {
+        "type": "string",
+        "default": "translated"
+      }
     },
     "temperature": 0.92,
     "fallback": {
@@ -24,18 +39,70 @@
     }
   },
   "layout": {
-    "status_bar": { "line_width": 1, "dashed": true },
+    "status_bar": {
+      "line_width": 1,
+      "dashed": true
+    },
     "body": [
-      { "type": "spacer", "height": 6 },
-      { "type": "text", "field": "genre", "font_size": 9, "align": "center" },
-      { "type": "text", "field": "title", "font": "noto_serif_bold", "font_size": 16, "align": "center" },
-      { "type": "separator", "style": "short", "width": 50 },
-      { "type": "spacer", "height": 6 },
-      { "type": "text", "field": "opening", "font_size": 13, "align": "left", "margin_x": 28, "max_lines": 3 },
-      { "type": "spacer", "height": 6 },
-      { "type": "text", "field": "twist", "font_size": 13, "align": "left", "margin_x": 28, "max_lines": 3 },
-      { "type": "spacer", "height": 6 },
-      { "type": "text", "field": "ending", "font": "noto_serif_light", "font_size": 13, "align": "left", "margin_x": 28, "max_lines": 3 }
+      {
+        "type": "spacer",
+        "height": 6
+      },
+      {
+        "type": "text",
+        "field": "genre",
+        "font_size": 9,
+        "align": "center"
+      },
+      {
+        "type": "text",
+        "field": "title",
+        "font": "noto_serif_bold",
+        "font_size": 16,
+        "align": "center"
+      },
+      {
+        "type": "separator",
+        "style": "short",
+        "width": 50
+      },
+      {
+        "type": "spacer",
+        "height": 6
+      },
+      {
+        "type": "text",
+        "field": "opening",
+        "font_size": 13,
+        "align": "left",
+        "margin_x": 28,
+        "max_lines": 3
+      },
+      {
+        "type": "spacer",
+        "height": 6
+      },
+      {
+        "type": "text",
+        "field": "twist",
+        "font_size": 13,
+        "align": "left",
+        "margin_x": 28,
+        "max_lines": 3
+      },
+      {
+        "type": "spacer",
+        "height": 6
+      },
+      {
+        "type": "text",
+        "field": "ending",
+        "font": "noto_serif_light",
+        "font_size": 13,
+        "align": "left",
+        "margin_x": 28,
+        "max_lines": 3
+      }
     ],
     "footer": {
       "label": "STORY",
@@ -46,26 +113,188 @@
   "layout_overrides": {
     "296x128": {
       "body": [
-        { "type": "text", "field": "title", "font": "noto_serif_bold", "font_size": 12, "align": "center" },
-        { "type": "separator", "style": "short", "width": 30 },
-        { "type": "text", "field": "opening", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 2 },
-        { "type": "text", "field": "twist", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 2 }
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 12,
+          "align": "center"
+        },
+        {
+          "type": "separator",
+          "style": "short",
+          "width": 30
+        },
+        {
+          "type": "text",
+          "field": "opening",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 2
+        },
+        {
+          "type": "text",
+          "field": "twist",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 2
+        }
       ],
-      "footer": { "label": "STORY", "dashed": true, "height": 18 }
+      "footer": {
+        "label": "STORY",
+        "dashed": true,
+        "height": 18
+      }
     },
     "800x480": {
       "body": [
-        { "type": "spacer", "height": 10 },
-        { "type": "text", "field": "genre", "font_size": 13, "align": "center" },
-        { "type": "text", "field": "title", "font": "noto_serif_bold", "font_size": 24, "align": "center" },
-        { "type": "separator", "style": "short", "width": 70 },
-        { "type": "spacer", "height": 10 },
-        { "type": "text", "field": "opening", "font_size": 19, "align": "left", "margin_x": 48, "max_lines": 4 },
-        { "type": "spacer", "height": 10 },
-        { "type": "text", "field": "twist", "font_size": 19, "align": "left", "margin_x": 48, "max_lines": 4 },
-        { "type": "spacer", "height": 10 },
-        { "type": "text", "field": "ending", "font": "noto_serif_light", "font_size": 19, "align": "left", "margin_x": 48, "max_lines": 4 }
+        {
+          "type": "spacer",
+          "height": 10
+        },
+        {
+          "type": "text",
+          "field": "genre",
+          "font_size": 13,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 24,
+          "align": "center"
+        },
+        {
+          "type": "separator",
+          "style": "short",
+          "width": 70
+        },
+        {
+          "type": "spacer",
+          "height": 10
+        },
+        {
+          "type": "text",
+          "field": "opening",
+          "font_size": 19,
+          "align": "left",
+          "margin_x": 48,
+          "max_lines": 4
+        },
+        {
+          "type": "spacer",
+          "height": 10
+        },
+        {
+          "type": "text",
+          "field": "twist",
+          "font_size": 19,
+          "align": "left",
+          "margin_x": 48,
+          "max_lines": 4
+        },
+        {
+          "type": "spacer",
+          "height": 10
+        },
+        {
+          "type": "text",
+          "field": "ending",
+          "font": "noto_serif_light",
+          "font_size": 19,
+          "align": "left",
+          "margin_x": 48,
+          "max_lines": 4
+        }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 14,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "opening",
+          "font_size": 11,
+          "align": "left",
+          "margin_x": 12,
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "STORY"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 12,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "opening",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 10,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "STORY",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 2
+        },
+        {
+          "type": "text",
+          "field": "twist",
+          "font_size": 9,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "STORY",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "STORY",
+        "height": 16
+      }
     }
   }
 }

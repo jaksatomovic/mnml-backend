@@ -348,6 +348,159 @@
           "margin_x": 50
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "field": "year_label",
+          "font_size": 11,
+          "align": "left",
+          "margin_x": 16
+        },
+        {
+          "type": "text",
+          "template": "{year_pct}%",
+          "font": "lora_bold",
+          "font_size": 22,
+          "align": "left",
+          "margin_x": 16
+        },
+        {
+          "type": "progress_bar",
+          "field": "day_of_year",
+          "max_field": "days_in_year",
+          "width": 260,
+          "height": 6,
+          "margin_x": 16
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "field": "life_label",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 16
+        },
+        {
+          "type": "text",
+          "template": "{life_pct}%",
+          "font": "lora_bold",
+          "font_size": 18,
+          "align": "left",
+          "margin_x": 16
+        },
+        {
+          "type": "progress_bar",
+          "field": "age",
+          "max_field": "life_expect",
+          "width": 260,
+          "height": 6,
+          "margin_x": 16
+        }
+      ],
+      "footer": {
+        "label": "LIFEBAR",
+        "attribution_template": "— Time Flies"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "text",
+          "field": "year_label",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 10
+        },
+        {
+          "type": "text",
+          "template": "{year_pct}%",
+          "font": "lora_bold",
+          "font_size": 18,
+          "align": "left",
+          "margin_x": 10
+        },
+        {
+          "type": "progress_bar",
+          "field": "day_of_year",
+          "max_field": "days_in_year",
+          "width": 220,
+          "height": 6,
+          "margin_x": 10
+        },
+        {
+          "type": "text",
+          "field": "life_label",
+          "font_size": 9,
+          "align": "left",
+          "margin_x": 10
+        },
+        {
+          "type": "progress_bar",
+          "field": "age",
+          "max_field": "life_expect",
+          "width": 220,
+          "height": 5,
+          "margin_x": 10
+        }
+      ],
+      "footer": {
+        "label": "LIFEBAR",
+        "attribution_template": "— Time Flies",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "text",
+          "template": "{year_pct}% · {life_pct}%",
+          "font": "lora_bold",
+          "font_size": 14,
+          "align": "center",
+          "margin_x": 8,
+          "max_lines": 1
+        },
+        {
+          "type": "progress_bar",
+          "field": "age",
+          "max_field": "life_expect",
+          "width": 200,
+          "height": 5,
+          "margin_x": 8
+        }
+      ],
+      "footer": {
+        "label": "LIFEBAR",
+        "attribution_template": "— Time Flies",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "text",
+          "template": "{life_pct}%",
+          "font": "lora_bold",
+          "font_size": 16,
+          "align": "center",
+          "margin_x": 6,
+          "max_lines": 1
+        }
+      ],
+      "footer": {
+        "label": "LIFEBAR",
+        "attribution_template": "— Time Flies",
+        "height": 16
+      }
     }
   }
 }

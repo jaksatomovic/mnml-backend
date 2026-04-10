@@ -156,11 +156,11 @@ class TestGenerateAndRender:
         with (
             patch("core.mode_registry.get_registry", return_value=mock_reg),
             patch("core.json_content.generate_json_mode_content", new_callable=AsyncMock) as mock_gc,
-            patch("core.json_renderer.render_json_mode", return_value=mock_img) as mock_rm,
+            patch("core.json_renderer.render_json_mode", return_value=(mock_img, {})) as mock_rm,
         ):
             mock_gc.return_value = {"quote": "Test", "author": "Author"}
 
-            result_img, result_content = await generate_and_render(
+            result_img, result_content, _chrome = await generate_and_render(
                 "STOIC", sample_config, sample_date_ctx, sample_weather, 85.0
             )
             assert result_img is mock_img
@@ -175,11 +175,11 @@ class TestGenerateAndRender:
         with (
             patch("core.mode_registry.get_registry", return_value=mock_reg),
             patch("core.json_content.generate_json_mode_content", new_callable=AsyncMock) as mock_gc,
-            patch("core.json_renderer.render_json_mode", return_value=mock_img) as mock_rm,
+            patch("core.json_renderer.render_json_mode", return_value=(mock_img, {})) as mock_rm,
         ):
             mock_gc.return_value = {"quote": "Test", "author": "Author"}
 
-            result_img, result_content = await generate_and_render(
+            result_img, result_content, _chrome = await generate_and_render(
                 "STOIC", None, sample_date_ctx, sample_weather, 85.0
             )
             assert result_img is mock_img

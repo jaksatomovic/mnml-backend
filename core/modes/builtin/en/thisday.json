@@ -226,6 +226,87 @@
           "max_lines": 3
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "text",
+          "field": "event_title",
+          "font": "noto_serif_bold",
+          "font_size": 14,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "event_desc",
+          "font_size": 11,
+          "align": "left",
+          "margin_x": 12,
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "THISDAY"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "text",
+          "field": "event_title",
+          "font": "noto_serif_bold",
+          "font_size": 12,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "event_desc",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 10,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "THISDAY",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "big_number",
+          "field": "year",
+          "font_size": 26,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "event_title",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "THISDAY",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "text",
+          "field": "event_title",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "THISDAY",
+        "height": 16
+      }
     }
   }
 }

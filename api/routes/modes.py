@@ -442,7 +442,7 @@ async def custom_mode_preview(
                 "mode_id": mode_def.get("mode_id", "PREVIEW"),
                 **_preview_payload(content),
             }
-        img = render_json_mode(
+        img, _ = render_json_mode(
             mode_def,
             content,
             date_str=date_ctx["date_str"],

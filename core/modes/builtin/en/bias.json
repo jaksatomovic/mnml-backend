@@ -250,6 +250,96 @@
           "max_lines": 3
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "text",
+          "field": "name_cn",
+          "font": "noto_serif_bold",
+          "font_size": 15,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "name_en",
+          "font_size": 10,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "definition",
+          "font_size": 12,
+          "align": "center",
+          "margin_x": 14,
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "BIAS"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "text",
+          "field": "name_cn",
+          "font": "noto_serif_bold",
+          "font_size": 13,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "definition",
+          "font_size": 11,
+          "align": "center",
+          "margin_x": 12,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "BIAS",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "text",
+          "field": "name_cn",
+          "font": "noto_serif_bold",
+          "font_size": 12,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "definition",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "BIAS",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "text",
+          "field": "name_cn",
+          "font": "noto_serif_bold",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "BIAS",
+        "height": 16
+      }
     }
   }
 }

@@ -8,9 +8,18 @@
     "type": "llm_json",
     "prompt_template": "translated。translated，translated3translated。\ntranslated JSON translated：\n{{\"question\": \"translated（30translated，translated）\", \"context_note\": \"translated（25translated）\", \"category\": \"translated（translated/translated/translated/translated/translated）\"}}\ntranslated：\n1. translated，translated\n2. translated/translated，translated\n3. translated、weather、translated\ntranslated JSON。\ntranslated：{context}",
     "output_schema": {
-      "question": { "type": "string", "default": "translated？" },
-      "context_note": { "type": "string", "default": "translated" },
-      "category": { "type": "string", "default": "translated" }
+      "question": {
+        "type": "string",
+        "default": "translated？"
+      },
+      "context_note": {
+        "type": "string",
+        "default": "translated"
+      },
+      "category": {
+        "type": "string",
+        "default": "translated"
+      }
     },
     "temperature": 0.9,
     "fallback": {
@@ -20,10 +29,21 @@
     }
   },
   "layout": {
-    "status_bar": { "line_width": 1, "dashed": true },
+    "status_bar": {
+      "line_width": 1,
+      "dashed": true
+    },
     "body": [
-      { "type": "spacer", "height": 10 },
-      { "type": "text", "field": "category", "font_size": 10, "align": "center" },
+      {
+        "type": "spacer",
+        "height": 10
+      },
+      {
+        "type": "text",
+        "field": "category",
+        "font_size": 10,
+        "align": "center"
+      },
       {
         "type": "centered_text",
         "field": "question",
@@ -33,7 +53,14 @@
         "vertical_center": true,
         "line_spacing": 12
       },
-      { "type": "text", "field": "context_note", "font": "noto_serif_light", "font_size": 10, "align": "center", "max_lines": 2 }
+      {
+        "type": "text",
+        "field": "context_note",
+        "font": "noto_serif_light",
+        "font_size": 10,
+        "align": "center",
+        "max_lines": 2
+      }
     ],
     "footer": {
       "label": "?",
@@ -54,12 +81,25 @@
           "line_spacing": 8
         }
       ],
-      "footer": { "label": "?", "attribution_template": "— Take a Moment", "dashed": true, "height": 18 }
+      "footer": {
+        "label": "?",
+        "attribution_template": "— Take a Moment",
+        "dashed": true,
+        "height": 18
+      }
     },
     "800x480": {
       "body": [
-        { "type": "spacer", "height": 16 },
-        { "type": "text", "field": "category", "font_size": 14, "align": "center" },
+        {
+          "type": "spacer",
+          "height": 16
+        },
+        {
+          "type": "text",
+          "field": "category",
+          "font_size": 14,
+          "align": "center"
+        },
         {
           "type": "centered_text",
           "field": "question",
@@ -69,8 +109,78 @@
           "vertical_center": true,
           "line_spacing": 16
         },
-        { "type": "text", "field": "context_note", "font": "noto_serif_light", "font_size": 14, "align": "center", "max_lines": 2 }
+        {
+          "type": "text",
+          "field": "context_note",
+          "font": "noto_serif_light",
+          "font_size": 14,
+          "align": "center",
+          "max_lines": 2
+        }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "question",
+          "font": "noto_serif_regular",
+          "font_size": 15,
+          "max_width_ratio": 0.86,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "QUESTION"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "question",
+          "font": "noto_serif_regular",
+          "font_size": 13,
+          "max_width_ratio": 0.9,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "QUESTION",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "question",
+          "font": "noto_serif_regular",
+          "font_size": 11,
+          "max_width_ratio": 0.93,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "QUESTION",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "question",
+          "font": "noto_serif_regular",
+          "font_size": 9,
+          "max_width_ratio": 0.95,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "QUESTION",
+        "height": 16
+      }
     }
   }
 }

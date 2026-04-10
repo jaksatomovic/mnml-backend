@@ -4,27 +4,40 @@
   "icon": "electric_bolt",
   "cacheable": true,
   "description": "translated，translated",
-
   "content": {
     "type": "llm",
     "prompt_template": "translated AI，translatedblacktranslated。translatedmusttranslated，translated。\ntranslated：translatedMon，translatedMontranslated；translated，translated；translated，translated；translated，translated。\ntranslated，translated。translated，translated。\ntranslated，translated，translated。\ntranslated：{context}",
     "output_format": "raw",
-    "output_fields": ["quote"],
+    "output_fields": [
+      "quote"
+    ],
     "temperature": 0.85,
     "fallback": {
       "quote": "translated，translated。"
     },
     "fallback_pool": [
-      {"quote": "translated，translated。"},
-      {"quote": "translated...translated，translated。"},
-      {"quote": "404 translated，translated。"},
-      {"quote": "translatedtimeout，translated。"},
-      {"quote": "translated，translated。"}
+      {
+        "quote": "translated，translated。"
+      },
+      {
+        "quote": "translated...translated，translated。"
+      },
+      {
+        "quote": "404 translated，translated。"
+      },
+      {
+        "quote": "translatedtimeout，translated。"
+      },
+      {
+        "quote": "translated，translated。"
+      }
     ]
   },
-
   "layout": {
-    "status_bar": { "line_width": 2, "dashed": false },
+    "status_bar": {
+      "line_width": 2,
+      "dashed": false
+    },
     "body": [
       {
         "type": "centered_text",
@@ -53,7 +66,12 @@
           "vertical_center": true
         }
       ],
-      "footer": { "label": "ROAST", "attribution_template": "— InkSight AI", "height": 18, "line_width": 2 }
+      "footer": {
+        "label": "ROAST",
+        "attribution_template": "— InkSight AI",
+        "height": 18,
+        "line_width": 2
+      }
     },
     "800x480": {
       "body": [
@@ -66,6 +84,69 @@
           "vertical_center": true
         }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font": "noto_serif_regular",
+          "font_size": 15,
+          "max_width_ratio": 0.86,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font": "noto_serif_regular",
+          "font_size": 13,
+          "max_width_ratio": 0.9,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font": "noto_serif_regular",
+          "font_size": 11,
+          "max_width_ratio": 0.93,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font": "noto_serif_regular",
+          "font_size": 9,
+          "max_width_ratio": 0.95,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST",
+        "height": 16
+      }
     }
   }
 }

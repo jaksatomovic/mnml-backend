@@ -123,3 +123,17 @@ class TestConfigRequest:
         )
         assert body.modeOverrides["WEATHER"]["city"] == "Pingyang"
         assert body.modeOverrides["WEATHER"]["latitude"] == pytest.approx(27.66)
+
+    def test_device_mode_surface_accepted(self):
+        body = ConfigRequest(
+            mac="AA:BB:CC:DD:EE:FF",
+            deviceMode="surface",
+            assignedSurface="work",
+            surfaces=[{"id": "work", "layout": [{"type": "text", "content": "x"}]}],
+        )
+        assert body.deviceMode == "surface"
+        assert body.surfaces[0]["id"] == "work"
+
+    def test_device_mode_rejects_invalid(self):
+        with pytest.raises(ValidationError):
+            ConfigRequest(mac="AA:BB:CC:DD:EE:FF", deviceMode="advanced")

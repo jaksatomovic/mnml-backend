@@ -8,11 +8,26 @@
     "type": "llm_json",
     "prompt_template": "translated。Get by translated。\ntranslated JSON：{{\"season\":\"translated（translated：translated）\",\"breakfast\":\"translated（15translated，translated·translated）\",\"lunch\":\"translated（15translated，translated·translated）\",\"dinner\":\"translated（15translated，translated·translated）\",\"tip\":\"translated（15translated）\"}}\ntranslated：translated，translated15translated。translated JSON。\ntranslated：{context}",
     "output_schema": {
-      "season": { "type": "string", "default": "translated" },
-      "breakfast": { "type": "string", "default": "translated · translated · translated" },
-      "lunch": { "type": "string", "default": "translated · translated · translated" },
-      "dinner": { "type": "string", "default": "translated · translated · translated" },
-      "tip": { "type": "string", "default": "translated，translated" }
+      "season": {
+        "type": "string",
+        "default": "translated"
+      },
+      "breakfast": {
+        "type": "string",
+        "default": "translated · translated · translated"
+      },
+      "lunch": {
+        "type": "string",
+        "default": "translated · translated · translated"
+      },
+      "dinner": {
+        "type": "string",
+        "default": "translated · translated · translated"
+      },
+      "tip": {
+        "type": "string",
+        "default": "translated，translated"
+      }
     },
     "fallback": {
       "season": "translated",
@@ -46,26 +61,104 @@
     ]
   },
   "layout": {
-    "status_bar": { "line_width": 1, "dashed": false },
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
     "body": [
-      { "type": "text", "field": "season", "font": "noto_serif_bold", "font_size": 16, "align": "center" },
-      { "type": "separator", "style": "short", "width": 70 },
-      { "type": "spacer", "height": 6 },
-      { "type": "group", "title": "translated", "title_font_size": 13, "margin_x": 24, "children": [
-        { "type": "text", "field": "breakfast", "font_size": 13, "align": "left", "margin_x": 40, "max_lines": 2 }
-      ]},
-      { "type": "spacer", "height": 4 },
-      { "type": "group", "title": "translated", "title_font_size": 13, "margin_x": 24, "children": [
-        { "type": "text", "field": "lunch", "font_size": 13, "align": "left", "margin_x": 40, "max_lines": 2 }
-      ]},
-      { "type": "spacer", "height": 4 },
-      { "type": "group", "title": "translated", "title_font_size": 13, "margin_x": 24, "children": [
-        { "type": "text", "field": "dinner", "font_size": 13, "align": "left", "margin_x": 40, "max_lines": 2 }
-      ]},
-      { "type": "spacer", "height": 6 },
-      { "type": "separator", "style": "dashed", "margin_x": 30 },
-      { "type": "spacer", "height": 4 },
-      { "type": "text", "field": "tip", "font": "noto_serif_light", "font_size": 12, "align": "center", "max_lines": 2 }
+      {
+        "type": "text",
+        "field": "season",
+        "font": "noto_serif_bold",
+        "font_size": 16,
+        "align": "center"
+      },
+      {
+        "type": "separator",
+        "style": "short",
+        "width": 70
+      },
+      {
+        "type": "spacer",
+        "height": 6
+      },
+      {
+        "type": "group",
+        "title": "translated",
+        "title_font_size": 13,
+        "margin_x": 24,
+        "children": [
+          {
+            "type": "text",
+            "field": "breakfast",
+            "font_size": 13,
+            "align": "left",
+            "margin_x": 40,
+            "max_lines": 2
+          }
+        ]
+      },
+      {
+        "type": "spacer",
+        "height": 4
+      },
+      {
+        "type": "group",
+        "title": "translated",
+        "title_font_size": 13,
+        "margin_x": 24,
+        "children": [
+          {
+            "type": "text",
+            "field": "lunch",
+            "font_size": 13,
+            "align": "left",
+            "margin_x": 40,
+            "max_lines": 2
+          }
+        ]
+      },
+      {
+        "type": "spacer",
+        "height": 4
+      },
+      {
+        "type": "group",
+        "title": "translated",
+        "title_font_size": 13,
+        "margin_x": 24,
+        "children": [
+          {
+            "type": "text",
+            "field": "dinner",
+            "font_size": 13,
+            "align": "left",
+            "margin_x": 40,
+            "max_lines": 2
+          }
+        ]
+      },
+      {
+        "type": "spacer",
+        "height": 6
+      },
+      {
+        "type": "separator",
+        "style": "dashed",
+        "margin_x": 30
+      },
+      {
+        "type": "spacer",
+        "height": 4
+      },
+      {
+        "type": "text",
+        "field": "tip",
+        "font": "noto_serif_light",
+        "font_size": 12,
+        "align": "center",
+        "max_lines": 2
+      }
     ],
     "footer": {
       "label": "RECIPE",
@@ -75,35 +168,237 @@
   "layout_overrides": {
     "296x128": {
       "body": [
-        { "type": "text", "field": "season", "font": "noto_serif_bold", "font_size": 12, "align": "left", "margin_x": 8 },
-        { "type": "separator", "style": "short", "width": 30 },
-        { "type": "text", "template": "translated：{breakfast}", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 1 },
-        { "type": "text", "template": "translated：{lunch}", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 1 },
-        { "type": "text", "template": "translated：{dinner}", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 1 }
+        {
+          "type": "text",
+          "field": "season",
+          "font": "noto_serif_bold",
+          "font_size": 12,
+          "align": "left",
+          "margin_x": 8
+        },
+        {
+          "type": "separator",
+          "style": "short",
+          "width": 30
+        },
+        {
+          "type": "text",
+          "template": "translated：{breakfast}",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 1
+        },
+        {
+          "type": "text",
+          "template": "translated：{lunch}",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 1
+        },
+        {
+          "type": "text",
+          "template": "translated：{dinner}",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 1
+        }
       ],
-      "footer": { "label": "RECIPE", "height": 20 }
+      "footer": {
+        "label": "RECIPE",
+        "height": 20
+      }
     },
     "648x480": {
       "body": [
-        { "type": "text", "field": "season", "font": "noto_serif_bold", "font_size": 22, "align": "center" },
-        { "type": "separator", "style": "short", "width": 110 },
-        { "type": "spacer", "height": 10 },
-        { "type": "group", "title": "translated", "title_font_size": 18, "margin_x": 40, "children": [
-          { "type": "text", "field": "breakfast", "font_size": 17, "align": "left", "margin_x": 60, "max_lines": 2 }
-        ]},
-        { "type": "spacer", "height": 8 },
-        { "type": "group", "title": "translated", "title_font_size": 18, "margin_x": 40, "children": [
-          { "type": "text", "field": "lunch", "font_size": 17, "align": "left", "margin_x": 60, "max_lines": 2 }
-        ]},
-        { "type": "spacer", "height": 8 },
-        { "type": "group", "title": "translated", "title_font_size": 18, "margin_x": 40, "children": [
-          { "type": "text", "field": "dinner", "font_size": 17, "align": "left", "margin_x": 60, "max_lines": 2 }
-        ]},
-        { "type": "spacer", "height": 10 },
-        { "type": "separator", "style": "dashed", "margin_x": 48 },
-        { "type": "spacer", "height": 6 },
-        { "type": "text", "field": "tip", "font": "noto_serif_light", "font_size": 16, "align": "center", "max_lines": 2 }
+        {
+          "type": "text",
+          "field": "season",
+          "font": "noto_serif_bold",
+          "font_size": 22,
+          "align": "center"
+        },
+        {
+          "type": "separator",
+          "style": "short",
+          "width": 110
+        },
+        {
+          "type": "spacer",
+          "height": 10
+        },
+        {
+          "type": "group",
+          "title": "translated",
+          "title_font_size": 18,
+          "margin_x": 40,
+          "children": [
+            {
+              "type": "text",
+              "field": "breakfast",
+              "font_size": 17,
+              "align": "left",
+              "margin_x": 60,
+              "max_lines": 2
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 8
+        },
+        {
+          "type": "group",
+          "title": "translated",
+          "title_font_size": 18,
+          "margin_x": 40,
+          "children": [
+            {
+              "type": "text",
+              "field": "lunch",
+              "font_size": 17,
+              "align": "left",
+              "margin_x": 60,
+              "max_lines": 2
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 8
+        },
+        {
+          "type": "group",
+          "title": "translated",
+          "title_font_size": 18,
+          "margin_x": 40,
+          "children": [
+            {
+              "type": "text",
+              "field": "dinner",
+              "font_size": 17,
+              "align": "left",
+              "margin_x": 60,
+              "max_lines": 2
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 10
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 48
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "field": "tip",
+          "font": "noto_serif_light",
+          "font_size": 16,
+          "align": "center",
+          "max_lines": 2
+        }
       ]
+    },
+    "slot_lg": {
+      "body": [
+        {
+          "type": "text",
+          "field": "season",
+          "font": "noto_serif_bold",
+          "font_size": 13,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "breakfast",
+          "font_size": 11,
+          "align": "left",
+          "margin_x": 12,
+          "max_lines": 1
+        },
+        {
+          "type": "text",
+          "field": "tip",
+          "font": "noto_serif_light",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "RECIPE"
+      }
+    },
+    "slot_md": {
+      "body": [
+        {
+          "type": "text",
+          "field": "season",
+          "font": "noto_serif_bold",
+          "font_size": 12,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "tip",
+          "font": "noto_serif_light",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 10,
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "RECIPE",
+        "height": 22
+      }
+    },
+    "slot_sm": {
+      "body": [
+        {
+          "type": "text",
+          "field": "season",
+          "font": "noto_serif_bold",
+          "font_size": 11,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "tip",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "RECIPE",
+        "height": 18
+      }
+    },
+    "slot_xs": {
+      "body": [
+        {
+          "type": "text",
+          "field": "season",
+          "font": "noto_serif_bold",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "RECIPE",
+        "height": 16
+      }
     }
   }
 }

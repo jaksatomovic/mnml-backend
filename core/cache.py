@@ -288,7 +288,7 @@ class ContentCache:
             effective_cfg = get_effective_mode_config(config, persona)
             weather = await get_weather(**extract_location_settings(effective_cfg))
 
-            img, _content = await generate_and_render(
+            img, _content, _chrome = await generate_and_render(
                 persona, config, date_ctx, weather, battery_pct,
                 screen_w=screen_w, screen_h=screen_h, colors=colors,
             )
@@ -327,7 +327,7 @@ class ContentCache:
             effective_cfg = get_effective_mode_config(config, persona)
             weather = await get_weather(**extract_location_settings(effective_cfg))
 
-            img, _content = await generate_and_render(
+            img, _content, _chrome = await generate_and_render(
                 persona, config, date_ctx, weather, battery_pct,
                 screen_w=screen_w, screen_h=screen_h, colors=colors,
             )
