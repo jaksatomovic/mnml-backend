@@ -94,6 +94,7 @@ def _convert_sqlite_ddl_to_postgres(sql: str) -> str:
         converted,
         flags=re.IGNORECASE,
     )
+    converted = re.sub(r"\bBLOB\b", "BYTEA", converted, flags=re.IGNORECASE)
     converted = re.sub(r"\bBOOLEAN\s+DEFAULT\s+1\b", "BOOLEAN DEFAULT TRUE", converted, flags=re.IGNORECASE)
     converted = re.sub(r"\bBOOLEAN\s+DEFAULT\s+0\b", "BOOLEAN DEFAULT FALSE", converted, flags=re.IGNORECASE)
     return converted
