@@ -256,6 +256,9 @@ async def init_db():
                 created_at TEXT NOT NULL
             )
         """)
+        # Commit table creation before legacy ALTER migrations so a rollback
+        # from "column already exists" doesn't drop a newly-created table.
+        await db.commit()
         # Migration: add phone/email columns if missing.
         # Add the columns first, then enforce uniqueness with dedicated indexes.
         try:
