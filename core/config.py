@@ -78,7 +78,6 @@ FONTS = {
     "noto_serif_light": "NotoSerifSC-Light.ttf",
     "noto_serif_regular": "NotoSerifSC-Regular.ttf",
     "noto_serif_bold": "NotoSerifSC-Bold.ttf",
-    "noto_serif_extrabold": "NotoSerifSC-ExtraBold.ttf",
     # 英文字体
     "lora_regular": "Lora-Regular.ttf",
     "lora_bold": "Lora-Bold.ttf",

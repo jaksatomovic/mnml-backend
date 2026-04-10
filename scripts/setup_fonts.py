@@ -23,7 +23,6 @@ FONT_FAMILIES: dict[str, list[str]] = {
         "NotoSerifSC-Light.ttf",
         "NotoSerifSC-Regular.ttf",
         "NotoSerifSC-Bold.ttf",
-        "NotoSerifSC-ExtraBold.ttf",
     ],
     "Lora": [
         "Lora-Regular.ttf",
@@ -47,7 +46,6 @@ ALIAS_FONT_NAMES = [
     "NotoSerifSC-Light",
     "NotoSerifSC-Regular",
     "NotoSerifSC-Bold",
-    "NotoSerifSC-ExtraBold",
     "Lora-Regular",
     "Lora-Bold",
     "Inter_24pt-Medium",
