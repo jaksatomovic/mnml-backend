@@ -91,6 +91,8 @@ class _PostgresCursor:
     def __init__(self, cursor: Any, *, lastrowid: Any = None):
         self._cursor = cursor
         self.lastrowid = lastrowid
+        self.rowcount = getattr(cursor, "rowcount", -1)
+        self.description = getattr(cursor, "description", None)
 
     async def fetchone(self):
         return await self._cursor.fetchone()
