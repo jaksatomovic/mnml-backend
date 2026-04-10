@@ -73,7 +73,7 @@
         "type": "text",
         "field": "title",
         "font_size": 17,
-        "font": "noto_serif_bold",
+        "font": "lora_bold",
         "align": "center",
         "max_lines": 1,
         "margin_x": 14
@@ -82,7 +82,7 @@
         "type": "text",
         "text": "{username} · {platform}",
         "font_size": 11,
-        "font": "noto_sans_regular",
+        "font": "lora_regular",
         "align": "left",
         "max_lines": 1,
         "margin_x": 18
@@ -99,49 +99,41 @@
       },
       {
         "type": "spacer",
-        "height": 3
-      },
-      {
-        "type": "separator",
-        "style": "solid",
-        "line_width": 1,
-        "margin_x": 16
-      },
-      {
-        "type": "spacer",
-        "height": 3
+        "height": 1
       },
       {
         "type": "big_number",
         "field": "rank",
-        "font_size": 35,
+        "font_size": 30,
         "align": "left"
       },
       {
         "type": "text",
-        "text": "Rank",
+        "text": "Rank level",
         "font_size": 9,
-        "font": "noto_sans_regular",
+        "font": "lora_regular",
         "align": "left",
-        "margin_x": 20
+        "margin_x": 88,
+        "max_lines": 1
       },
       {
         "type": "big_number",
         "field": "score_total",
-        "font_size": 24,
+        "font_size": 20,
         "align": "left"
       },
       {
         "type": "text",
-        "text": "Total Score",
+        "text": "Total score",
         "font_size": 9,
-        "font": "noto_sans_regular",
+        "font": "lora_regular",
         "align": "left",
-        "margin_x": 20
+        "margin_x": 150,
+        "max_lines": 1
       },
       {
         "type": "spacer",
-        "height": 3
+        "height": 1
       },
       {
         "type": "spacer",
@@ -158,9 +150,9 @@
             "type": "list",
             "field": "summary_left",
             "item_template": "{line}",
-            "font_size": 10,
-            "font": "noto_sans_regular",
-            "item_spacing": 10,
+            "font_size": 12,
+            "font": "lora_regular",
+            "item_spacing": 15,
             "margin_x": 0,
             "max_items": 5
           }
@@ -170,9 +162,9 @@
             "type": "list",
             "field": "summary_right",
             "item_template": "{line}",
-            "font_size": 10,
-            "font": "noto_sans_regular",
-            "item_spacing": 10,
+            "font_size": 12,
+            "font": "lora_regular",
+            "item_spacing": 15,
             "margin_x": 0,
             "max_items": 5
           }
