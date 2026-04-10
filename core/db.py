@@ -1,9 +1,8 @@
-"""Short-lived database connection helpers for SQLite or Neon/Postgres."""
+"""Short-lived database connection helpers for Neon/Postgres."""
 from __future__ import annotations
 
 import asyncio
 import logging
-import os
 import re
 import weakref
 from typing import Any, Sequence
@@ -12,23 +11,7 @@ import aiosqlite
 
 logger = logging.getLogger(__name__)
 
-_DB_DIR = os.path.join(os.path.dirname(__file__), "..")
-_MAIN_DB_PATH = os.path.join(_DB_DIR, os.getenv("DB_PATH", "inksight.db"))
-_CACHE_DB_PATH = os.path.join(_DB_DIR, os.getenv("CACHE_DB_PATH", "cache.db"))
 _live_connections: "weakref.WeakSet[_ManagedConnection]" = weakref.WeakSet()
-
-
-def get_db_backend() -> str:
-    backend = (os.getenv("INKSIGHT_DB_BACKEND", "") or os.getenv("DB_BACKEND", "sqlite")).strip().lower()
-    if backend == "neon":
-        return "postgres"
-    if backend == "postgres":
-        return "postgres"
-    return "sqlite"
-
-
-def is_postgres_backend() -> bool:
-    return get_db_backend() == "postgres"
 
 
 def _with_returning_id(sql: str) -> str:
@@ -64,13 +47,8 @@ class _ManagedConnection:
         loop.create_task(self.close())
 
 
-async def _open_db(path: str, label: str) -> _ManagedConnection:
-    conn = await aiosqlite.connect(path)
-    try:
-        await conn.execute("PRAGMA journal_mode=WAL")
-        await conn.execute("PRAGMA busy_timeout=5000")
-    except Exception:
-        pass
+async def _open_db(label: str) -> _ManagedConnection:
+    conn = await aiosqlite.connect("")
     managed = _ManagedConnection(conn, label)
     _live_connections.add(managed)
     logger.debug("[DB] Opened %s connection", label)
@@ -78,11 +56,11 @@ async def _open_db(path: str, label: str) -> _ManagedConnection:
 
 
 async def get_main_db() -> _ManagedConnection:
-    return await _open_db(_MAIN_DB_PATH, "main")
+    return await _open_db("main")
 
 
 async def get_cache_db() -> _ManagedConnection:
-    return await _open_db(_CACHE_DB_PATH, "cache")
+    return await _open_db("cache")
 
 
 async def execute_insert_returning_id(
@@ -90,11 +68,9 @@ async def execute_insert_returning_id(
     sql: str,
     params: Sequence[Any] | None = None,
 ) -> Any:
-    cursor = await db.execute(_with_returning_id(sql) if is_postgres_backend() else sql, params or ())
-    if is_postgres_backend():
-        row = await cursor.fetchone()
-        return row[0] if row else None
-    return cursor.lastrowid
+    cursor = await db.execute(_with_returning_id(sql), params or ())
+    row = await cursor.fetchone()
+    return row[0] if row else None
 
 
 async def close_all():

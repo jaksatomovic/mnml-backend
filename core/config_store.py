@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 PAIR_CODE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
 
 from migrations import run_main_db_migrations
-from .db import _MAIN_DB_PATH, execute_insert_returning_id, get_main_db
+from .db import execute_insert_returning_id, get_main_db
 from .config import (
     DEFAULT_CITY,
     DEFAULT_LLM_PROVIDER,
@@ -28,14 +28,34 @@ from .config import (
     DEFAULT_REFRESH_INTERVAL,
 )
 
-# Backward-compatible alias retained for older tests and callers.
-DB_PATH = _MAIN_DB_PATH
+async def _table_columns(db, table: str) -> set[str]:
+    cursor = await db.execute(
+        """
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = current_schema() AND table_name = ?
+        """,
+        (table,),
+    )
+    return {row[0] for row in await cursor.fetchall()}
+
+
+async def _table_exists(db, table: str) -> bool:
+    cursor = await db.execute(
+        """
+        SELECT 1
+        FROM information_schema.tables
+        WHERE table_schema = current_schema() AND table_name = ?
+        LIMIT 1
+        """,
+        (table,),
+    )
+    return (await cursor.fetchone()) is not None
 
 
 async def init_db():
     db = await get_main_db()
     try:
-        await db.execute("PRAGMA journal_mode=WAL")
         await db.execute("""
             CREATE TABLE IF NOT EXISTS configs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -74,9 +94,7 @@ async def init_db():
         # Migrate older configs tables that may still contain llm_api_key / image_api_key.
         # These fields were fully removed from the new schema.
         try:
-            cursor = await db.execute("PRAGMA table_info(configs)")
-            columns = await cursor.fetchall()
-            column_names = [col[1] for col in columns]
+            column_names = await _table_columns(db, "configs")
             if "llm_api_key" in column_names or "image_api_key" in column_names:
                 logger.info("[MIGRATION] Migrating configs table to drop llm_api_key/image_api_key columns")
                 # Create the replacement table with the target schema above.
@@ -158,8 +176,7 @@ async def init_db():
             "country": "TEXT DEFAULT ''",
         }
         try:
-            cursor = await db.execute("PRAGMA table_info(configs)")
-            existing = {row[1] for row in await cursor.fetchall()}
+            existing = await _table_columns(db, "configs")
             for col, typedef in _EXPECTED_COLUMNS.items():
                 if col not in existing:
                     await db.execute(f"ALTER TABLE configs ADD COLUMN {col} {typedef}")
@@ -190,9 +207,7 @@ async def init_db():
         """)
         # Migration: add focus_listening column if missing
         try:
-            cursor = await db.execute("PRAGMA table_info(configs)")
-            columns = await cursor.fetchall()
-            names = [c[1] for c in columns]
+            names = await _table_columns(db, "configs")
             if "focus_listening" not in names:
                 await db.execute("ALTER TABLE configs ADD COLUMN focus_listening INTEGER DEFAULT 0")
                 await db.commit()
@@ -205,9 +220,7 @@ async def init_db():
 
         # Migration: add alert token columns if missing
         try:
-            cursor = await db.execute("PRAGMA table_info(device_state)")
-            columns = await cursor.fetchall()
-            names = [c[1] for c in columns]
+            names = await _table_columns(db, "device_state")
             if "alert_token" not in names:
                 await db.execute("ALTER TABLE device_state ADD COLUMN alert_token TEXT DEFAULT ''")
             if "alert_token_created_at" not in names:
@@ -222,9 +235,7 @@ async def init_db():
 
         # Migration: add OTA columns if missing
         try:
-            cursor = await db.execute("PRAGMA table_info(device_state)")
-            columns = await cursor.fetchall()
-            names = [c[1] for c in columns]
+            names = await _table_columns(db, "device_state")
             if "pending_ota" not in names:
                 await db.execute("ALTER TABLE device_state ADD COLUMN pending_ota INTEGER DEFAULT 0")
             if "ota_version" not in names:
@@ -323,9 +334,7 @@ async def init_db():
         # Migration: if an older invitation_codes table is missing the id column, rebuild it.
         try:
             # Check whether this is the legacy table shape without an id column.
-            cursor = await db.execute("PRAGMA table_info(invitation_codes)")
-            columns = await cursor.fetchall()
-            column_names = [col[1] for col in columns]
+            column_names = await _table_columns(db, "invitation_codes")
             
             if "id" not in column_names:
                 logger.info("[MIGRATION] Migrating invitation_codes table: adding id column")
@@ -495,16 +504,11 @@ async def init_db():
 
         # Custom modes table - user-specific custom modes stored in database
         # Check if table exists and if it has the mac column
-        cursor = await db.execute("""
-            SELECT name FROM sqlite_master 
-            WHERE type='table' AND name='custom_modes'
-        """)
-        table_exists = await cursor.fetchone()
+        table_exists = await _table_exists(db, "custom_modes")
         
         if table_exists:
             # Check if mac column exists
-            cursor = await db.execute("PRAGMA table_info(custom_modes)")
-            columns = [row[1] for row in await cursor.fetchall()]
+            columns = await _table_columns(db, "custom_modes")
             if "mac" not in columns:
                 # Table exists but doesn't have mac column - need to migrate
                 logger.info("[MIGRATION] custom_modes table exists without mac column. Migrating...")
@@ -2096,8 +2100,7 @@ async def get_user_llm_config(user_id: int) -> Optional[dict]:
     db = await get_main_db()
     # Inspect the table shape for backward compatibility with older schemas
     # that may not include image/model-related columns yet.
-    cursor = await db.execute("PRAGMA table_info(user_llm_config)")
-    columns = [col[1] for col in await cursor.fetchall()]
+    columns = list(await _table_columns(db, "user_llm_config"))
     has_access_mode_column = "llm_access_mode" in columns
     has_image_config = "image_provider" in columns and "image_api_key" in columns
     has_model_column = "model" in columns
@@ -2202,8 +2205,7 @@ async def save_user_llm_config(
     encrypted_image_key = encrypt_api_key(image_api_key) if image_api_key else ""
     
     # Inspect the table shape for backward compatibility with older schemas.
-    cursor = await db.execute("PRAGMA table_info(user_llm_config)")
-    columns = [col[1] for col in await cursor.fetchall()]
+    columns = list(await _table_columns(db, "user_llm_config"))
     has_access_mode_column = "llm_access_mode" in columns
     has_image_config = "image_provider" in columns and "image_api_key" in columns
     has_model_column = "model" in columns

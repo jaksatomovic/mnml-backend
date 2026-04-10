@@ -4,9 +4,17 @@ from datetime import datetime
 
 
 async def _column_exists(db, table: str, column: str) -> bool:
-    cursor = await db.execute(f"PRAGMA table_info({table})")
+    cursor = await db.execute(
+        """
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_schema = current_schema() AND table_name = ? AND column_name = ?
+        LIMIT 1
+        """,
+        (table, column),
+    )
     rows = await cursor.fetchall()
-    return any(row[1] == column for row in rows)
+    return bool(rows)
 
 
 async def _add_column_if_missing(db, table: str, column: str, ddl: str) -> None:

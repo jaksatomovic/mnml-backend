@@ -13,16 +13,12 @@ from typing import Any, Optional, Union
 
 logger = logging.getLogger(__name__)
 
-from .db import _MAIN_DB_PATH, get_main_db
-
-# Backward-compatible alias retained for older tests and callers.
-DB_PATH = _MAIN_DB_PATH
+from .db import get_main_db
 
 
 async def init_stats_db():
     db = await get_main_db()
     try:
-        await db.execute("PRAGMA journal_mode=WAL")
         await db.execute("""
             CREATE TABLE IF NOT EXISTS render_logs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,9 +71,15 @@ async def init_stats_db():
         await db.execute("CREATE INDEX IF NOT EXISTS idx_habit_mac ON habit_records(mac)")
         # Migration: add is_fallback only when missing.
         try:
-            cursor = await db.execute("PRAGMA table_info(render_logs)")
+            cursor = await db.execute(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_schema = current_schema() AND table_name = 'render_logs'
+                """
+            )
             columns = await cursor.fetchall()
-            names = [c[1] for c in columns]
+            names = [c[0] for c in columns]
             if "is_fallback" not in names:
                 await db.execute("ALTER TABLE render_logs ADD COLUMN is_fallback INTEGER DEFAULT 0")
                 await db.commit()

@@ -29,7 +29,6 @@ async def init_cache_db():
     """Initialize the persistent cache store."""
     db = await get_cache_db()
     try:
-        await db.execute("PRAGMA journal_mode=WAL")
         await db.execute("""
             CREATE TABLE IF NOT EXISTS image_cache (
                 cache_key TEXT PRIMARY KEY,
