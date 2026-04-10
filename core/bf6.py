@@ -82,6 +82,8 @@ async def get_bf6_profile_snapshot(username: str, platform: str) -> dict[str, An
     profile = profiles[0] if isinstance(profiles[0], dict) else {}
     player_card = profile.get("playerCard", {}) if isinstance(profile.get("playerCard"), dict) else {}
     rank_image = player_card.get("rankImage", {}) if isinstance(player_card.get("rankImage"), dict) else {}
+    response_username = str((payload or {}).get("userName") or "").strip() if isinstance(payload, dict) else ""
+    response_avatar = str((payload or {}).get("avatar") or "").strip() if isinstance(payload, dict) else ""
     stats = _extract_stats_map(profile)
 
     kills = _to_int(_pick_stat(stats, "kills_total", "human_kills_total"), 0)
@@ -105,10 +107,10 @@ async def get_bf6_profile_snapshot(username: str, platform: str) -> dict[str, An
 
     return {
         "title": "BF6 Profile",
-        "username": username,
+        "username": response_username or username,
         "platform": platform_norm.upper(),
         "rank": str(_to_int(player_card.get("rank"), 0)),
-        "avatar_url": str(rank_image.get("large") or rank_image.get("small") or ""),
+        "avatar_url": response_avatar or str(rank_image.get("large") or rank_image.get("small") or ""),
         "badges": _fmt_int(_to_int(player_card.get("badges"), 0)),
         "score_total": _fmt_int(score_total),
         "kills": _fmt_int(kills),
