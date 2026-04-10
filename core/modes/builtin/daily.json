@@ -1,0 +1,131 @@
+{
+  "mode_id": "DAILY",
+  "display_name": "每日推荐",
+  "icon": "sunny",
+  "cacheable": true,
+  "description": "语录、书籍推荐和小知识",
+  "content": {
+    "type": "composite",
+    "steps": [
+      {
+        "type": "computed",
+        "provider": "daily_meta",
+        "fallback": {
+          "year": 2026,
+          "day": 1,
+          "month_cn": "一月",
+          "weekday_cn": "周一",
+          "day_of_year": 1,
+          "days_in_year": 365
+        }
+      },
+      {
+        "type": "llm_json",
+        "prompt_template": "你是一位博学的每日推荐助手。根据以下环境信息，生成一份每日推荐内容，用 JSON 格式输出，包含：\n1. quote: 一句语录（中文，20字以内）\n2. author: 语录作者\n3. book_title: 推荐一本书（书名号）\n4. book_author: 书的作者 + \" 著\"\n5. book_desc: 一句话描述这本书（25字以内）\n6. tip: 一条冷知识或实用小贴士（30字以内）\n7. season_text: 当前节气或季节的一句话描述（10字以内）\n只输出 JSON。\n环境：{context}",
+        "output_schema": {
+          "quote": { "type": "string", "default": "阻碍行动的障碍，本身就是行动的路。" },
+          "author": { "type": "string", "default": "马可·奥勒留" },
+          "book_title": { "type": "string", "default": "《沉思录》" },
+          "book_author": { "type": "string", "default": "马可·奥勒留 著" },
+          "book_desc": { "type": "string", "default": "罗马帝王的自省笔记。" },
+          "tip": { "type": "string", "default": "冬季干燥，记得多喝水。" },
+          "season_text": { "type": "string", "default": "立春已过，万物生长。" }
+        },
+        "fallback": {
+          "quote": "阻碍行动的障碍，本身就是行动的路。",
+          "author": "马可·奥勒留",
+          "book_title": "《沉思录》",
+          "book_author": "马可·奥勒留 著",
+          "book_desc": "罗马帝王的自省笔记。",
+          "tip": "冬季干燥，记得多喝水。",
+          "season_text": "立春已过，万物生长。"
+        }
+      }
+    ],
+    "fallback": {},
+    "fallback_pool": [
+      {"quote": "阻碍行动的障碍，本身就是行动的路。", "author": "马可·奥勒留", "book_title": "《沉思录》", "book_author": "马可·奥勒留 著", "book_desc": "罗马帝王的自省笔记。", "tip": "冬季干燥，记得多喝水。", "season_text": "立春已过，万物生长。"},
+      {"quote": "知止而后有定，定而后能静。", "author": "《大学》", "book_title": "《人间值得》", "book_author": "中村恒子 著", "book_desc": "九十岁心理医生的生活智慧。", "tip": "午睡20分钟最佳，过长易头痛。", "season_text": "春寒料峭，宜早睡早起。"},
+      {"quote": "活在当下，珍惜眼前人。", "author": "佚名", "book_title": "《小王子》", "book_author": "圣埃克苏佩里 著", "book_desc": "献给所有的大人和小孩。", "tip": "蓝光影响睡眠，睡前少看手机。", "season_text": "万物复苏，适合户外走走。"}
+    ]
+  },
+  "layout": {
+    "status_bar": { "line_width": 1, "dashed": false },
+    "body": [
+      {
+        "type": "two_column",
+        "left_width": 116,
+        "gap": 10,
+        "left": [
+          { "type": "text", "field": "year", "font_size": 12, "align": "center", "margin_x": 8 },
+          { "type": "big_number", "field": "day", "font_size": 46, "align": "center" },
+          { "type": "text", "field": "month_cn", "font_size": 14, "align": "center", "margin_x": 8 },
+          { "type": "text", "field": "weekday_cn", "font_size": 12, "align": "center", "margin_x": 8 },
+          { "type": "progress_bar", "field": "day_of_year", "max_field": "days_in_year", "width": 80, "margin_x": 8 },
+          { "type": "text", "field": "season_text", "font_size": 10, "align": "center", "margin_x": 8, "max_lines": 2 }
+        ],
+        "right": [
+          { "type": "text", "field": "quote", "font_size": 14, "align": "left", "margin_x": 6, "max_lines": 4 },
+          { "type": "text", "template": "— {author}", "font_size": 11, "align": "right", "margin_x": 6, "max_lines": 1 },
+          { "type": "spacer", "height": 4 },
+          { "type": "separator", "style": "dashed", "margin_x": 12 },
+          { "type": "spacer", "height": 4 },
+          { "type": "text", "field": "book_title", "font_size": 13, "align": "left", "margin_x": 6, "max_lines": 2 },
+          { "type": "text", "field": "book_author", "font_size": 11, "align": "left", "margin_x": 6, "max_lines": 1 },
+          { "type": "text", "field": "book_desc", "font_size": 11, "align": "left", "margin_x": 6, "max_lines": 2 },
+          { "type": "spacer", "height": 4 },
+          { "type": "separator", "style": "dashed", "margin_x": 12 },
+          { "type": "spacer", "height": 4 },
+          { "type": "text", "field": "tip", "font_size": 11, "align": "left", "margin_x": 6, "max_lines": 2 }
+        ]
+      }
+    ],
+    "footer": {
+      "label": "DAILY",
+      "attribution_template": "— Carpe Diem"
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "body": [
+        { "type": "big_number", "field": "day", "font_size": 36, "align": "left", "margin_x": 8 },
+        { "type": "text", "template": "{month_cn} {weekday_cn}", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 1 },
+        { "type": "separator", "style": "short", "width": 40 },
+        { "type": "text", "field": "quote", "font_size": 11, "align": "left", "margin_x": 8, "max_lines": 2 },
+        { "type": "text", "template": "— {author}", "font_size": 9, "align": "right", "margin_x": 8, "max_lines": 1 }
+      ],
+      "footer": { "label": "DAILY", "height": 20 }
+    },
+    "648x480": {
+      "body": [
+        {
+          "type": "two_column",
+          "left_width": 185,
+          "gap": 14,
+          "left": [
+            { "type": "text", "field": "year", "font_size": 14, "align": "center", "margin_x": 12 },
+            { "type": "big_number", "field": "day", "font_size": 72, "align": "center" },
+            { "type": "text", "field": "month_cn", "font_size": 18, "align": "center", "margin_x": 12 },
+            { "type": "text", "field": "weekday_cn", "font_size": 16, "align": "center", "margin_x": 12 },
+            { "type": "progress_bar", "field": "day_of_year", "max_field": "days_in_year", "width": 130, "margin_x": 12 },
+            { "type": "text", "field": "season_text", "font_size": 13, "align": "center", "margin_x": 12, "max_lines": 2 }
+          ],
+          "right": [
+            { "type": "text", "field": "quote", "font_size": 20, "align": "left", "margin_x": 8, "max_lines": 4 },
+            { "type": "text", "template": "— {author}", "font_size": 14, "align": "right", "margin_x": 8, "max_lines": 1 },
+            { "type": "spacer", "height": 8 },
+            { "type": "separator", "style": "dashed", "margin_x": 16 },
+            { "type": "spacer", "height": 8 },
+            { "type": "text", "field": "book_title", "font_size": 18, "align": "left", "margin_x": 8, "max_lines": 2 },
+            { "type": "text", "field": "book_author", "font_size": 14, "align": "left", "margin_x": 8, "max_lines": 1 },
+            { "type": "text", "field": "book_desc", "font_size": 14, "align": "left", "margin_x": 8, "max_lines": 2 },
+            { "type": "spacer", "height": 8 },
+            { "type": "separator", "style": "dashed", "margin_x": 16 },
+            { "type": "spacer", "height": 8 },
+            { "type": "text", "field": "tip", "font_size": 14, "align": "left", "margin_x": 8, "max_lines": 3 }
+          ]
+        }
+      ]
+    }
+  }
+}

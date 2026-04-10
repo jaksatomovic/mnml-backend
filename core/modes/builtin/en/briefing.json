@@ -1,0 +1,273 @@
+{
+  "mode_id": "BRIEFING",
+  "display_name": "Tech Brief",
+  "icon": "global",
+  "cacheable": false,
+  "description": "Top tech stories from HN and Product Hunt",
+  "content": {
+    "type": "external_data",
+    "provider": "briefing",
+    "hn_limit": 2,
+    "v2ex_limit": 1,
+    "summarize": true,
+    "include_insight": true,
+    "fallback": {
+      "hn_items": [
+        {
+          "title": "Failed to fetch data",
+          "score": 0
+        }
+      ],
+      "ph_item": {
+        "name": "N/A",
+        "tagline": ""
+      },
+      "v2ex_items": [],
+      "insight": "Unable to fetch today's tech news. Please try again later.",
+      "ph_name": "N/A",
+      "ph_tagline": ""
+    },
+    "fallback_pool": [
+      {
+        "hn_items": [
+          {
+            "title": "Failed to fetch data",
+            "score": 0
+          }
+        ],
+        "ph_item": {
+          "name": "N/A",
+          "tagline": ""
+        },
+        "v2ex_items": [],
+        "insight": "Unable to fetch today's tech news. Please try again later.",
+        "ph_name": "N/A",
+        "ph_tagline": ""
+      },
+      {
+        "hn_items": [
+          {
+            "title": "LLM Frontier Tech",
+            "score": 156
+          }
+        ],
+        "ph_item": {
+          "name": "AI Toolkit",
+          "tagline": "Essential for developers"
+        },
+        "v2ex_items": [
+          {
+            "title": "What did you learn today?"
+          }
+        ],
+        "insight": "AI tools are evolving fast. Watch open-source models and local deployment.",
+        "ph_name": "AI Toolkit",
+        "ph_tagline": "Essential for developers"
+      },
+      {
+        "hn_items": [
+          {
+            "title": "New Framework Released",
+            "score": 89
+          }
+        ],
+        "ph_item": {
+          "name": "DevTools",
+          "tagline": "Boost productivity"
+        },
+        "v2ex_items": [],
+        "insight": "The open-source ecosystem is thriving. Explore new projects.",
+        "ph_name": "DevTools",
+        "ph_tagline": "Boost productivity"
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "body": [
+      {
+        "type": "section",
+        "title": "HN Top",
+        "icon": "global",
+        "title_font_size": 13,
+        "children": [
+          {
+            "type": "list",
+            "field": "hn_items",
+            "max_items": 2,
+            "item_template": "{title}",
+            "right_field": "score",
+            "font_size": 12,
+            "item_spacing": 18,
+            "margin_x": 36
+          }
+        ]
+      },
+      {
+        "type": "spacer",
+        "height": 4
+      },
+      {
+        "type": "separator",
+        "style": "dashed",
+        "margin_x": 24
+      },
+      {
+        "type": "section",
+        "title": "PH #1",
+        "icon": "star",
+        "title_font_size": 13,
+        "children": [
+          {
+            "type": "text",
+            "template": "{ph_name}",
+            "font_size": 13,
+            "align": "left",
+            "margin_x": 36,
+            "max_lines": 1
+          },
+          {
+            "type": "text",
+            "template": "{ph_tagline}",
+            "font_size": 11,
+            "align": "left",
+            "margin_x": 36,
+            "max_lines": 2
+          }
+        ]
+      },
+      {
+        "type": "separator",
+        "style": "dashed",
+        "margin_x": 30
+      },
+      {
+        "type": "spacer",
+        "height": 4
+      },
+      {
+        "type": "text",
+        "field": "insight",
+        "font_size": 12,
+        "align": "left",
+        "margin_x": 24,
+        "max_lines": 3
+      }
+    ],
+    "footer": {
+      "label": "Briefing",
+      "attribution_template": "— AI Brief"
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "body": [
+        {
+          "type": "list",
+          "field": "hn_items",
+          "max_items": 2,
+          "item_template": "{title}",
+          "font_size": 10,
+          "item_spacing": 14,
+          "margin_x": 8
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 8
+        },
+        {
+          "type": "text",
+          "field": "insight",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "Briefing",
+        "height": 18
+      }
+    },
+    "800x480": {
+      "body": [
+        {
+          "type": "section",
+          "title": "HN Top",
+          "icon": "global",
+          "title_font_size": 18,
+          "children": [
+            {
+              "type": "list",
+              "field": "hn_items",
+              "max_items": 2,
+              "item_template": "{title}",
+              "right_field": "score",
+              "font_size": 16,
+              "item_spacing": 24,
+              "margin_x": 56
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 40
+        },
+        {
+          "type": "section",
+          "title": "PH #1",
+          "icon": "star",
+          "title_font_size": 18,
+          "children": [
+            {
+              "type": "text",
+              "template": "{ph_name}",
+              "font_size": 18,
+              "align": "left",
+              "margin_x": 56,
+              "max_lines": 1
+            },
+            {
+              "type": "text",
+              "template": "{ph_tagline}",
+              "font_size": 15,
+              "align": "left",
+              "margin_x": 56,
+              "max_lines": 2
+            }
+          ]
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 48
+        },
+        {
+          "type": "spacer",
+          "height": 8
+        },
+        {
+          "type": "text",
+          "field": "insight",
+          "font_size": 16,
+          "align": "left",
+          "margin_x": 40,
+          "max_lines": 4
+        }
+      ]
+    }
+  }
+}

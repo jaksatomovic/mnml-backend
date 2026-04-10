@@ -1,0 +1,68 @@
+{
+  "mode_id": "MEMO",
+  "display_name": "Memo",
+  "icon": "memo",
+  "cacheable": false,
+  "description": "Display your custom message on the screen",
+  "settings_schema": [
+    {
+      "key": "memo_text",
+      "label": "Memo text",
+      "type": "textarea",
+      "placeholder": "Enter your memo content for this mode"
+    }
+  ],
+  "content": {
+    "type": "computed",
+    "provider": "memo",
+    "fallback": {"memo_text": "Set your memo in the config page."},
+    "fallback_pool": [
+      {"memo_text": "Set your memo in the config page."},
+      {"memo_text": "Stay positive and keep going!"},
+      {"memo_text": "Focus on the present moment."},
+      {"memo_text": "Remember to stay hydrated."},
+      {"memo_text": "Take a break and look into the distance."}
+    ]
+  },
+  "layout": {
+    "status_bar": {"line_width": 1, "dashed": false},
+    "body": [
+      {
+        "type": "centered_text",
+        "field": "memo_text",
+        "font_name": "Lora-Regular.ttf",
+        "font_size": 16,
+        "vertical_center": true,
+        "max_width_ratio": 0.85
+      }
+    ],
+    "footer": {"label": "MEMO"}
+  },
+  "layout_overrides": {
+    "296x128": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "memo_text",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 13,
+          "vertical_center": true,
+          "max_width_ratio": 0.92
+        }
+      ],
+      "footer": {"label": "MEMO", "height": 18}
+    },
+    "800x480": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "memo_text",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 26,
+          "vertical_center": true,
+          "max_width_ratio": 0.82
+        }
+      ]
+    }
+  }
+}

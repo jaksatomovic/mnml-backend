@@ -1,0 +1,58 @@
+{
+  "mode_id": "HABIT",
+  "display_name": "Habit Tracker",
+  "icon": "habit",
+  "cacheable": false,
+  "description": "Track your daily habit completion",
+  "content": {
+    "type": "computed",
+    "provider": "habit",
+    "fallback": {"habits": [], "summary": "Set up habits to track in the config page.", "week_progress": 0, "week_total": 7},
+    "fallback_pool": [
+      {"habits": [], "summary": "Set up habits to track in the config page.", "week_progress": 0, "week_total": 7},
+      {"habits": [], "summary": "Consistency is the key to success.", "week_progress": 0, "week_total": 7},
+      {"habits": [], "summary": "Every day is a fresh start.", "week_progress": 0, "week_total": 7}
+    ]
+  },
+  "layout": {
+    "status_bar": {"line_width": 1, "dashed": false},
+    "body": [
+      {
+        "type": "centered_text",
+        "field": "summary",
+        "font_name": "Lora-Regular.ttf",
+        "font_size": 16,
+        "max_width_ratio": 0.85,
+        "vertical_center": true
+      }
+    ],
+    "footer": {"label": "HABIT"}
+  },
+  "layout_overrides": {
+    "296x128": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "summary",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 12,
+          "max_width_ratio": 0.92,
+          "vertical_center": true
+        }
+      ],
+      "footer": {"label": "HABIT", "height": 18}
+    },
+    "800x480": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "summary",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 24,
+          "max_width_ratio": 0.8,
+          "vertical_center": true
+        }
+      ]
+    }
+  }
+}

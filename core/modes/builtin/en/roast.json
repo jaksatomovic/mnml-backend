@@ -1,0 +1,67 @@
+{
+  "mode_id": "ROAST",
+  "display_name": "Daily Roast",
+  "icon": "electric_bolt",
+  "cacheable": true,
+  "description": "Witty, sarcastic one-liners about your current moment",
+  "content": {
+    "type": "llm",
+    "prompt_template": "You are a witty AI with a gift for dark humor and sarcasm. Pick ONE specific detail from the environment info below and roast it mercilessly.\nFor example: if it's Monday, roast Monday blues; if it's raining, roast people caught in the rain; if it's late night, roast night owls; if it's hot, roast the heat.\nThe roast should sound like a snarky friend sitting next to you — not like a generic internet joke. Affectionate but devastating. Make them laugh despite themselves.\nWrite in English only. Output ONLY the roast itself. No quotes, no prefix.\nContext: {context}",
+    "output_format": "raw",
+    "output_fields": ["quote"],
+    "temperature": 0.85,
+    "fallback": { "quote": "Server's tired too. Just like you, it needs a break." },
+    "fallback_pool": [
+      { "quote": "Server's tired too. Just like you, it needs a break." },
+      { "quote": "Loading... much like your life — always buffering." },
+      { "quote": "404: Your motivation was not found." },
+      { "quote": "Connection timed out. So did your patience." },
+      { "quote": "System busy. Maybe you should be too." }
+    ]
+  },
+  "layout": {
+    "status_bar": { "line_width": 2, "dashed": false },
+    "body": [
+      {
+        "type": "centered_text",
+        "field": "quote",
+        "font_name": "Lora-Regular.ttf",
+        "font_size": 18,
+        "max_width_ratio": 0.88,
+        "vertical_center": true
+      }
+    ],
+    "footer": {
+      "label": "ROAST",
+      "attribution_template": "— InkSight AI",
+      "line_width": 2
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 13,
+          "max_width_ratio": 0.92,
+          "vertical_center": true
+        }
+      ],
+      "footer": { "label": "ROAST", "attribution_template": "— InkSight AI", "height": 18, "line_width": 2 }
+    },
+    "800x480": {
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 26,
+          "max_width_ratio": 0.82,
+          "vertical_center": true
+        }
+      ]
+    }
+  }
+}

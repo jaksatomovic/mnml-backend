@@ -1,0 +1,1668 @@
+"""
+通用 JSON 模式渲染引擎
+根据 JSON layout 定义将内容渲染为墨水屏图像
+"""
+from __future__ import annotations
+
+import logging
+import re
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
+from urllib.parse import urlparse
+
+import httpx
+from PIL import Image, ImageDraw, UnidentifiedImageError
+
+from .config import (
+    SCREEN_WIDTH, SCREEN_HEIGHT,
+    EINK_4COLOR_PALETTE, EINK_COLOR_NAME_MAP, EINK_COLOR_AVAILABILITY,
+)
+from .patterns.utils import (
+    EINK_BG,
+    EINK_FG,
+    apply_text_fontmode,
+    draw_status_bar,
+    draw_footer,
+    draw_dashed_line,
+    load_font,
+    load_font_by_name,
+    paste_icon_onto,
+    load_icon,
+    wrap_text,
+    has_cjk,
+)
+from .mode_catalog import builtin_catalog_map
+
+logger = logging.getLogger(__name__)
+
+_BACKEND_ROOT = Path(__file__).resolve().parent.parent
+_UPLOAD_DIR = _BACKEND_ROOT / "runtime_uploads"
+_PALETTE_RGB = {
+    0: (0, 0, 0),
+    1: (255, 255, 255),
+    2: (232, 176, 0),
+    3: (200, 0, 0),
+}
+
+STATUS_BAR_BOTTOM_DEFAULT = 36  # Used when screen_h unknown (e.g. dataclass default)
+
+_EMOJI_PATTERN = re.compile(
+    r"[\U0001F300-\U0001F9FF\u2600-\u26FF\u2700-\u27BF]+", re.UNICODE
+)
+
+
+def _strip_emoji(s: str) -> str:
+    """Remove emoji/symbols that typical CJK fonts don't render."""
+    if not s:
+        return s
+    return _EMOJI_PATTERN.sub("", s).strip()
+
+
+_LABEL_EMOJI_TO_ICON = {
+    "\U0001f4d6": "book",
+    "\U0001f4a1": "tips",
+    "\U0001f31f": "star",
+}
+
+_BUILTIN_STATIC_ATTRIBUTIONS = {
+    "zh": {
+        "ARTWALL": "— 墨上观形",
+        "BIAS": "— 见自己",
+        "BRIEFING": "— 今日速览",
+        "CALENDAR": "— 日有其序",
+        "CHALLENGE": "— 试试看",
+        "COUNTDOWN": "— 静待那天",
+        "DAILY": "— 活在当下",
+        "FITNESS": "— 动起来",
+        "LIFEBAR": "— 此刻即刻度",
+        "QUESTION": "— 想一想",
+        "RECIPE": "— 好好吃饭",
+        "RIDDLE": "— 且猜且想",
+        "ROAST": "— 一笑了之",
+        "STORY": "— 微光成篇",
+        "THISDAY": "— 以史为镜",
+        "TIMETABLE": "— 按表前行",
+        "WEATHER": "— 阴晴有时",
+        "WORD_OF_THE_DAY": "— 每日精进",
+    },
+    "en": {
+        "ARTWALL": "— Ink Art",
+        "BIAS": "— Think Clearly",
+        "BRIEFING": "— AI Brief",
+        "CALENDAR": "— InkSight",
+        "CHALLENGE": "— Just Do It",
+        "COUNTDOWN": "— Remember",
+        "DAILY": "— Carpe Diem",
+        "FITNESS": "— Stay Healthy",
+        "LIFEBAR": "— Time Flies",
+        "QUESTION": "— Take a Moment",
+        "RECIPE": "— Eat Well",
+        "RIDDLE": "— Think About It",
+        "ROAST": "— InkSight AI",
+        "STORY": "— Micro Fiction",
+        "THISDAY": "— History",
+        "TIMETABLE": "— InkSight",
+        "WEATHER": "— Open-Meteo",
+        "WORD_OF_THE_DAY": "— Expand Your Lexicon",
+    },
+}
+
+
+def _section_icon_from_label(label: str) -> str | None:
+    """If label starts with a known emoji, return the corresponding icon name."""
+    for emoji, icon_name in _LABEL_EMOJI_TO_ICON.items():
+        if label.startswith(emoji) or emoji in label:
+            return icon_name
+    return None
+
+
+def _localized_footer_label(mode_id: str, fallback_label: str, language: str) -> str:
+    item = builtin_catalog_map().get((mode_id or "").upper())
+    if not item:
+        return fallback_label
+    return item.en.name if language == "en" else item.zh.name
+
+
+def _localized_footer_attribution(mode_id: str, attribution: str, language: str) -> str:
+    if not attribution or "{" in attribution:
+        return attribution
+    localized = _BUILTIN_STATIC_ATTRIBUTIONS.get(language, {}).get((mode_id or "").upper())
+    return localized or attribution
+
+
+def _convert_image_block(src: Image.Image, width: int, height: int, colors: int) -> Image.Image:
+    resized = src.convert("RGBA").resize((width, height))
+    base = Image.new("RGBA", resized.size, (255, 255, 255, 255))
+    base.alpha_composite(resized)
+    rgb = base.convert("RGB")
+    if colors < 3:
+        return rgb.convert("L").convert("1")
+    out = Image.new("P", rgb.size, EINK_BG)
+    pal = EINK_4COLOR_PALETTE + [0] * (768 - len(EINK_4COLOR_PALETTE))
+    out.putpalette(pal)
+    allowed = (0, 1, 3) if colors == 3 else (0, 1, 2, 3)
+    cache: dict[tuple[int, int, int], int] = {}
+    mapped: list[int] = []
+    for pixel in rgb.getdata():
+        idx = cache.get(pixel)
+        if idx is None:
+            idx = min(
+                allowed,
+                key=lambda candidate: (
+                    (pixel[0] - _PALETTE_RGB[candidate][0]) ** 2
+                    + (pixel[1] - _PALETTE_RGB[candidate][1]) ** 2
+                    + (pixel[2] - _PALETTE_RGB[candidate][2]) ** 2
+                ),
+            )
+            cache[pixel] = idx
+        mapped.append(idx)
+    out.putdata(mapped)
+    return out
+
+
+@dataclass
+class RenderContext:
+    """Mutable state threaded through block renderers."""
+    draw: ImageDraw.ImageDraw
+    img: Image.Image
+    content: dict
+    screen_w: int = SCREEN_WIDTH
+    screen_h: int = SCREEN_HEIGHT
+    y: int = STATUS_BAR_BOTTOM_DEFAULT
+    x_offset: int = 0
+    available_width: int = SCREEN_WIDTH
+    footer_height: int = 30
+    colors: int = 2
+
+    @property
+    def scale(self) -> float:
+        return self.screen_w / 400.0
+
+    @property
+    def h_scale(self) -> float:
+        return self.screen_h / 300.0
+
+    @property
+    def min_scale(self) -> float:
+        """Conservative scale factor based on the more constrained dimension."""
+        return min(self.scale, self.h_scale)
+
+    def __post_init__(self):
+        if self.available_width == SCREEN_WIDTH and self.screen_w != SCREEN_WIDTH:
+            self.available_width = self.screen_w
+
+    @property
+    def footer_top(self) -> int:
+        return self.screen_h - self.footer_height
+
+    def resolve(self, template: str) -> str:
+        """Resolve {field} placeholders against content dict."""
+        def _replace(m: re.Match) -> str:
+            key = m.group(1)
+            val = self.content.get(key, "")
+            if isinstance(val, list):
+                return ", ".join(str(v) for v in val)
+            return str(val)
+        return re.sub(r"\{(\w+)\}", _replace, template)
+
+    def get_field(self, name: str) -> Any:
+        return self.content.get(name, "")
+
+    @property
+    def remaining_height(self) -> int:
+        return self.footer_top - self.y
+
+    def color_index(self, name: str, default: int = EINK_FG) -> int:
+        """Return palette index for a named color if the device supports it."""
+        available = EINK_COLOR_AVAILABILITY.get(self.colors, frozenset())
+        if name not in available:
+            return default
+        return EINK_COLOR_NAME_MAP.get(name, default)
+
+    def resolve_color(self, block: dict, default: int = EINK_FG) -> int:
+        """Resolve block 'color' property to a fill value."""
+        name = block.get("color")
+        if not name:
+            return default
+        return self.color_index(name, default)
+
+    def paste_icon(self, icon: Image.Image, pos: tuple[int, int], fill: int = EINK_FG) -> None:
+        """Paste a 1-bit icon onto the canvas, handling palette mode transparency."""
+        paste_icon_onto(self.img, icon, pos, fill)
+
+
+# ── Public API ───────────────────────────────────────────────
+
+
+def render_json_mode(
+    mode_def: dict,
+    content: dict,
+    *,
+    date_str: str,
+    weather_str: str,
+    battery_pct: float,
+    weather_code: int = -1,
+    time_str: str = "",
+    screen_w: int = SCREEN_WIDTH,
+    screen_h: int = SCREEN_HEIGHT,
+    colors: int = 2,
+    language: str = "zh",
+) -> Image.Image:
+    """Render a JSON-defined mode to an e-ink image (1-bit or 4-color palette)."""
+    if colors >= 3:
+        img = Image.new("P", (screen_w, screen_h), EINK_BG)
+        pal = EINK_4COLOR_PALETTE + [0] * (768 - len(EINK_4COLOR_PALETTE))
+        img.putpalette(pal)
+    else:
+        img = Image.new("1", (screen_w, screen_h), EINK_BG)
+    draw = ImageDraw.Draw(img)
+    apply_text_fontmode(draw)
+    layout = mode_def.get("layout", {})
+
+    # Select screen-size-specific layout override if available
+    overrides = mode_def.get("layout_overrides", {})
+    size_key = f"{screen_w}x{screen_h}"
+    if size_key in overrides:
+        layout = {**layout, **overrides[size_key]}
+
+    # 1. Status bar
+    sb = layout.get("status_bar", {})
+    draw_status_bar(
+        draw, img, date_str, weather_str, int(battery_pct), weather_code,
+        line_width=sb.get("line_width", 1),
+        dashed=sb.get("dashed", False),
+        time_str=time_str,
+        screen_w=screen_w, screen_h=screen_h,
+        colors=colors,
+        language=language,
+    )
+
+    ft_layout = layout.get("footer", {})
+    status_bar_pct = sb.get("bottom_pct")
+    if status_bar_pct is None:
+        status_bar_pct = 0.10 if screen_h < 200 else 0.12
+    try:
+        status_bar_pct = float(status_bar_pct)
+    except (TypeError, ValueError):
+        status_bar_pct = 0.10 if screen_h < 200 else 0.12
+    status_bar_bottom = int(screen_h * status_bar_pct)
+    scale = screen_w / 400.0
+    min_scale = min(scale, screen_h / 300.0)
+    footer_height = int(ft_layout.get("height", 30) * min_scale)
+    footer_top = screen_h - footer_height
+
+    # 2. Body blocks
+    body = layout.get("body", [])
+    body_align = layout.get("body_align", "center")
+    _has_vcenter = any(
+        b.get("type") == "centered_text" and b.get("vertical_center", True)
+        for b in body
+    )
+
+    if _has_vcenter and len(body) == 1:
+        ctx = RenderContext(
+            draw=draw, img=img, content=content,
+            screen_w=screen_w, screen_h=screen_h,
+            y=status_bar_bottom, footer_height=footer_height, colors=colors,
+        )
+        _render_centered_text(ctx, body[0], use_full_body=True)
+    elif body_align == "center" and body:
+        measure_img = Image.new("1", (screen_w, screen_h), EINK_BG)
+        measure_ctx = RenderContext(
+            draw=ImageDraw.Draw(measure_img), img=measure_img, content=content,
+            screen_w=screen_w, screen_h=screen_h,
+            y=status_bar_bottom, footer_height=footer_height,
+        )
+        apply_text_fontmode(measure_ctx.draw)
+        for block in body:
+            if measure_ctx.y >= footer_top - 10:
+                break
+            _render_block(measure_ctx, block)
+        content_height = measure_ctx.y - status_bar_bottom
+        available_height = footer_top - status_bar_bottom
+        offset = max(0, (available_height - content_height) // 2)
+
+        ctx = RenderContext(
+            draw=draw, img=img, content=content,
+            screen_w=screen_w, screen_h=screen_h,
+            y=status_bar_bottom + offset, footer_height=footer_height, colors=colors,
+        )
+        for block in body:
+            if ctx.y >= footer_top - 10:
+                break
+            _render_block(ctx, block)
+    else:
+        ctx = RenderContext(
+            draw=draw, img=img, content=content,
+            screen_w=screen_w, screen_h=screen_h,
+            y=status_bar_bottom, footer_height=footer_height, colors=colors,
+        )
+        for block in body:
+            if ctx.y >= footer_top - 10:
+                break
+            _render_block(ctx, block)
+
+    # 3. Footer
+    ft = ft_layout
+    mode_id = mode_def.get("mode_id", "")
+    label = _localized_footer_label(mode_id, ft.get("label", mode_id), language)
+    attribution = ctx.resolve(ft.get("attribution_template", "")) if ft.get("attribution_template") else ""
+    attribution = _localized_footer_attribution(mode_id, attribution, language)
+    _attr_font_size = ft.get("font_size")
+    if _attr_font_size is not None:
+        _attr_font_size = int(_attr_font_size * scale)
+    draw_footer(
+        draw, img, label, attribution,
+        mode_id=mode_id,
+        weather_code=content.get("today_code", content.get("code")),
+        line_width=ft.get("line_width", 1),
+        dashed=ft.get("dashed", False),
+        attr_font_size=_attr_font_size,
+        screen_w=screen_w, screen_h=screen_h,
+        colors=colors,
+        time_str=time_str,
+    )
+
+    return img
+
+
+# ── Block dispatcher ─────────────────────────────────────────
+
+
+_BLOCK_RENDERERS: dict[str, Any] = {}
+
+
+def _render_block(ctx: RenderContext, block: dict) -> None:
+    btype = block.get("type", "")
+    renderer = _BLOCK_RENDERERS.get(btype)
+    if renderer:
+        renderer(ctx, block)
+    else:
+        logger.warning(f"[JSONRenderer] Unknown block type: {btype}")
+
+
+# ── Block implementations ────────────────────────────────────
+
+
+def _render_centered_text(ctx: RenderContext, block: dict, *, use_full_body: bool = False) -> None:
+    field_name = block.get("field", "text")
+    text = str(ctx.get_field(field_name))
+    if not text:
+        return
+
+    font_size = max(10, int(block.get("font_size", 16) * ctx.scale))
+    font_name = block.get("font_name")
+    font_key = block.get("font", "noto_serif_light")
+    max_ratio = block.get("max_width_ratio", 0.88)
+    line_spacing = int(block.get("line_spacing", 8) * ctx.scale)
+
+    body_height = ctx.footer_top - ctx.y
+    max_w = int(ctx.available_width * max_ratio)
+    lines = []
+    font = None
+    line_h = font_size + line_spacing
+    total_h = 0
+    while font_size >= 10:
+        if font_name:
+            if has_cjk(text) and "Noto" not in font_name:
+                font_name = "NotoSerifSC-Light.ttf"
+            font = load_font_by_name(font_name, font_size)
+        else:
+            if has_cjk(text):
+                font_key = "noto_serif_light"
+            font = load_font(font_key, font_size)
+
+        lines = wrap_text(text, font, max_w)
+        line_h = font_size + line_spacing
+        total_h = len(lines) * line_h
+
+        if use_full_body and block.get("vertical_center", True) and total_h > body_height:
+            font_size -= 2
+        else:
+            break
+
+    if use_full_body and block.get("vertical_center", True):
+        y_start = ctx.y + (body_height - total_h) // 2
+    else:
+        y_start = ctx.y
+
+    for i, line in enumerate(lines):
+        bbox = font.getbbox(line)
+        lw = bbox[2] - bbox[0]
+        x = ctx.x_offset + (ctx.available_width - lw) // 2
+        ctx.draw.text((x, y_start + i * line_h), line, fill=ctx.resolve_color(block), font=font)
+
+    ctx.y = y_start + total_h + 4
+
+
+def _render_text(ctx: RenderContext, block: dict) -> None:
+    template = block.get("template", "")
+    field_name = block.get("field")
+    if field_name:
+        text = str(ctx.get_field(field_name))
+    elif template:
+        text = ctx.resolve(template)
+    else:
+        return
+
+    if not text:
+        return
+
+    font_size = int(block.get("font_size", 14) * ctx.scale)
+    font_key = block.get("font", "noto_serif_regular")
+    if has_cjk(text):
+        font_key = _pick_cjk_font(font_key)
+    font = load_font(font_key, font_size)
+
+    align = block.get("align", "center")
+    margin_x = block.get("margin_x")
+    if margin_x is not None:
+        margin_x = int(margin_x * ctx.scale)
+    else:
+        margin_x = int(ctx.screen_w * 0.06)
+    max_lines = block.get("max_lines", 3)
+    max_w = max(20, ctx.available_width - margin_x * 2)
+
+    lines = wrap_text(text, font, max_w)
+
+    if max_lines and len(lines) > max_lines:
+        lines = lines[:max_lines]
+        if lines:
+            lines[-1] = lines[-1].rstrip() + "..."
+
+    for line in lines:
+        if ctx.y >= ctx.footer_top - 10:
+            break
+        bbox = font.getbbox(line)
+        lw = bbox[2] - bbox[0]
+        if align == "center":
+            x = ctx.x_offset + (ctx.available_width - lw) // 2
+        elif align == "right":
+            x = ctx.x_offset + ctx.available_width - margin_x - lw
+        else:
+            x = ctx.x_offset + margin_x
+        ctx.draw.text((x, ctx.y), line, fill=ctx.resolve_color(block), font=font)
+        ctx.y += font_size + 6
+
+
+def _render_separator(ctx: RenderContext, block: dict) -> None:
+    style = block.get("style", "solid")
+    margin_x = block.get("margin_x")
+    if margin_x is not None:
+        margin_x = int(margin_x * ctx.scale)
+    else:
+        margin_x = int(ctx.screen_w * 0.06)
+    line_width = block.get("line_width", 1)
+
+    color = ctx.resolve_color(block)
+    if style == "short":
+        w = int(block.get("width", 60) * ctx.scale)
+        x0 = ctx.x_offset + (ctx.available_width - w) // 2
+        ctx.draw.line([(x0, ctx.y), (x0 + w, ctx.y)], fill=color, width=line_width)
+    elif style == "dashed":
+        draw_dashed_line(ctx.draw, (ctx.x_offset + margin_x, ctx.y), (ctx.x_offset + ctx.available_width - margin_x, ctx.y),
+                         fill=color, width=line_width)
+    else:
+        ctx.draw.line([(ctx.x_offset + margin_x, ctx.y), (ctx.x_offset + ctx.available_width - margin_x, ctx.y)],
+                      fill=color, width=line_width)
+    ctx.y += 8 + line_width
+
+
+def _render_section(ctx: RenderContext, block: dict) -> None:
+    raw_title = block.get("title") or block.get("label", "")
+    icon_name = block.get("icon")
+    if not icon_name:
+        icon_name = _section_icon_from_label(raw_title)
+    title = _strip_emoji(raw_title)
+    title_font_key = block.get("title_font", "noto_serif_regular")
+    title_font_size = int(block.get("title_font_size", 14) * ctx.scale)
+
+    if has_cjk(title):
+        title_font_key = _pick_cjk_font(title_font_key)
+    font = load_font(title_font_key, title_font_size)
+
+    margin_x = int(ctx.screen_w * 0.06)
+    x = ctx.x_offset + margin_x
+    icon_size = int(12 * ctx.scale)
+    if icon_name:
+        icon_img = load_icon(icon_name, size=(icon_size, icon_size))
+        if icon_img:
+            ctx.paste_icon(icon_img, (x, ctx.y))
+            x += int(16 * ctx.scale)
+
+    ctx.draw.text((x, ctx.y), title, fill=ctx.resolve_color(block), font=font)
+    ctx.y += title_font_size + int(6 * ctx.scale)
+
+    for child in block.get("children") or block.get("blocks", []):
+        if ctx.y >= ctx.footer_top - 10:
+            break
+        _render_block(ctx, child)
+
+
+def _render_list(ctx: RenderContext, block: dict) -> None:
+    field_name = block.get("field", "")
+    items = ctx.get_field(field_name)
+    if not isinstance(items, list):
+        return
+
+    max_items = block.get("max_items", 8)
+    template = block.get("item_template", "{name}")
+    right_field = block.get("right_field")
+    numbered = block.get("numbered", False)
+    font_key = block.get("font", "noto_serif_regular")
+    font_size = int(block.get("font_size", 13) * ctx.scale)
+    spacing = int(block.get("item_spacing", 16) * ctx.scale)
+    margin_x = block.get("margin_x")
+    if margin_x is not None:
+        margin_x = int(margin_x * ctx.scale)
+    else:
+        margin_x = int(ctx.screen_w * 0.08)
+
+    align = block.get("align", "left")
+
+    # Ensure CJK font for list items (poetry lines are Chinese strings)
+    font_key_cjk = _pick_cjk_font(font_key)
+    font = load_font(font_key_cjk, font_size)
+    item_height = spacing
+
+    rendered_count = 0
+    for i, item in enumerate(items[:max_items]):
+        if ctx.y + item_height > ctx.footer_top:
+            remaining = len(items) - rendered_count
+            if remaining > 0:
+                more_text = f"+{remaining} more"
+                more_font = load_font(_pick_cjk_font(font_key), int(11 * ctx.scale))
+                ctx.draw.text((ctx.x_offset + margin_x, ctx.y), more_text, fill=ctx.resolve_color(block), font=more_font)
+            break
+        if ctx.y >= ctx.footer_top - 10:
+            break
+
+        if isinstance(item, dict):
+            text = template
+            for k, v in item.items():
+                text = text.replace("{" + k + "}", str(v))
+            text = text.replace("{_value}", str(item))
+        else:
+            text = str(item)
+            if template and "{_value}" in template:
+                text = template.replace("{_value}", str(item))
+
+        if numbered:
+            text = f"{i + 1}. {text}"
+        text = text.replace("{index}", str(i + 1))
+
+        right_col_w = int(80 * ctx.scale)
+        max_text_w = ctx.available_width - margin_x * 2 if not right_field else ctx.available_width - margin_x - right_col_w
+        lines = wrap_text(text, font, max_text_w)
+
+        color = ctx.resolve_color(block)
+        if align == "center":
+            for ln in lines[:1]:
+                bbox = font.getbbox(ln)
+                lw = bbox[2] - bbox[0]
+                ctx.draw.text((ctx.x_offset + (ctx.available_width - lw) // 2, ctx.y), ln, fill=color, font=font)
+        else:
+            for ln in lines[:1]:
+                ctx.draw.text((ctx.x_offset + margin_x, ctx.y), ln, fill=color, font=font)
+
+        if right_field and isinstance(item, dict):
+            rv = str(item.get(right_field, ""))
+            if rv:
+                ctx.draw.text((ctx.x_offset + ctx.available_width - right_col_w, ctx.y), rv, fill=color, font=font)
+
+        ctx.y += spacing
+        rendered_count += 1
+
+
+def _render_vertical_stack(ctx: RenderContext, block: dict) -> None:
+    spacing = block.get("spacing", 0)
+    for child in block.get("children", []):
+        if ctx.y >= ctx.footer_top - 10:
+            break
+        _render_block(ctx, child)
+        ctx.y += spacing
+
+
+def _render_conditional(ctx: RenderContext, block: dict) -> None:
+    field_name = block.get("field", "")
+    value = ctx.get_field(field_name)
+    conditions = block.get("conditions", [])
+
+    for cond in conditions:
+        op = cond.get("op", "exists")
+        cmp_val = cond.get("value")
+        matched = False
+
+        if op == "exists":
+            matched = bool(value)
+        elif op == "eq":
+            matched = value == cmp_val
+        elif op == "gt":
+            matched = _num(value) > _num(cmp_val)
+        elif op == "lt":
+            matched = _num(value) < _num(cmp_val)
+        elif op == "gte":
+            matched = _num(value) >= _num(cmp_val)
+        elif op == "lte":
+            matched = _num(value) <= _num(cmp_val)
+        elif op == "len_eq":
+            matched = isinstance(value, (list, str)) and len(value) == _num(cmp_val)
+        elif op == "len_gt":
+            matched = isinstance(value, (list, str)) and len(value) > _num(cmp_val)
+
+        if matched:
+            for child in cond.get("children", []):
+                _render_block(ctx, child)
+            return
+
+    for child in block.get("fallback_children", []):
+        _render_block(ctx, child)
+
+
+def _render_spacer(ctx: RenderContext, block: dict) -> None:
+    ctx.y += int(block.get("height", 12) * ctx.min_scale)
+
+
+def _render_icon_text(ctx: RenderContext, block: dict) -> None:
+    icon_name = block.get("icon")
+    field_name = block.get("field")
+    text = str(ctx.get_field(field_name)) if field_name else block.get("text", "")
+    text = ctx.resolve(text)
+    if not text:
+        return
+
+    font_key = block.get("font", "noto_serif_regular")
+    font_size = int(block.get("font_size", 14) * ctx.scale)
+    icon_size = int(block.get("icon_size", 12) * ctx.scale)
+    margin_x = block.get("margin_x")
+    if margin_x is not None:
+        margin_x = int(margin_x * ctx.scale)
+    else:
+        margin_x = int(ctx.screen_w * 0.06)
+
+    if has_cjk(text):
+        font_key = _pick_cjk_font(font_key)
+    font = load_font(font_key, font_size)
+
+    x = ctx.x_offset + margin_x
+    if icon_name:
+        icon_img = load_icon(icon_name, size=(icon_size, icon_size))
+        if icon_img:
+            ctx.paste_icon(icon_img, (x, ctx.y))
+            x += icon_size + 4
+
+    ctx.draw.text((x, ctx.y), text, fill=ctx.resolve_color(block), font=font)
+    ctx.y += font_size + 6
+
+
+def _render_weather_icon_text(ctx: RenderContext, block: dict) -> None:
+    """Render dynamic weather icon (by code) with a text label on the same line."""
+    from .patterns.utils import get_weather_icon
+
+    code_field = block.get("code_field", "today_code")
+    text_field = block.get("field")
+    template = block.get("text", "")
+
+    code_val = ctx.get_field(code_field)
+    try:
+        if isinstance(code_val, str):
+            code_int = int(code_val)
+        else:
+            code_int = int(code_val)
+    except (TypeError, ValueError):
+        code_int = -1
+
+    if text_field:
+        text = str(ctx.get_field(text_field))
+    else:
+        text = template or ""
+        text = ctx.resolve(text)
+
+    if not text:
+        return
+
+    font_key = block.get("font", "noto_serif_regular")
+    font_size = int(block.get("font_size", 14) * ctx.scale)
+    icon_size = int(block.get("icon_size", 18) * ctx.scale)
+    margin_x = block.get("margin_x")
+    if margin_x is not None:
+        margin_x = int(margin_x * ctx.scale)
+    else:
+        margin_x = int(ctx.screen_w * 0.06)
+
+    if has_cjk(text):
+        font_key = _pick_cjk_font(font_key)
+    font = load_font(font_key, font_size)
+
+    x = ctx.x_offset + margin_x
+    y = ctx.y
+
+    if code_int >= 0:
+        icon_img = get_weather_icon(code_int)
+        if icon_img:
+            if icon_img.size[0] != icon_size:
+                icon_img = icon_img.resize((icon_size, icon_size), Image.LANCZOS)
+            ctx.paste_icon(icon_img, (x, y))
+            x += icon_size + int(4 * ctx.scale)
+
+    ctx.draw.text((x, y), text, fill=EINK_FG, font=font)
+    ctx.y += font_size + 6
+
+
+def _render_big_number(ctx: RenderContext, block: dict) -> None:
+    field_name = block.get("field", "")
+    text = str(ctx.get_field(field_name))
+    if not text or text == "--":
+        return
+    
+    # 支持单位后缀
+    unit = block.get("unit", "")
+    if unit:
+        text = f"{text}{unit}"
+    
+    font_size = int(block.get("font_size", 42) * ctx.scale)
+    font_key = block.get("font", "lora_bold")
+    if has_cjk(text):
+        font_key = _pick_cjk_font(font_key)
+    font = load_font(font_key, font_size)
+    bbox = font.getbbox(text)
+    tw = bbox[2] - bbox[0]
+    align = block.get("align", "center")
+    _raw_margin = block.get("margin_x")
+    if _raw_margin is not None:
+        margin_x = int(_raw_margin * ctx.scale)
+    else:
+        margin_x = int(ctx.available_width * 0.06)
+    if align == "left":
+        x = ctx.x_offset + margin_x
+    elif align == "right":
+        x = ctx.x_offset + ctx.available_width - margin_x - tw
+    else:
+        x = ctx.x_offset + (ctx.available_width - tw) // 2
+    ctx.draw.text((x, ctx.y), text, fill=ctx.resolve_color(block), font=font)
+    ctx.y += font_size + 6
+
+
+def _render_progress_bar(ctx: RenderContext, block: dict) -> None:
+    value = _num(ctx.get_field(block.get("field", "")))
+    max_value = max(_num(ctx.get_field(block.get("max_field", ""))), 1)
+    ratio = max(0.0, min(1.0, value / max_value))
+    width = int(block.get("width", 80) * ctx.scale)
+    height = int(block.get("height", 6) * ctx.scale)
+    _raw_margin = block.get("margin_x")
+    if _raw_margin is not None:
+        margin_x = int(_raw_margin * ctx.scale)
+    else:
+        margin_x = int(ctx.screen_w * 0.06)
+    x = ctx.x_offset + margin_x
+    y = ctx.y
+    ctx.draw.rectangle([x, y, x + width, y + height], outline=EINK_FG, width=1)
+    fill_w = int((width - 2) * ratio)
+    if fill_w > 0:
+        ctx.draw.rectangle([x + 1, y + 1, x + 1 + fill_w, y + height - 1], fill=EINK_FG)
+    ctx.y += height + 6
+
+
+def _render_temp_chart(ctx: RenderContext, block: dict) -> None:
+    """Render a temperature chart with optional high/low lines for multi-day forecast."""
+    field_name = block.get("field", "forecast")
+    items = ctx.get_field(field_name)
+    if not isinstance(items, list) or not items:
+        return
+
+    max_points = int(block.get("max_points", 4))
+    # 默认使用 temp_max / temp_min 作为高低温字段
+    high_field = block.get("high_field", block.get("temp_field", "temp_max"))
+    low_field = block.get("low_field", "temp_min")
+    label_field = block.get("label_field", "day")
+
+    highs: list[float] = []
+    lows: list[float] = []
+    labels = []
+
+    for item in items[:max_points]:
+        if not isinstance(item, dict):
+            continue
+        h_raw = item.get(high_field)
+        l_raw = item.get(low_field)
+        if h_raw is None or l_raw is None:
+            continue
+        h_val = _num(h_raw)
+        l_val = _num(l_raw)
+        highs.append(h_val)
+        lows.append(l_val)
+        labels.append(str(item.get(label_field, "")))
+
+    if not highs:
+        return
+
+    # 全局取 min / max，保证两条折线在同一坐标系内
+    all_temps = highs + lows
+    min_t = min(all_temps)
+    max_t = max(all_temps)
+    if max_t == min_t:
+        max_t = min_t + 1  # avoid divide-by-zero, draw a flat line
+
+    margin_x = block.get("margin_x")
+    if margin_x is not None:
+        margin_x = int(margin_x * ctx.scale)
+    else:
+        margin_x = int(ctx.screen_w * 0.08)
+
+    chart_height = int(block.get("height", 40) * ctx.scale)
+    # 在右侧预留一点空白，避免折线紧贴屏幕边缘被“截断”的视觉效果
+    extra_right_margin = int(block.get("right_margin", 8) * ctx.scale)
+    width = ctx.available_width - margin_x * 2 - extra_right_margin
+    if width <= 0:
+        return
+
+    x0 = ctx.x_offset + margin_x
+
+    # 通过 bottom_pad 将整个折线图（含数字和标签）整体上移一段距离
+    bottom_pad = int(block.get("bottom_pad", 0) * ctx.scale)
+    y_bottom = ctx.y + chart_height - bottom_pad
+    y_top = y_bottom - chart_height
+
+    n = len(highs)
+    if n == 1:
+        step = 0
+    else:
+        step = width / (n - 1)
+
+    high_coords: list[tuple[float, float]] = []
+    low_coords: list[tuple[float, float]] = []
+    for idx, (h_temp, l_temp) in enumerate(zip(highs, lows)):
+        x = x0 + step * idx
+        ratio_h = (h_temp - min_t) / (max_t - min_t)
+        ratio_l = (l_temp - min_t) / (max_t - min_t)
+        y_h = y_bottom - ratio_h * (chart_height - 8)
+        y_l = y_bottom - ratio_l * (chart_height - 8)
+        high_coords.append((x, y_h))
+        low_coords.append((x, y_l))
+
+    # Draw connecting lines
+    for i in range(1, len(high_coords)):
+        ctx.draw.line([high_coords[i - 1], high_coords[i]], fill=EINK_FG, width=1)
+    for i in range(1, len(low_coords)):
+        ctx.draw.line([low_coords[i - 1], low_coords[i]], fill=EINK_FG, width=1)
+
+    # Draw points and labels（只标注最高温数字，最低温仅用空心点表示）
+    font = load_font("noto_serif_light", int(10 * ctx.scale))
+    for (xh, yh), (xl, yl), h_temp, l_temp, label in zip(
+        high_coords, low_coords, highs, lows, labels
+    ):
+        r = int(2 * ctx.scale) or 1
+        # 最高温：实心圆点
+        ctx.draw.ellipse([xh - r, yh - r, xh + r, yh + r], fill=EINK_FG)
+        # 最低温：空心圆点
+        ctx.draw.ellipse([xl - r, yl - r, xl + r, yl + r], fill=EINK_BG)
+        ctx.draw.ellipse([xl - r, yl - r, xl + r, yl + r], outline=EINK_FG, width=1)
+
+        # 最高温数字（在图顶上方）
+        temp_text_high = str(int(round(h_temp)))
+        hbbox = font.getbbox(temp_text_high)
+        htw = hbbox[2] - hbbox[0]
+        hth = hbbox[3] - hbbox[1]
+        ctx.draw.text(
+            (xh - htw / 2, y_top - hth - 2),
+            temp_text_high,
+            fill=EINK_FG,
+            font=font,
+        )
+
+        if label:
+            lbbox = font.getbbox(label)
+            lw = lbbox[2] - lbbox[0]
+            ctx.draw.text((xh - lw / 2, y_bottom + 2), label, fill=EINK_FG, font=font)
+
+    ctx.y = y_bottom + int(18 * ctx.scale)
+
+
+def _render_forecast_cards(ctx: RenderContext, block: dict) -> None:
+    """Render multi-day forecast cards similar to the reference UI."""
+    field_name = block.get("field", "forecast")
+    items = ctx.get_field(field_name)
+    if not isinstance(items, list) or not items:
+        return
+
+    max_items = int(block.get("max_items", 4))
+    items = [it for it in items if isinstance(it, dict)][:max_items]
+    if not items:
+        return
+
+    scale = ctx.scale
+    margin_x = block.get("margin_x")
+    if margin_x is not None:
+        margin_x = int(margin_x * scale)
+    else:
+        margin_x = int(ctx.screen_w * 0.02)
+    gap = int(block.get("gap", 6) * scale)
+
+    total_width = ctx.available_width - margin_x * 2
+    n = len(items)
+    card_width = max(40, (total_width - gap * (n - 1)) // n)
+
+    sample_text = " ".join(
+        f"{item.get('day', '')} {item.get('date', '')} {item.get('desc', '')}"
+        for item in items
+    )
+    if has_cjk(sample_text):
+        font_day = load_font("noto_serif_regular", int(14 * scale))
+        font_date = load_font("noto_serif_light", int(12 * scale))
+        font_desc = load_font("noto_serif_light", int(12 * scale))
+        font_temp = load_font("noto_serif_light", int(12 * scale))
+    else:
+        font_day = load_font("lora_regular", int(14 * scale))
+        font_date = load_font("inter_medium", int(12 * scale))
+        font_desc = load_font("lora_regular", int(12 * scale))
+        font_temp = load_font("inter_medium", int(12 * scale))
+
+    from .patterns.utils import get_weather_icon
+
+    top_y = ctx.y
+    card_bottom_max = top_y
+
+    for idx, item in enumerate(items):
+        x0 = ctx.x_offset + margin_x + idx * (card_width + gap)
+        x_center = x0 + card_width // 2
+        y = top_y
+
+        day = str(item.get("day", ""))
+        date = str(item.get("date", ""))
+        desc = str(item.get("desc", ""))
+        # 为卡片单独构造更短的温度文案，避免跨卡片重叠
+        temp_min_raw = item.get("temp_min")
+        temp_max_raw = item.get("temp_max")
+        temp_label = ""
+        if temp_min_raw is not None and temp_max_raw is not None:
+            try:
+                tmin = int(round(_num(temp_min_raw)))
+                tmax = int(round(_num(temp_max_raw)))
+                temp_label = f"{tmin}/{tmax}°"
+            except (TypeError, ValueError):
+                temp_label = ""
+        if not temp_label:
+            temp_label = str(item.get("temp_range", ""))
+        code = item.get("code", -1)
+
+        # Day (e.g. 今天)
+        if day:
+            bbox = font_day.getbbox(day)
+            dw = bbox[2] - bbox[0]
+            ctx.draw.text((x_center - dw / 2, y), day, fill=EINK_FG, font=font_day)
+            y += (bbox[3] - bbox[1]) + int(3 * scale)
+
+        # Date (e.g. 04/22)
+        if date:
+            bbox = font_date.getbbox(date)
+            tw = bbox[2] - bbox[0]
+            th = bbox[3] - bbox[1]
+            ctx.draw.text((x_center - tw / 2, y), date, fill=EINK_FG, font=font_date)
+            y += th + int(5 * scale)
+
+        # Weather icon（增大图标）
+        icon_size = int(block.get("icon_size", 32) * scale)
+        try:
+            if isinstance(code, str):
+                code_int = int(code)
+            else:
+                code_int = int(code)
+        except (TypeError, ValueError):
+            code_int = -1
+        wx_icon = get_weather_icon(code_int) if code_int >= 0 else None
+        if wx_icon:
+            if wx_icon.size[0] != icon_size:
+                wx_icon = wx_icon.resize((icon_size, icon_size), Image.LANCZOS)
+            ctx.paste_icon(wx_icon, (int(x_center - icon_size / 2), int(y)))
+            y += icon_size + int(4 * scale)
+
+        # Desc (e.g. 多云)
+        if desc:
+            bbox = font_desc.getbbox(desc)
+            tw = bbox[2] - bbox[0]
+            th = bbox[3] - bbox[1]
+            ctx.draw.text((x_center - tw / 2, y), desc, fill=EINK_FG, font=font_desc)
+            y += th + int(3 * scale)
+
+        # Temp range (e.g. 9/13°)
+        if temp_label:
+            bbox = font_temp.getbbox(temp_label)
+            tw = bbox[2] - bbox[0]
+            th = bbox[3] - bbox[1]
+            ctx.draw.text((x_center - tw / 2, y), temp_label, fill=EINK_FG, font=font_temp)
+            y += th
+
+        card_bottom_max = max(card_bottom_max, y)
+
+    ctx.y = card_bottom_max + int(4 * scale)
+
+
+def _render_two_column(ctx: RenderContext, block: dict) -> None:
+    # Auto-downgrade to single column on very short screens
+    if ctx.screen_h < 200:
+        for child in block.get("left", []):
+            if ctx.y >= ctx.footer_top - 10:
+                break
+            _render_block(ctx, child)
+        for child in block.get("right", []):
+            if ctx.y >= ctx.footer_top - 10:
+                break
+            _render_block(ctx, child)
+        return
+
+    left_width = int(block.get("left_width", 120) * ctx.scale)
+    gap = int(block.get("gap", 8) * ctx.scale)
+    left_x = int(block.get("left_x", 0) * ctx.scale) + ctx.x_offset
+    right_x = left_x + left_width + gap
+    right_margin = int(block.get("right_margin", 0) * ctx.scale)
+    left_ctx = RenderContext(
+        draw=ctx.draw, img=ctx.img, content=ctx.content,
+        screen_w=ctx.screen_w, screen_h=ctx.screen_h, y=ctx.y,
+        x_offset=left_x, available_width=left_width,
+        footer_height=ctx.footer_height,
+    )
+    right_ctx = RenderContext(
+        draw=ctx.draw, img=ctx.img, content=ctx.content,
+        screen_w=ctx.screen_w, screen_h=ctx.screen_h, y=ctx.y,
+        x_offset=right_x, available_width=max(0, ctx.screen_w - right_x - right_margin),
+        footer_height=ctx.footer_height,
+    )
+    for child in block.get("left", []):
+        _render_block(left_ctx, child)
+    for child in block.get("right", []):
+        _render_block(right_ctx, child)
+    ctx.y = max(left_ctx.y, right_ctx.y)
+
+
+def _render_key_value(ctx: RenderContext, block: dict) -> None:
+    field_name = block.get("field", "")
+    label = block.get("label", "")
+    value = ctx.get_field(field_name)
+    if isinstance(value, dict):
+        ordered = [value.get("meat"), value.get("veg"), value.get("staple")]
+        parts = [str(v) for v in ordered if v]
+        if not parts:
+            parts = [f"{k}:{v}" for k, v in value.items()]
+        value_text = " · ".join(parts)
+    else:
+        value_text = str(value)
+    text = f"{label}: {value_text}" if label else value_text
+    font_size = int(block.get("font_size", 12) * ctx.scale)
+    font = load_font("noto_serif_light", font_size)
+    _raw_margin = block.get("margin_x")
+    if _raw_margin is not None:
+        margin_x = int(_raw_margin * ctx.scale)
+    else:
+        margin_x = int(ctx.screen_w * 0.06)
+    ctx.draw.text((ctx.x_offset + margin_x, ctx.y), text, fill=EINK_FG, font=font)
+    ctx.y += font_size + 4
+
+
+def _render_group(ctx: RenderContext, block: dict) -> None:
+    title = block.get("title", "")
+    if title:
+        title_font_size = int(block.get("title_font_size", 12) * ctx.scale)
+        title_font = load_font("noto_serif_bold", title_font_size)
+        _raw_margin = block.get("margin_x")
+        if _raw_margin is not None:
+            margin_x = int(_raw_margin * ctx.scale)
+        else:
+            margin_x = int(ctx.available_width * 0.06)
+        ctx.draw.text((ctx.x_offset + margin_x, ctx.y), title, fill=EINK_FG, font=title_font)
+        ctx.y += title_font_size + int(4 * ctx.scale)
+    for child in block.get("children", []):
+        _render_block(ctx, child)
+
+
+def _render_weather_icon(ctx: RenderContext, block: dict) -> None:
+    """Render weather icon based on weather_code field."""
+    from .patterns.utils import get_weather_icon
+    
+    field_name = block.get("field", "code")
+    weather_code = ctx.get_field(field_name)
+    
+    # 支持从数字字符串转换
+    try:
+        if isinstance(weather_code, str):
+            weather_code = int(weather_code)
+        elif not isinstance(weather_code, int):
+            weather_code = -1
+    except (ValueError, TypeError):
+        weather_code = -1
+    
+    if weather_code < 0:
+        return
+    
+    icon_size = int(block.get("icon_size", 48) * ctx.scale)
+    align = block.get("align", "left")
+    margin_x = block.get("margin_x")
+    if margin_x is not None:
+        margin_x = int(margin_x * ctx.scale)
+    else:
+        margin_x = int(ctx.screen_w * 0.06)
+    
+    weather_icon = get_weather_icon(weather_code)
+    if weather_icon:
+        # 调整图标大小
+        if weather_icon.size[0] != icon_size:
+            weather_icon = weather_icon.resize((icon_size, icon_size), Image.LANCZOS)
+        
+        x = ctx.x_offset + margin_x
+        if align == "center":
+            x = ctx.x_offset + (ctx.available_width - icon_size) // 2
+        elif align == "right":
+            x = ctx.x_offset + ctx.available_width - margin_x - icon_size
+        
+        ctx.paste_icon(weather_icon, (x, ctx.y))
+        ctx.y += icon_size + int(block.get("margin_bottom", 6) * ctx.scale)
+
+
+def _render_icon_list(ctx: RenderContext, block: dict) -> None:
+    items = ctx.get_field(block.get("field", ""))
+    if not isinstance(items, list):
+        return
+    icon_field = block.get("icon_field", "icon")
+    text_field = block.get("text_field", "text")
+    max_items = int(block.get("max_items", 6))
+    font_size = int(block.get("font_size", 12) * ctx.scale)
+    font = load_font("noto_serif_regular", font_size)
+    _raw_margin = block.get("margin_x")
+    if _raw_margin is not None:
+        margin_x = int(_raw_margin * ctx.scale)
+    else:
+        margin_x = int(ctx.available_width * 0.06)
+    line_h = int(block.get("line_height", 16) * ctx.scale)
+    for item in items[:max_items]:
+        if not isinstance(item, dict):
+            continue
+        icon_name = item.get(icon_field)
+        text = str(item.get(text_field, ""))
+        x = ctx.x_offset + margin_x
+        icon_size = int(12 * ctx.scale)
+        if icon_name:
+            icon_img = load_icon(icon_name, size=(icon_size, icon_size))
+            if icon_img:
+                ctx.paste_icon(icon_img, (x, ctx.y))
+                x += int(16 * ctx.scale)
+        ctx.draw.text((x, ctx.y), text, fill=EINK_FG, font=font)
+        ctx.y += line_h
+
+
+def _resolve_local_asset(url: str) -> str | None:
+    """Resolve known local URLs to local filesystem paths."""
+    if url.startswith("/webconfig/"):
+        project_root = Path(__file__).resolve().parent.parent.parent
+        local = project_root / "webconfig" / url[len("/webconfig/"):]
+        if local.exists() and local.is_file():
+            return str(local)
+        return None
+    try:
+        parsed = urlparse(url)
+    except ValueError:
+        return None
+    path = parsed.path or ""
+    if path.startswith("/api/uploads/"):
+        upload_id = path.rsplit("/", 1)[-1].strip()
+        if not upload_id:
+            return None
+        try:
+            __import__("uuid").UUID(upload_id)
+        except ValueError:
+            return None
+        local = _UPLOAD_DIR / f"{upload_id}.bin"
+        if local.exists() and local.is_file():
+            return str(local)
+    return None
+
+
+def _render_image(ctx: RenderContext, block: dict) -> None:
+    field_name = block.get("field", "image_url")
+    image_url = str(ctx.get_field(field_name) or "")
+    if not image_url:
+        return
+    width = int(block.get("width", 220) * ctx.scale)
+    height = int(block.get("height", 140) * ctx.scale)
+    x = int(block.get("x", (ctx.screen_w - width) // 2))
+    y = int(block.get("y", ctx.y))
+    # Try pre-fetched data first (async download from json_content.py)
+    prefetched = ctx.content.get(f"_prefetched_{field_name}")
+    if prefetched:
+        from io import BytesIO
+        img = _convert_image_block(Image.open(BytesIO(prefetched)), width, height, ctx.colors)
+        if ctx.colors >= 3:
+            ctx.img.paste(img, (x, y))
+        else:
+            ctx.paste_icon(img, (x, y))
+        ctx.y = y + height + int(block.get("margin_bottom", 6))
+        return
+    local_path = _resolve_local_asset(image_url)
+    if local_path:
+        try:
+            img = _convert_image_block(Image.open(local_path), width, height, ctx.colors)
+            if ctx.colors >= 3:
+                ctx.img.paste(img, (x, y))
+            else:
+                ctx.paste_icon(img, (x, y))
+            ctx.y = y + height + int(block.get("margin_bottom", 6))
+            return
+        except (OSError, UnidentifiedImageError):
+            logger.warning("[JSONRenderer] Failed to load local asset %s", local_path, exc_info=True)
+    try:
+        resp = None
+        last_error = None
+        attempts = [
+            {"trust_env": True, "timeout": httpx.Timeout(connect=8.0, read=12.0, write=8.0, pool=8.0)},
+            {"trust_env": False, "timeout": httpx.Timeout(connect=12.0, read=18.0, write=10.0, pool=10.0)},
+        ]
+        for opts in attempts:
+            try:
+                with httpx.Client(
+                    timeout=opts["timeout"],
+                    follow_redirects=True,
+                    trust_env=opts["trust_env"],
+                ) as client:
+                    resp = client.get(image_url)
+                if resp.status_code >= 400:
+                    raise ValueError(f"HTTP {resp.status_code}")
+                break
+            except (httpx.HTTPError, ValueError) as e:
+                last_error = e
+                resp = None
+        if resp is None:
+            raise last_error if last_error else ValueError("image fetch failed")
+        from io import BytesIO
+        img = _convert_image_block(Image.open(BytesIO(resp.content)), width, height, ctx.colors)
+        if ctx.colors >= 3:
+            ctx.img.paste(img, (x, y))
+        else:
+            ctx.paste_icon(img, (x, y))
+        ctx.y = y + height + int(block.get("margin_bottom", 6))
+    except (httpx.HTTPError, ValueError, OSError, UnidentifiedImageError):
+        logger.warning("[JSONRenderer] Failed to render image block", exc_info=True)
+        ctx.draw.rectangle([x, y, x + width, y + height], outline=EINK_FG, width=1)
+        placeholder_font = load_font("noto_serif_light", int(12 * ctx.scale))
+        placeholder_text = "Image unavailable"
+        bbox = placeholder_font.getbbox(placeholder_text)
+        tw = bbox[2] - bbox[0]
+        th = bbox[3] - bbox[1]
+        tx = x + (width - tw) // 2
+        ty = y + (height - th) // 2
+        ctx.draw.text((tx, ty), placeholder_text, fill=EINK_FG, font=placeholder_font)
+        ctx.y = y + height + int(block.get("margin_bottom", 6) * ctx.scale)
+
+
+# ── Helpers ──────────────────────────────────────────────────
+
+
+def _pick_cjk_font(font_key: str) -> str:
+    """Ensure CJK text gets a Noto Serif font variant."""
+    if font_key.startswith("noto_serif"):
+        return font_key
+    if font_key in ("lora_regular", "lora_bold", "inter_medium"):
+        return "noto_serif_light"
+    return font_key
+
+
+def _num(v: Any) -> float:
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _render_calendar_grid(ctx: RenderContext, block: dict) -> None:
+    """Render a 7-column monthly calendar grid with today highlight and sub-labels."""
+    rows = ctx.get_field("calendar_rows")
+    headers = ctx.get_field("weekday_headers")
+    today = str(ctx.get_field("today_day"))
+    day_labels = ctx.get_field("day_labels") or {}
+    day_label_types = ctx.get_field("day_label_types") or {}
+    if not isinstance(rows, list) or not isinstance(headers, list):
+        return
+    if not isinstance(day_labels, dict):
+        day_labels = {}
+    if not isinstance(day_label_types, dict):
+        day_label_types = {}
+
+    font_size = int(block.get("font_size", 14) * ctx.scale)
+    header_font_size = int(block.get("header_font_size", 10) * ctx.scale)
+    sub_font_size = max(int(block.get("sub_font_size", 7) * ctx.scale), 6)
+    font_key = _pick_cjk_font(block.get("font", "noto_serif_regular"))
+    font = load_font(font_key, font_size)
+    header_font = load_font(font_key, header_font_size)
+    sub_font = load_font(font_key, sub_font_size)
+
+    margin_x = int(block.get("margin_x", 12) * ctx.scale)
+    cell_h = int(block.get("cell_height", 24) * ctx.scale)
+    grid_w = ctx.available_width - margin_x * 2
+    cell_w = grid_w // 7
+    x0 = ctx.x_offset + margin_x
+
+    weekend_color = ctx.color_index("red")
+    today_bg = ctx.color_index("red")
+    reminder_color = ctx.color_index("yellow")
+    festival_color = ctx.color_index("red")
+
+    for ci, hdr in enumerate(headers[:7]):
+        cx = x0 + ci * cell_w + cell_w // 2
+        bbox = header_font.getbbox(hdr)
+        tw = bbox[2] - bbox[0]
+        color = weekend_color if ci >= 5 else EINK_FG
+        ctx.draw.text((cx - tw // 2, ctx.y), hdr, fill=color, font=header_font)
+    ctx.y += header_font_size + int(3 * ctx.scale)
+
+    date_line_h = font_size + int(1 * ctx.scale)
+
+    for row in rows:
+        if not isinstance(row, list):
+            continue
+        if ctx.y + cell_h > ctx.footer_top - 10:
+            break
+        for ci, day_str in enumerate(row[:7]):
+            if not day_str:
+                continue
+            cx = x0 + ci * cell_w + cell_w // 2
+            bbox = font.getbbox(day_str)
+            tw = bbox[2] - bbox[0]
+            th = bbox[3] - bbox[1]
+            tx = cx - tw // 2
+            ty = ctx.y
+
+            if day_str == today:
+                r = max(tw, th) // 2 + int(1 * ctx.scale)
+                cy = ty + th // 2 + int(2 * ctx.scale)
+                ec = (cx - r, cy - r, cx + r, cy + r)
+                ctx.draw.ellipse(ec, fill=today_bg)
+                ctx.draw.text((tx, ty), day_str, fill=EINK_BG, font=font)
+            else:
+                color = weekend_color if ci >= 5 else EINK_FG
+                ctx.draw.text((tx, ty), day_str, fill=color, font=font)
+
+            sub = day_labels.get(day_str, "")
+            if sub:
+                sb = sub_font.getbbox(sub)
+                sw = sb[2] - sb[0]
+                sx = cx - sw // 2
+                sy = ty + date_line_h
+                lt = day_label_types.get(day_str, "lunar")
+                if lt == "reminder":
+                    sub_color = reminder_color
+                elif lt in ("festival", "solar_term"):
+                    sub_color = festival_color
+                else:
+                    sub_color = EINK_FG
+                ctx.draw.text((sx, sy), sub, fill=sub_color, font=sub_font)
+        ctx.y += cell_h
+
+
+def _render_timetable_grid(ctx: RenderContext, block: dict) -> None:
+    """Render a timetable grid -- daily (list) or weekly (table)."""
+    style = str(ctx.get_field("style") or "daily")
+    if style == "weekly":
+        _render_timetable_weekly(ctx, block)
+    else:
+        _render_timetable_daily(ctx, block)
+
+
+def _render_timetable_daily(ctx: RenderContext, block: dict) -> None:
+    slots = ctx.get_field(block.get("field", "slots"))
+    if not isinstance(slots, list):
+        return
+
+    font_size = int(block.get("font_size", 11) * ctx.scale)
+    font_key = _pick_cjk_font(block.get("font", "noto_serif_regular"))
+    font = load_font(font_key, font_size)
+    small_font = load_font(font_key, max(8, font_size - 2))
+
+    margin_x = int(block.get("margin_x", 12) * ctx.scale)
+    row_h = int(block.get("row_height", 28) * ctx.scale)
+    grid_w = ctx.available_width - margin_x * 2
+    time_col_w = int(grid_w * 0.22)
+    x0 = ctx.x_offset + margin_x
+
+    highlight_color = ctx.color_index("red")
+    accent_color = ctx.color_index("yellow")
+
+    for i, slot in enumerate(slots):
+        if not isinstance(slot, dict):
+            continue
+        if ctx.y + row_h > ctx.footer_top - 10:
+            break
+
+        time_str = str(slot.get("time", ""))
+        name = str(slot.get("name", ""))
+        is_current = slot.get("current", False)
+        loc = str(slot.get("location", ""))
+
+        if is_current and ctx.colors >= 3:
+            ctx.draw.rectangle(
+                [x0, ctx.y, x0 + grid_w, ctx.y + row_h - 1],
+                fill=highlight_color,
+            )
+            text_color = EINK_BG
+        else:
+            text_color = EINK_FG
+
+        ctx.draw.text((x0 + 2, ctx.y + 4), time_str, fill=text_color, font=small_font)
+        ctx.draw.text((x0 + time_col_w, ctx.y + 2), name, fill=text_color, font=font)
+        if loc:
+            loc_color = EINK_BG if is_current else accent_color
+            ctx.draw.text((x0 + time_col_w, ctx.y + font_size + 3), loc, fill=loc_color, font=small_font)
+
+        ctx.y += row_h
+
+        if i < len(slots) - 1:
+            ctx.draw.line([(x0, ctx.y - 1), (x0 + grid_w, ctx.y - 1)], fill=EINK_FG, width=1)
+
+
+def _fit_text(text: str, font: Any, max_w: int) -> tuple[str, str]:
+    """Split text into (fits, remainder). Truncates only as last resort."""
+    if font.getlength(text) <= max_w:
+        return text, ""
+    for i in range(len(text), 0, -1):
+        if font.getlength(text[:i]) <= max_w:
+            return text[:i], text[i:]
+    return "", text
+
+
+def _draw_two_line_cell(
+    ctx: RenderContext, cx: int, cy: int, col_w: int, row_h: int,
+    name: str, loc: str, font_key: str, base_size: int,
+    text_color: int, loc_color: int,
+) -> None:
+    max_w = col_w - 4
+    f = load_font(font_key, base_size)
+    sf = load_font(font_key, max(8, base_size - 2))
+    sub_sz = max(8, base_size - 2)
+    line_h = base_size + 1
+
+    line1, remainder = _fit_text(name, f, max_w)
+
+    if not remainder:
+        loc_disp, _ = _fit_text(loc, sf, max_w)
+        total_h = line_h + sub_sz
+        ny = cy + (row_h - total_h) // 2
+        nb = f.getbbox(line1); nw = nb[2] - nb[0]
+        ctx.draw.text((cx + (col_w - nw) // 2, ny), line1, fill=text_color, font=f)
+        lb = sf.getbbox(loc_disp); lw = lb[2] - lb[0]
+        ctx.draw.text((cx + (col_w - lw) // 2, ny + line_h), loc_disp, fill=loc_color, font=sf)
+        return
+
+    line2, leftover = _fit_text(remainder, sf, max_w)
+    if leftover:
+        line2 = line2[: max(0, len(line2) - len(leftover))] + leftover if not line2 else line2
+    loc_disp, _ = _fit_text(loc, sf, max_w)
+
+    total_h = line_h + sub_sz + sub_sz
+    ny = cy + (row_h - total_h) // 2
+
+    nb = f.getbbox(line1); nw = nb[2] - nb[0]
+    ctx.draw.text((cx + (col_w - nw) // 2, ny), line1, fill=text_color, font=f)
+
+    l2b = sf.getbbox(line2); l2w = l2b[2] - l2b[0]
+    ctx.draw.text((cx + (col_w - l2w) // 2, ny + line_h), line2, fill=text_color, font=sf)
+
+    lb = sf.getbbox(loc_disp); lw = lb[2] - lb[0]
+    ctx.draw.text((cx + (col_w - lw) // 2, ny + line_h + sub_sz), loc_disp, fill=loc_color, font=sf)
+
+
+def _draw_single_line_cell(
+    ctx: RenderContext, cx: int, cy: int, col_w: int, row_h: int,
+    text: str, font_key: str, base_size: int, text_color: int,
+) -> None:
+    f = load_font(font_key, base_size)
+    disp, _ = _fit_text(text, f, col_w - 4)
+    tb = f.getbbox(disp)
+    tw = tb[2] - tb[0]
+    ctx.draw.text((cx + (col_w - tw) // 2, cy + (row_h - base_size) // 2), disp, fill=text_color, font=f)
+
+
+def _render_timetable_weekly(ctx: RenderContext, block: dict) -> None:
+    periods = ctx.get_field("periods")
+    grid = ctx.get_field("grid")
+    weekdays = ctx.get_field("weekdays") or ["一", "二", "三", "四", "五"]
+    current_day = ctx.get_field("current_day")
+    current_period = ctx.get_field("current_period")
+    if not isinstance(periods, list) or not isinstance(grid, list):
+        return
+    if not isinstance(current_day, int):
+        current_day = -1
+    if not isinstance(current_period, int):
+        current_period = -1
+
+    font_size = int(block.get("font_size", 11) * ctx.scale)
+    header_font_size = int(block.get("header_font_size", font_size) * ctx.scale) if block.get("header_font_size") else font_size
+    font_key = _pick_cjk_font(block.get("font", "noto_serif_regular"))
+    font = load_font(font_key, font_size)
+    sub_font = load_font(font_key, max(8, font_size - 2))
+    header_font = load_font(font_key, header_font_size)
+    period_font = load_font(font_key, max(8, font_size - 2))
+
+    margin_x = int(block.get("margin_x", 8) * ctx.scale)
+    grid_w = ctx.available_width - margin_x * 2
+    x0 = ctx.x_offset + margin_x
+
+    has_time_range = any("-" in p and ":" in p for p in periods)
+    time_col_ratio = 0.22 if has_time_range else 0.14
+
+    n_periods = len(periods)
+    header_h = int(block.get("header_height", 16) * ctx.scale)
+    avail_h = ctx.footer_top - ctx.y - header_h - int(4 * ctx.scale)
+    row_h = max(int(16 * ctx.scale), avail_h // max(n_periods, 1))
+
+    time_col_w = int(grid_w * time_col_ratio)
+    day_col_w = (grid_w - time_col_w) // 5
+
+    highlight_color = ctx.color_index("red")
+    accent_color = ctx.color_index("yellow")
+
+    hx = x0 + time_col_w
+    for di, wd_label in enumerate(weekdays[:5]):
+        cx = hx + di * day_col_w + day_col_w // 2
+        bb = header_font.getbbox(wd_label)
+        tw = bb[2] - bb[0]
+        tx = cx - tw // 2
+        color = highlight_color if di == current_day else EINK_FG
+        ctx.draw.text((tx, ctx.y), wd_label, fill=color, font=header_font)
+    ctx.y += header_h
+    ctx.draw.line([(x0, ctx.y), (x0 + grid_w, ctx.y)], fill=EINK_FG, width=1)
+    ctx.y += 1
+
+    sep_indices: set[int] = set()
+    if has_time_range:
+        for pi, p_label in enumerate(periods):
+            try:
+                h = int(p_label.split("-")[0].strip().split(":")[0])
+                if pi > 0:
+                    prev_h = int(periods[pi - 1].split("-")[0].strip().split(":")[0])
+                    if prev_h < 12 <= h:
+                        sep_indices.add(pi)
+                    elif prev_h < 18 <= h:
+                        sep_indices.add(pi)
+            except (ValueError, IndexError):
+                pass
+    else:
+        mid = n_periods // 2
+        if mid > 0:
+            sep_indices.add(mid)
+
+    for pi, p_label in enumerate(periods):
+        if ctx.y + row_h > ctx.footer_top - 4:
+            break
+
+        if pi in sep_indices:
+            sep_y = ctx.y - 1
+            ctx.draw.line([(x0, sep_y), (x0 + grid_w, sep_y)], fill=EINK_FG, width=1)
+
+        bb = period_font.getbbox(p_label)
+        pw = bb[2] - bb[0]
+        px = x0 + (time_col_w - pw) // 2
+        py = ctx.y + (row_h - font_size) // 2
+        ctx.draw.text((px, py), p_label, fill=EINK_FG, font=period_font)
+
+        row_data = grid[pi] if pi < len(grid) else []
+
+        for di in range(5):
+            cell_x = x0 + time_col_w + di * day_col_w
+            cell_text = str(row_data[di]) if di < len(row_data) else ""
+
+            is_current_cell = (di == current_day and pi == current_period)
+            highlight_col = (not has_time_range and di == current_day)
+
+            if is_current_cell and ctx.colors >= 3:
+                ctx.draw.rectangle(
+                    [cell_x + 1, ctx.y, cell_x + day_col_w - 1, ctx.y + row_h - 1],
+                    fill=highlight_color,
+                )
+                text_color = EINK_BG
+            elif highlight_col and ctx.colors >= 3:
+                ctx.draw.rectangle(
+                    [cell_x + 1, ctx.y, cell_x + day_col_w - 1, ctx.y + row_h - 1],
+                    fill=highlight_color,
+                )
+                text_color = EINK_BG
+            else:
+                text_color = EINK_FG
+
+            if cell_text:
+                if "/" in cell_text:
+                    full_name, loc_part = cell_text.split("/", 1)
+                    _draw_two_line_cell(
+                        ctx, cell_x, ctx.y, day_col_w, row_h,
+                        full_name, loc_part, font_key, font_size,
+                        text_color, EINK_BG if text_color == EINK_BG else accent_color,
+                    )
+                else:
+                    _draw_single_line_cell(
+                        ctx, cell_x, ctx.y, day_col_w, row_h,
+                        cell_text, font_key, font_size, text_color,
+                    )
+
+        ctx.y += row_h
+
+
+# ── Register block types ─────────────────────────────────────
+
+_BLOCK_RENDERERS["centered_text"] = _render_centered_text
+_BLOCK_RENDERERS["text"] = _render_text
+_BLOCK_RENDERERS["separator"] = _render_separator
+_BLOCK_RENDERERS["section"] = _render_section
+_BLOCK_RENDERERS["list"] = _render_list
+_BLOCK_RENDERERS["vertical_stack"] = _render_vertical_stack
+_BLOCK_RENDERERS["conditional"] = _render_conditional
+_BLOCK_RENDERERS["spacer"] = _render_spacer
+_BLOCK_RENDERERS["icon_text"] = _render_icon_text
+_BLOCK_RENDERERS["weather_icon_text"] = _render_weather_icon_text
+_BLOCK_RENDERERS["two_column"] = _render_two_column
+_BLOCK_RENDERERS["image"] = _render_image
+_BLOCK_RENDERERS["progress_bar"] = _render_progress_bar
+_BLOCK_RENDERERS["temp_chart"] = _render_temp_chart
+_BLOCK_RENDERERS["forecast_cards"] = _render_forecast_cards
+_BLOCK_RENDERERS["big_number"] = _render_big_number
+_BLOCK_RENDERERS["icon_list"] = _render_icon_list
+_BLOCK_RENDERERS["key_value"] = _render_key_value
+_BLOCK_RENDERERS["group"] = _render_group
+_BLOCK_RENDERERS["weather_icon"] = _render_weather_icon
+_BLOCK_RENDERERS["calendar_grid"] = _render_calendar_grid
+_BLOCK_RENDERERS["timetable_grid"] = _render_timetable_grid
