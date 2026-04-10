@@ -6,12 +6,12 @@ import requests
 
 def main() -> None:
     if len(sys.argv) < 4:
-        print("用法: python test_focus_alert.py <base_url> <mac> <alert_token>")
-        print("示例: python test_focus_alert.py http://127.0.0.1:8000 AA:BB:CC:DD:EE:FF <设备alert_token>")
+        print("translated: python test_focus_alert.py <base_url> <mac> <alert_token>")
+        print("translated: python test_focus_alert.py http://127.0.0.1:8000 AA:BB:CC:DD:EE:FF <devicealert_token>")
         print("")
-        print("如何获取 alert_token：")
-        print("1) 在 Web 配置页开启“专注监听”，弹窗会显示并可复制该设备的 alert_token（推荐）。")
-        print("2) 或以 owner 身份调用：POST /api/device/{mac}/alert-token 获取。")
+        print("translatedGet  alert_token：")
+        print("1) translated Web translated“translated”，translated alert_token（translated）。")
+        print("2) translated owner translated：POST /api/device/{mac}/alert-token Get 。")
         sys.exit(1)
 
     base_url = sys.argv[1].rstrip("/")
@@ -23,8 +23,8 @@ def main() -> None:
     headers["X-Agent-Token"] = alert_token
 
     payload: Dict[str, Any] = {
-        "sender": "老板",
-        "message": "服务器宕机，速看！",
+        "sender": "translated",
+        "message": "translated，translated！",
         "level": "critical",
     }
 

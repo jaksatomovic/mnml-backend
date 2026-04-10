@@ -1,47 +1,47 @@
 {
   "mode_id": "RECIPE",
-  "display_name": "今日食谱",
+  "display_name": "translated",
   "icon": "food",
   "cacheable": false,
-  "description": "时令三餐方案",
+  "description": "translated",
   "content": {
     "type": "llm_json",
-    "prompt_template": "你是一位营养师。根据当前季节推荐一套简洁的早中晚三餐方案。\n输出 JSON：{{\"season\":\"季节（如：早春）\",\"breakfast\":\"早餐（15字以内，用·分隔）\",\"lunch\":\"午餐（15字以内，用·分隔）\",\"dinner\":\"晚餐（15字以内，用·分隔）\",\"tip\":\"一句养生小贴士（15字以内）\"}}\n要求：简洁明了，每餐内容控制在15字以内。只输出 JSON。\n环境：{context}",
+    "prompt_template": "translated。Get by translated。\ntranslated JSON：{{\"season\":\"translated（translated：translated）\",\"breakfast\":\"translated（15translated，translated·translated）\",\"lunch\":\"translated（15translated，translated·translated）\",\"dinner\":\"translated（15translated，translated·translated）\",\"tip\":\"translated（15translated）\"}}\ntranslated：translated，translated15translated。translated JSON。\ntranslated：{context}",
     "output_schema": {
-      "season": { "type": "string", "default": "早春" },
-      "breakfast": { "type": "string", "default": "小米粥 · 茶叶蛋 · 凉拌黑木耳" },
-      "lunch": { "type": "string", "default": "番茄炖牛腩 · 清炒芥兰 · 白米饭" },
-      "dinner": { "type": "string", "default": "清蒸鲈鱼 · 蒜蓉西兰花 · 蛋花汤" },
-      "tip": { "type": "string", "default": "春季宜养肝，多食绿色蔬菜" }
+      "season": { "type": "string", "default": "translated" },
+      "breakfast": { "type": "string", "default": "translated · translated · translated" },
+      "lunch": { "type": "string", "default": "translated · translated · translated" },
+      "dinner": { "type": "string", "default": "translated · translated · translated" },
+      "tip": { "type": "string", "default": "translated，translated" }
     },
     "fallback": {
-      "season": "早春",
-      "breakfast": "小米粥 · 茶叶蛋 · 凉拌黑木耳",
-      "lunch": "番茄炖牛腩 · 清炒芥兰 · 白米饭",
-      "dinner": "清蒸鲈鱼 · 蒜蓉西兰花 · 蛋花汤",
-      "tip": "春季宜养肝，多食绿色蔬菜"
+      "season": "translated",
+      "breakfast": "translated · translated · translated",
+      "lunch": "translated · translated · translated",
+      "dinner": "translated · translated · translated",
+      "tip": "translated，translated"
     },
     "fallback_pool": [
       {
-        "season": "早春",
-        "breakfast": "小米粥 · 茶叶蛋 · 凉拌黑木耳",
-        "lunch": "番茄炖牛腩 · 清炒芥兰 · 白米饭",
-        "dinner": "清蒸鲈鱼 · 蒜蓉西兰花 · 蛋花汤",
-        "tip": "春季宜养肝，多食绿色蔬菜"
+        "season": "translated",
+        "breakfast": "translated · translated · translated",
+        "lunch": "translated · translated · translated",
+        "dinner": "translated · translated · translated",
+        "tip": "translated，translated"
       },
       {
-        "season": "盛夏",
-        "breakfast": "绿豆粥 · 酱黄瓜 · 煮玉米",
-        "lunch": "凉拌鸡丝 · 拍黄瓜 · 凉面",
-        "dinner": "清炒虾仁 · 蒜蓉空心菜 · 番茄蛋汤",
-        "tip": "夏季多补水，少食油腻"
+        "season": "translated",
+        "breakfast": "translated · translated · translated",
+        "lunch": "translated · translated · translated",
+        "dinner": "translated · translated · translated",
+        "tip": "translated，translated"
       },
       {
-        "season": "深秋",
-        "breakfast": "南瓜粥 · 煎蛋 · 凉拌海带丝",
-        "lunch": "红烧排骨 · 清炒时蔬 · 糙米饭",
-        "dinner": "清炖鸡汤 · 炒菠菜 · 山药粥",
-        "tip": "秋季宜润燥，多食白色食物"
+        "season": "translated",
+        "breakfast": "translated · translated · translated",
+        "lunch": "translated · translated · translated",
+        "dinner": "translated · translated · translated",
+        "tip": "translated，translatedwhitetranslated"
       }
     ]
   },
@@ -51,15 +51,15 @@
       { "type": "text", "field": "season", "font": "noto_serif_bold", "font_size": 16, "align": "center" },
       { "type": "separator", "style": "short", "width": 70 },
       { "type": "spacer", "height": 6 },
-      { "type": "group", "title": "早餐", "title_font_size": 13, "margin_x": 24, "children": [
+      { "type": "group", "title": "translated", "title_font_size": 13, "margin_x": 24, "children": [
         { "type": "text", "field": "breakfast", "font_size": 13, "align": "left", "margin_x": 40, "max_lines": 2 }
       ]},
       { "type": "spacer", "height": 4 },
-      { "type": "group", "title": "午餐", "title_font_size": 13, "margin_x": 24, "children": [
+      { "type": "group", "title": "translated", "title_font_size": 13, "margin_x": 24, "children": [
         { "type": "text", "field": "lunch", "font_size": 13, "align": "left", "margin_x": 40, "max_lines": 2 }
       ]},
       { "type": "spacer", "height": 4 },
-      { "type": "group", "title": "晚餐", "title_font_size": 13, "margin_x": 24, "children": [
+      { "type": "group", "title": "translated", "title_font_size": 13, "margin_x": 24, "children": [
         { "type": "text", "field": "dinner", "font_size": 13, "align": "left", "margin_x": 40, "max_lines": 2 }
       ]},
       { "type": "spacer", "height": 6 },
@@ -77,9 +77,9 @@
       "body": [
         { "type": "text", "field": "season", "font": "noto_serif_bold", "font_size": 12, "align": "left", "margin_x": 8 },
         { "type": "separator", "style": "short", "width": 30 },
-        { "type": "text", "template": "早：{breakfast}", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 1 },
-        { "type": "text", "template": "午：{lunch}", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 1 },
-        { "type": "text", "template": "晚：{dinner}", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 1 }
+        { "type": "text", "template": "translated：{breakfast}", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 1 },
+        { "type": "text", "template": "translated：{lunch}", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 1 },
+        { "type": "text", "template": "translated：{dinner}", "font_size": 10, "align": "left", "margin_x": 8, "max_lines": 1 }
       ],
       "footer": { "label": "RECIPE", "height": 20 }
     },
@@ -88,15 +88,15 @@
         { "type": "text", "field": "season", "font": "noto_serif_bold", "font_size": 22, "align": "center" },
         { "type": "separator", "style": "short", "width": 110 },
         { "type": "spacer", "height": 10 },
-        { "type": "group", "title": "早餐", "title_font_size": 18, "margin_x": 40, "children": [
+        { "type": "group", "title": "translated", "title_font_size": 18, "margin_x": 40, "children": [
           { "type": "text", "field": "breakfast", "font_size": 17, "align": "left", "margin_x": 60, "max_lines": 2 }
         ]},
         { "type": "spacer", "height": 8 },
-        { "type": "group", "title": "午餐", "title_font_size": 18, "margin_x": 40, "children": [
+        { "type": "group", "title": "translated", "title_font_size": 18, "margin_x": 40, "children": [
           { "type": "text", "field": "lunch", "font_size": 17, "align": "left", "margin_x": 60, "max_lines": 2 }
         ]},
         { "type": "spacer", "height": 8 },
-        { "type": "group", "title": "晚餐", "title_font_size": 18, "margin_x": 40, "children": [
+        { "type": "group", "title": "translated", "title_font_size": 18, "margin_x": 40, "children": [
           { "type": "text", "field": "dinner", "font_size": 17, "align": "left", "margin_x": 60, "max_lines": 2 }
         ]},
         { "type": "spacer", "height": 10 },

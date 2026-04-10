@@ -1,13 +1,13 @@
 {
   "mode_id": "COUNTDOWN",
-  "display_name": "倒计时",
+  "display_name": "translated",
   "icon": "flag",
   "cacheable": false,
-  "description": "重要日期倒计时/正计时",
+  "description": "Importanttranslated/translated",
   "settings_schema": [
     {
       "key": "countdownEvents",
-      "label": "倒计时事件"
+      "label": "translated"
     }
   ],
   "content": {
@@ -16,7 +16,7 @@
     "fallback": {
       "events": [
         {
-          "name": "元旦",
+          "name": "New Year's Day",
           "date": "2027-01-01",
           "type": "countdown",
           "days": 100
@@ -27,7 +27,7 @@
       {
         "events": [
           {
-            "name": "元旦",
+            "name": "New Year's Day",
             "date": "2027-01-01",
             "type": "countdown",
             "days": 100
@@ -37,7 +37,7 @@
       {
         "events": [
           {
-            "name": "春节",
+            "name": "Spring Festival",
             "date": "2027-01-28",
             "type": "countdown",
             "days": 365
@@ -47,7 +47,7 @@
       {
         "events": [
           {
-            "name": "生日",
+            "name": "translated",
             "date": "2026-06-15",
             "type": "countdown",
             "days": 110
@@ -57,7 +57,7 @@
       {
         "events": [
           {
-            "name": "项目截止",
+            "name": "translated",
             "date": "2026-03-31",
             "type": "countdown",
             "days": 34
@@ -119,14 +119,14 @@
         "type": "list",
         "field": "events",
         "max_items": 1,
-        "item_template": "{days} 天",
+        "item_template": "{days} translated",
         "font_size": 52,
         "align": "center"
       }
     ],
     "footer": {
-      "label": "倒计时",
-      "attribution_template": "— 静待那天"
+      "label": "translated",
+      "attribution_template": "— translated"
     }
   },
   "layout_overrides": {
@@ -159,12 +159,12 @@
           "type": "list",
           "field": "events",
           "max_items": 1,
-          "item_template": "{days} 天",
+          "item_template": "{days} translated",
           "font_size": 36,
           "align": "center"
         }
       ],
-      "footer": { "label": "倒计时", "height": 18 }
+      "footer": { "label": "translated", "height": 18 }
     },
     "800x480": {
       "body": [
@@ -214,7 +214,7 @@
           "type": "list",
           "field": "events",
           "max_items": 1,
-          "item_template": "{days} 天",
+          "item_template": "{days} translated",
           "font_size": 80,
           "align": "center"
         }

@@ -1,6 +1,6 @@
 """
-测试 JSON 渲染引擎
-验证各种布局原语能正确渲染到 1-bit e-ink 图像
+test JSON text
+text 1-bit e-ink text
 """
 import json
 import os
@@ -34,7 +34,7 @@ def test_render_produces_correct_size_image():
     content = {"text": "Hello World"}
     img = render_json_mode(
         mode_def, content,
-        date_str="1月1日", weather_str="晴 20°C", battery_pct=85,
+        date_str="1/1", weather_str="sunny 20°C", battery_pct=85,
     )
     assert isinstance(img, Image.Image)
     assert img.size == (SCREEN_W, SCREEN_H)
@@ -45,10 +45,10 @@ def test_render_centered_text():
     mode_def = _make_mode_def([
         {"type": "centered_text", "field": "quote", "font_size": 14, "vertical_center": True}
     ])
-    content = {"quote": "测试居中文本"}
+    content = {"quote": "testtextChinesetext"}
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日", weather_str="多云 15°C", battery_pct=90,
+        date_str="2/18", weather_str="cloudy 15°C", battery_pct=90,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 
@@ -57,12 +57,12 @@ def test_render_text_block():
     mode_def = _make_mode_def([
         {"type": "spacer", "height": 20},
         {"type": "text", "field": "title", "font_size": 16, "align": "center"},
-        {"type": "text", "template": "作者: {author}", "font_size": 12, "align": "center"},
+        {"type": "text", "template": "text: {author}", "font_size": 12, "align": "center"},
     ])
-    content = {"title": "静夜思", "author": "李白"}
+    content = {"title": "Quiet Night Thought", "author": "Li Bai"}
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日", weather_str="晴", battery_pct=75,
+        date_str="2/18", weather_str="sunny", battery_pct=75,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 
@@ -83,7 +83,7 @@ def test_render_separator():
             {"type": "separator", "style": "dashed"},
             {"type": "separator", "style": "short", "width": 60},
         ]), {},
-        date_str="1月1日", weather_str="晴", battery_pct=100,
+        date_str="1/1", weather_str="sunny", battery_pct=100,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 
@@ -105,14 +105,14 @@ def test_render_list_with_dicts():
     ])
     content = {
         "exercises": [
-            {"name": "深蹲", "reps": "20次"},
-            {"name": "俯卧撑", "reps": "15次"},
-            {"name": "平板支撑", "reps": "30秒"},
+            {"name": "squat", "reps": "20 reps"},
+            {"name": "push-up", "reps": "15 reps"},
+            {"name": "plank", "reps": "30text"},
         ]
     }
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日", weather_str="晴", battery_pct=80,
+        date_str="2/18", weather_str="sunny", battery_pct=80,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 
@@ -131,10 +131,10 @@ def test_render_list_with_strings():
             "align": "center",
         },
     ])
-    content = {"lines": ["床前明月光", "疑是地上霜", "举头望明月", "低头思故乡"]}
+    content = {"lines": ["Moonlight before my bed", "Like frost upon the ground", "I raise my head to the moon", "I lower my head and think of home"]}
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日", weather_str="晴", battery_pct=80,
+        date_str="2/18", weather_str="sunny", battery_pct=80,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 
@@ -144,17 +144,17 @@ def test_render_section_with_icon():
         {"type": "spacer", "height": 14},
         {
             "type": "section",
-            "title": "训练动作",
+            "title": "text",
             "icon": "exercise",
             "children": [
                 {"type": "text", "field": "tip", "font_size": 13, "align": "left", "margin_x": 40},
             ],
         },
     ])
-    content = {"tip": "运动前记得热身"}
+    content = {"tip": "text"}
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日", weather_str="晴", battery_pct=80,
+        date_str="2/18", weather_str="sunny", battery_pct=80,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 
@@ -172,10 +172,10 @@ def test_render_vertical_stack():
             ],
         },
     ])
-    content = {"a": "第一段", "b": "第二段"}
+    content = {"a": "text", "b": "text"}
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日", weather_str="晴", battery_pct=80,
+        date_str="2/18", weather_str="sunny", battery_pct=80,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 
@@ -191,27 +191,27 @@ def test_render_conditional():
                     "op": "gt",
                     "value": 5,
                     "children": [
-                        {"type": "text", "template": "很多: {count}", "font_size": 14, "align": "center"},
+                        {"type": "text", "template": "text: {count}", "font_size": 14, "align": "center"},
                     ],
                 },
             ],
             "fallback_children": [
-                {"type": "text", "template": "少量: {count}", "font_size": 14, "align": "center"},
+                {"type": "text", "template": "text: {count}", "font_size": 14, "align": "center"},
             ],
         },
     ])
 
-    # count = 10 -> "很多"
+    # count = 10 -> "text"
     img1 = render_json_mode(
         mode_def, {"count": 10},
-        date_str="2月18日", weather_str="晴", battery_pct=80,
+        date_str="2/18", weather_str="sunny", battery_pct=80,
     )
     assert img1.size == (SCREEN_W, SCREEN_H)
 
-    # count = 3 -> fallback "少量"
+    # count = 3 -> fallback "text"
     img2 = render_json_mode(
         mode_def, {"count": 3},
-        date_str="2月18日", weather_str="晴", battery_pct=80,
+        date_str="2/18", weather_str="sunny", battery_pct=80,
     )
     assert img2.size == (SCREEN_W, SCREEN_H)
 
@@ -219,11 +219,11 @@ def test_render_conditional():
 def test_render_icon_text():
     mode_def = _make_mode_def([
         {"type": "spacer", "height": 40},
-        {"type": "icon_text", "icon": "book", "text": "推荐阅读", "font_size": 14, "margin_x": 24},
+        {"type": "icon_text", "icon": "book", "text": "recommended reading", "font_size": 14, "margin_x": 24},
     ])
     img = render_json_mode(
         mode_def, {},
-        date_str="2月18日", weather_str="晴", battery_pct=80,
+        date_str="2/18", weather_str="sunny", battery_pct=80,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 
@@ -236,7 +236,7 @@ def test_render_with_footer_template():
     content = {"quote": "Test", "author": "Author"}
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日", weather_str="晴", battery_pct=80,
+        date_str="2/18", weather_str="sunny", battery_pct=80,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 
@@ -257,7 +257,7 @@ def test_render_image_block_preserves_palette_colors():
     }
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日", weather_str="晴", battery_pct=80,
+        date_str="2/18", weather_str="sunny", battery_pct=80,
         colors=4,
     )
     assert img.mode == "P"
@@ -267,9 +267,9 @@ def test_render_image_block_preserves_palette_colors():
 
 
 def test_builtin_footer_localization():
-    assert _localized_footer_label("COUNTDOWN", "COUNTDOWN", "zh") == "倒计时"
+    assert _localized_footer_label("COUNTDOWN", "COUNTDOWN", "zh") == "countdown"
     assert _localized_footer_label("COUNTDOWN", "Countdown", "en") == "Countdown"
-    assert _localized_footer_attribution("COUNTDOWN", "— Remember", "zh") == "— 静待那天"
+    assert _localized_footer_attribution("COUNTDOWN", "— Remember", "zh") == "— wait for that day"
     assert _localized_footer_attribution("COUNTDOWN", "— Remember", "en") == "— Remember"
 
 
@@ -286,10 +286,10 @@ def test_render_with_dashed_status_bar():
             "footer": {"label": "ZEN", "attribution_template": "— ...", "dashed": True},
         },
     }
-    content = {"word": "静"}
+    content = {"word": "text"}
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日", weather_str="晴", battery_pct=80,
+        date_str="2/18", weather_str="sunny", battery_pct=80,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 
@@ -321,7 +321,7 @@ def test_render_stoic_json():
     }
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日 周二", weather_str="晴 15°C", battery_pct=85,
+        date_str="2/18 Tue", weather_str="sunny 15°C", battery_pct=85,
         weather_code=0, time_str="14:30",
     )
     assert img.size == (SCREEN_W, SCREEN_H)
@@ -337,18 +337,18 @@ def test_render_fitness_json():
         mode_def = json.load(f)
 
     content = {
-        "workout_name": "晨间拉伸",
-        "duration": "15分钟",
+        "workout_name": "morning stretch",
+        "duration": "15 min",
         "exercises": [
-            {"name": "颈部拉伸", "reps": "10次"},
-            {"name": "肩部环绕", "reps": "15次"},
-            {"name": "腰部扭转", "reps": "20次"},
+            {"name": "neck stretch", "reps": "10 reps"},
+            {"name": "shoulder circles", "reps": "15 reps"},
+            {"name": "waist twist", "reps": "20 reps"},
         ],
-        "tip": "运动前充分热身，避免受伤。",
+        "tip": "Warm up fully before exercise to avoid injury.",
     }
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日 周二", weather_str="多云 12°C", battery_pct=70,
+        date_str="2/18 Tue", weather_str="cloudy 12°C", battery_pct=70,
         weather_code=3, time_str="07:00",
     )
     assert img.size == (SCREEN_W, SCREEN_H)
@@ -363,14 +363,14 @@ def test_render_poetry_json():
         mode_def = json.load(f)
 
     content = {
-        "title": "静夜思",
-        "author": "唐·李白",
-        "lines": ["床前明月光", "疑是地上霜", "举头望明月", "低头思故乡"],
-        "note": "千古思乡名篇",
+        "title": "Quiet Night Thought",
+        "author": "Tang · Li Bai",
+        "lines": ["Moonlight before my bed", "Like frost upon the ground", "I raise my head to the moon", "I lower my head and think of home"],
+        "note": "classic poem of homesickness",
     }
     img = render_json_mode(
         mode_def, content,
-        date_str="2月18日 周二", weather_str="晴", battery_pct=90,
+        date_str="2/18 Tue", weather_str="sunny", battery_pct=90,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 

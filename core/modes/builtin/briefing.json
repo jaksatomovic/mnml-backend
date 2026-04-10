@@ -1,9 +1,9 @@
 {
   "mode_id": "BRIEFING",
-  "display_name": "科技简报",
+  "display_name": "translated",
   "icon": "global",
   "cacheable": false,
-  "description": "HN/PH/V2EX + 行业洞察",
+  "description": "HN/PH/V2EX + translated",
   "content": {
     "type": "external_data",
     "provider": "briefing",
@@ -12,37 +12,37 @@
     "summarize": true,
     "include_insight": true,
     "fallback": {
-      "hn_items": [{ "title": "数据获取失败", "score": 0 }],
+      "hn_items": [{ "title": "translatedGet failed", "score": 0 }],
       "ph_item": { "name": "N/A", "tagline": "" },
       "v2ex_items": [],
-      "insight": "今日科技动态暂时无法获取，请稍后刷新。",
+      "insight": "translatedGet ，translated。",
       "ph_name": "N/A",
       "ph_tagline": ""
     },
     "fallback_pool": [
       {
-        "hn_items": [{ "title": "数据获取失败", "score": 0 }],
+        "hn_items": [{ "title": "translatedGet failed", "score": 0 }],
         "ph_item": { "name": "N/A", "tagline": "" },
         "v2ex_items": [],
-        "insight": "今日科技动态暂时无法获取，请稍后刷新。",
+        "insight": "translatedGet ，translated。",
         "ph_name": "N/A",
         "ph_tagline": ""
       },
       {
-        "hn_items": [{ "title": "LLM 技术前沿", "score": 156 }],
-        "ph_item": { "name": "AI Toolkit", "tagline": "开发者必备" },
-        "v2ex_items": [{ "title": "今天你学习了吗" }],
-        "insight": "AI 工具迭代加速，关注开源模型与本地部署。",
+        "hn_items": [{ "title": "LLM translated", "score": 156 }],
+        "ph_item": { "name": "AI Toolkit", "tagline": "translated" },
+        "v2ex_items": [{ "title": "translated" }],
+        "insight": "AI translated，translated。",
         "ph_name": "AI Toolkit",
-        "ph_tagline": "开发者必备"
+        "ph_tagline": "translated"
       },
       {
-        "hn_items": [{ "title": "新框架发布", "score": 89 }],
-        "ph_item": { "name": "DevTools", "tagline": "效率提升" },
+        "hn_items": [{ "title": "translatedpublish", "score": 89 }],
+        "ph_item": { "name": "DevTools", "tagline": "translated" },
         "v2ex_items": [],
-        "insight": "开源生态活跃，值得探索新项目。",
+        "insight": "translated，translated。",
         "ph_name": "DevTools",
-        "ph_tagline": "效率提升"
+        "ph_tagline": "translated"
       }
     ]
   },

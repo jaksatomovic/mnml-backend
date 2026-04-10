@@ -6,47 +6,47 @@ DEFAULT_LANG = "en"
 
 MESSAGES = {
     "auth.login_required": {
-        "zh": "请先登录",
+        "zh": "translated",
         "en": "Please sign in first",
         "hr": "Prvo se prijavi",
     },
     "auth.no_device_access": {
-        "zh": "无设备访问权限",
+        "zh": "translated",
         "en": "No access permission for this device",
         "hr": "Nemaš pristup ovom uređaju",
     },
     "auth.owner_only": {
-        "zh": "仅 owner 可执行此操作",
+        "zh": "translated owner translated",
         "en": "Only owner can perform this action",
         "hr": "Samo vlasnik može izvršiti ovu radnju",
     },
     "auth.admin_required": {
-        "zh": "需要管理员认证",
+        "zh": "translated",
         "en": "Admin authorization required",
         "hr": "Potrebna je administratorska autorizacija",
     },
     "auth.root_required": {
-        "zh": "需要 Root 管理员权限",
+        "zh": "translated Root translated",
         "en": "Root administrator privileges required",
         "hr": "Potrebne su root administratorske ovlasti",
     },
     "auth.user_not_found": {
-        "zh": "用户不存在",
+        "zh": "userdoes not exist",
         "en": "User not found",
         "hr": "Korisnik nije pronađen",
     },
     "auth.device_token_invalid": {
-        "zh": "设备 Token 无效或缺失",
+        "zh": "device Token invalidtranslated",
         "en": "Device token is invalid or missing",
         "hr": "Token uređaja je neispravan ili nedostaje",
     },
     "auth.device_token_required": {
-        "zh": "设备 Token 缺失，请先完成设备注册",
+        "zh": "device Token translated，translated",
         "en": "Device token missing, please complete device registration first",
         "hr": "Nedostaje token uređaja, prvo dovrši registraciju uređaja",
     },
     "auth.invalid_mac_format": {
-        "zh": "MAC 地址格式无效，应为 AA:BB:CC:DD:EE:FF",
+        "zh": "MAC translatedinvalid，translated AA:BB:CC:DD:EE:FF",
         "en": "Invalid MAC format, expected AA:BB:CC:DD:EE:FF",
         "hr": "Neispravan MAC format, očekuje se AA:BB:CC:DD:EE:FF",
     },

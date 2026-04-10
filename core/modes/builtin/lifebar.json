@@ -1,17 +1,17 @@
 {
   "mode_id": "LIFEBAR",
-  "display_name": "人生进度条",
+  "display_name": "translated",
   "icon": "flag",
   "cacheable": false,
-  "description": "年/月/周/人生的进度可视化",
+  "description": "year/month/translated/translated",
   "content": {
     "type": "computed",
     "provider": "lifebar",
     "fallback": {
-      "year_pct": 15.6, "year_label": "2026 年已过",
-      "month_pct": 83.3, "month_label": "2月",
-      "week_pct": 57.1, "week_label": "本周",
-      "life_pct": 38.8, "life_label": "人生",
+      "year_pct": 15.6, "year_label": "2026 translated",
+      "month_pct": 83.3, "month_label": "2month",
+      "week_pct": 57.1, "week_label": "translated",
+      "life_pct": 38.8, "life_label": "translated",
       "day_of_year": 57, "days_in_year": 365,
       "day": 25, "days_in_month": 28,
       "weekday_num": 4, "week_total": 7,

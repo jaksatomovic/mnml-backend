@@ -1,91 +1,91 @@
 {
   "mode_id": "POETRY",
-  "display_name": "每日古诗词",
+  "display_name": "translated",
   "icon": "star",
   "cacheable": true,
-  "description": "与季节天气相关的中国古诗词",
+  "description": "translated",
   "content": {
     "type": "llm_json",
-    "prompt_template": "你是一位古典文学专家。根据以下环境信息，推荐一首与当前季节、天气或节日相关的中国古诗词。\n用 JSON 格式输出：{{\"title\": \"诗名\", \"author\": \"朝代·作者\", \"lines\": [\"诗句1\", \"诗句2\", ...], \"note\": \"一句话赏析（20字以内）\"}}\n要求：\n1. 选择经典诗词，涵盖唐诗、宋词、元曲等\n2. 每次推荐不同的诗词，避免重复\n3. 诗句完整呈现，每句单独一个元素\n4. 只输出 JSON，不要其他内容\n环境：{context}",
+    "prompt_template": "translated。Get by translated，translated、translated。\ntranslated JSON translated：{{\"title\": \"translated\", \"author\": \"translated·translated\", \"lines\": [\"translated1\", \"translated2\", ...], \"note\": \"translated（20translated）\"}}\ntranslated：\n1. translated，translated、translated、translated\n2. translated，translated\n3. translated，translated\n4. translated JSON，translated\ntranslated：{context}",
     "output_schema": {
       "title": {
         "type": "string",
-        "default": "静夜思"
+        "default": "translated"
       },
       "author": {
         "type": "string",
-        "default": "唐·李白"
+        "default": "translated·translated"
       },
       "lines": {
         "type": "array",
         "default": [
-          "床前明月光",
-          "疑是地上霜",
-          "举头望明月",
-          "低头思故乡"
+          "translated",
+          "translated",
+          "translated",
+          "translated"
         ]
       },
       "note": {
         "type": "string",
-        "default": "千古思乡名篇"
+        "default": "translated"
       }
     },
     "temperature": 0.8,
     "fallback": {
-      "title": "静夜思",
-      "author": "唐·李白",
+      "title": "translated",
+      "author": "translated·translated",
       "lines": [
-        "床前明月光",
-        "疑是地上霜",
-        "举头望明月",
-        "低头思故乡"
+        "translated",
+        "translated",
+        "translated",
+        "translated"
       ],
-      "note": "千古思乡名篇"
+      "note": "translated"
     },
     "fallback_pool": [
       {
-        "title": "静夜思",
-        "author": "唐·李白",
+        "title": "translated",
+        "author": "translated·translated",
         "lines": [
-          "床前明月光",
-          "疑是地上霜",
-          "举头望明月",
-          "低头思故乡"
+          "translated",
+          "translated",
+          "translated",
+          "translated"
         ],
-        "note": "千古思乡名篇"
+        "note": "translated"
       },
       {
-        "title": "登鹳雀楼",
-        "author": "唐·王之涣",
+        "title": "translated",
+        "author": "translated·translated",
         "lines": [
-          "白日依山尽",
-          "黄河入海流",
-          "欲穷千里目",
-          "更上一层楼"
+          "translated",
+          "translated",
+          "translated",
+          "translated"
         ],
-        "note": "胸怀壮志，登高望远"
+        "note": "translated，translated"
       },
       {
-        "title": "江雪",
-        "author": "唐·柳宗元",
+        "title": "translated",
+        "author": "translated·translated",
         "lines": [
-          "千山鸟飞绝",
-          "万径人踪灭",
-          "孤舟蓑笠翁",
-          "独钓寒江雪"
+          "translated",
+          "translated",
+          "translated",
+          "translated"
         ],
-        "note": "孤高清冷的冬日画卷"
+        "note": "translated"
       },
       {
-        "title": "春晓",
-        "author": "唐·孟浩然",
+        "title": "translated",
+        "author": "translated·translated",
         "lines": [
-          "春眠不觉晓",
-          "处处闻啼鸟",
-          "夜来风雨声",
-          "花落知多少"
+          "translated",
+          "translated",
+          "translated",
+          "translated"
         ],
-        "note": "春意盎然，生机勃勃"
+        "note": "translated，translated"
       }
     ]
   },

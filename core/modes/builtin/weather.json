@@ -1,13 +1,13 @@
 {
   "mode_id": "WEATHER",
-  "display_name": "天气看板",
+  "display_name": "translated",
   "icon": "weather",
   "cacheable": false,
-  "description": "当日天气 + 未来3天预报 + 穿衣建议",
+  "description": "translated + translated3translated + translated",
   "settings_schema": [
     {
       "key": "forecast_days",
-      "label": "预报天数",
+      "label": "translated",
       "type": "number",
       "default": 3,
       "min": 1,
@@ -21,20 +21,20 @@
     "fallback": {
       "city": "",
       "today_temp": "--",
-      "today_desc": "暂无数据",
+      "today_desc": "translated",
       "today_code": -1,
       "today_low": "--",
       "today_high": "--",
       "today_range": "-- / --",
-      "advice": "注意根据天气添减衣物",
+      "advice": "translatedGet by translated",
       "forecast": []
     },
     "fallback_pool": [
-      {"city": "", "today_temp": "--", "today_desc": "暂无数据", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "注意根据天气添减衣物", "forecast": []},
-      {"city": "", "today_temp": "--", "today_desc": "暂无数据", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "早晚温差大，记得带件外套", "forecast": []},
-      {"city": "", "today_temp": "--", "today_desc": "暂无数据", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "气温适宜，轻装出行", "forecast": []},
-      {"city": "", "today_temp": "--", "today_desc": "暂无数据", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "有雨记得带伞", "forecast": []},
-      {"city": "", "today_temp": "--", "today_desc": "暂无数据", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "天冷注意保暖", "forecast": []}
+      {"city": "", "today_temp": "--", "today_desc": "translated", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "translatedGet by translated", "forecast": []},
+      {"city": "", "today_temp": "--", "today_desc": "translated", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "translated，translated", "forecast": []},
+      {"city": "", "today_temp": "--", "today_desc": "translated", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "translated，translated", "forecast": []},
+      {"city": "", "today_temp": "--", "today_desc": "translated", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "translated", "forecast": []},
+      {"city": "", "today_temp": "--", "today_desc": "translated", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "translated", "forecast": []}
     ]
   },
   "layout": {
@@ -107,7 +107,7 @@
       {
         "type": "icon_text",
         "icon": "humidity",
-        "text": "湿度 {today_humidity}%   {today_wind_dir} {today_wind_level}",
+        "text": "translated {today_humidity}%   {today_wind_dir} {today_wind_level}",
         "font_size": 12,
         "align": "left",
         "margin_x": 15
@@ -125,7 +125,7 @@
           {
             "type": "icon_text",
             "icon": "sunrise",
-            "text": "日出 {sunrise} | 日落 {sunset}",
+            "text": "translated {sunrise} | translated {sunset}",
             "font_size": 12,
             "align": "left",
             "margin_x": 0

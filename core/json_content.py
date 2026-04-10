@@ -1,6 +1,6 @@
 """
-通用 JSON 模式内容生成器
-根据 JSON content 定义调用 LLM 或返回静态数据
+translated JSON modetranslated
+Get by  JSON content translated LLM translated
 """
 from __future__ import annotations
 
@@ -303,7 +303,7 @@ async def generate_json_mode_content(
         if language == "en":
             base_prompt += "\nNote: Content will be displayed on a tiny screen (296×128px). Keep all text very short."
         else:
-            base_prompt += "\n注意：内容将显示在极小屏幕上（296×128像素），所有文字请尽量简短。"
+            base_prompt += "\ntranslated：translated（296×128translated），translated。"
 
     mode_id = mode_def.get("mode_id", "CUSTOM")
     logger.info(f"[JSONContent] Generating content for {mode_id} via {provider}/{model}")
@@ -320,7 +320,7 @@ async def generate_json_mode_content(
                 if language == "en":
                     dedup_hint = "\nAvoid repeating these recent topics: " + "; ".join(summaries)
                 else:
-                    dedup_hint = "\n请避免与以下近期内容重复：" + "；".join(summaries)
+                    dedup_hint = "\ntranslated：" + "；".join(summaries)
         except (OSError, TypeError, ValueError):
             logger.warning("[JSONContent] Failed to load dedup context for %s:%s", mac, mode_id, exc_info=True)
 
@@ -335,13 +335,13 @@ async def generate_json_mode_content(
             text = await _call_llm(provider, model, prompt, temperature=temperature, api_key=api_key, base_url=llm_base_url)
             llm_ok = True
         except (LLMKeyMissingError, httpx.HTTPError, HTTPStatusError, OpenAIError, OSError, TypeError, ValueError) as e:
-            # 这里捕获所有 LLM 调用异常（包括 OpenAI/DeepSeek 的 BadRequestError 等），
-            # 避免将 4xx/5xx 直接抛到上层导致 500，而是统一回退到 fallback 内容。
+            # translated LLM translated（translated OpenAI/DeepSeek translated BadRequestError translated），
+            # translated 4xx/5xx translated 500，translated fallback translated。
             logger.error(f"[JSONContent] LLM call failed for {mode_id}: {e}")
             if DISABLE_FALLBACK:
                 result = {"text": f"[LLM_ERROR] {e}", "_is_fallback": True, "_llm_used": True, "_llm_ok": False}
                 return _apply_post_process(result, content_cfg)
-            # 检查是否是 API key 缺失或无效错误（401/403 等），用于给上游返回更明确的 api_key_invalid 标记
+            # translated API key translatedinvalidtranslated（401/403 translated），translated api_key_invalid translated
             if isinstance(e, LLMKeyMissingError):
                 api_key_invalid = True
                 logger.warning(f"[JSONContent] API key missing or invalid for {mode_id}: {e}")
@@ -351,8 +351,8 @@ async def generate_json_mode_content(
                     api_key_invalid = True
                     logger.warning(f"[JSONContent] API key invalid or expired for {mode_id}: HTTP {status_code}")
             elif isinstance(e, OpenAIError):
-                # OpenAI/兼容 SDK 的错误可能包含状态码或错误码信息
-                # 这里只把「鉴权相关」错误视为 API key 问题，避免把诸如 Model Not Exist 也误判为 key 失效。
+                # OpenAI/translated SDK translated
+                # translated「translated」translated API key translated，translated Model Not Exist translated key translated。
                 error_message = str(e).lower()
                 error_code = getattr(e, "status_code", None) or getattr(e, "code", None)
                 if (
@@ -367,7 +367,7 @@ async def generate_json_mode_content(
                     api_key_invalid = True
                     logger.warning(f"[JSONContent] API key invalid or expired for {mode_id}: {e}")
             fb = dict(fallback)
-            # 标记为使用兜底内容，便于前端/统计判断
+            # translated，translated/translated
             fb["_is_fallback"] = True
             fb["_used_fallback"] = True
             # Mark LLM status for downstream billing/observability.
@@ -507,10 +507,10 @@ async def _generate_computed_content(mode_def: dict, content_cfg: dict, fallback
                 "age": age, "life_expect": life_expect,
             }
         return {
-            "year_pct": year_pct, "year_label": f"{now.year} 年已过",
-            "month_pct": month_pct, "month_label": f"{now.month}月",
-            "week_pct": week_pct, "week_label": "本周",
-            "life_pct": life_pct, "life_label": "人生",
+            "year_pct": year_pct, "year_label": f"{now.year} translated",
+            "month_pct": month_pct, "month_label": f"{now.month}month",
+            "week_pct": week_pct, "week_label": "translated",
+            "life_pct": life_pct, "life_label": "translated",
             "day_of_year": day_of_year, "days_in_year": days_in_year,
             "day": now.day, "days_in_month": days_in_month,
             "weekday_num": weekday_num, "week_total": 7,
@@ -526,7 +526,7 @@ async def _generate_computed_content(mode_def: dict, content_cfg: dict, fallback
             memo_text = config.get("memo_text", "")
         memo_text = memo_text if isinstance(memo_text, str) else ""
         if not memo_text:
-            default_hint = "Set your memo in the config page." if lang == "en" else "在配置页面设置你的便签内容"
+            default_hint = "Set your memo in the config page." if lang == "en" else "translated"
             memo_text = fallback.get("memo_text", default_hint)
         return {"memo_text": memo_text}
 
@@ -561,7 +561,7 @@ async def _generate_computed_content(mode_def: dict, content_cfg: dict, fallback
             if lang == "en":
                 lines.append(f"\nCompleted {completed}/{total} today")
             else:
-                lines.append(f"\n今日已完成 {completed}/{total} 项")
+                lines.append(f"\ntranslated {completed}/{total} translated")
             summary = "\n".join(lines)
         else:
             summary = fallback.get("summary", "")
@@ -639,9 +639,9 @@ async def _generate_computed_content(mode_def: dict, content_cfg: dict, fallback
             return result
 
         LUNAR_DAY_NAMES = [
-            "", "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
-            "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
-            "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十",
+            "", "translated", "translated", "translated", "translated", "translated", "translated", "translated", "translated", "translated", "translated",
+            "translated", "translated", "translated", "translated", "translated", "translated", "translated", "translated", "translated", "translated",
+            "translated", "translated", "translated", "translated", "translated", "translated", "translated", "translated", "translated", "translated",
         ]
         _MONTH_EN = ["", "January", "February", "March", "April", "May", "June",
                      "July", "August", "September", "October", "November", "December"]
@@ -717,7 +717,7 @@ async def _generate_computed_content(mode_def: dict, content_cfg: dict, fallback
             if d == day:
                 try:
                     zh_today = ZhDate.from_datetime(now)
-                    today_lunar = f"农历{zh_today.chinese()}"
+                    today_lunar = f"lunar{zh_today.chinese()}"
                 except (ValueError, OverflowError):
                     today_lunar = ""
                 today_festival = solar_fest or lunar_fest or solar_term
@@ -728,9 +728,9 @@ async def _generate_computed_content(mode_def: dict, content_cfg: dict, fallback
             cal_title = f"{_MONTH_EN[month]} {year}"
             weekday_headers = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
         else:
-            reminder_hint = f"今天的提醒: {reminders[today_key]}" if today_key in reminders else ""
-            cal_title = f"{year}年{month}月"
-            weekday_headers = ["一", "二", "三", "四", "五", "六", "日"]
+            reminder_hint = f"translated: {reminders[today_key]}" if today_key in reminders else ""
+            cal_title = f"{year}year{month}month"
+            weekday_headers = ["translated", "translated", "translated", "translated", "translated", "translated", "day"]
 
         return {
             "calendar_title": cal_title,
@@ -777,19 +777,19 @@ async def _generate_computed_content(mode_def: dict, content_cfg: dict, fallback
                 }
             else:
                 courses = {
-                    "0-0": "高等数学/A201", "0-2": "线性代数/A201",
-                    "1-1": "大学英语/B305", "1-3": "体育/操场",
-                    "2-0": "数据结构/C102", "2-2": "计算机网络/C102",
-                    "3-1": "概率论/A201", "3-3": "毛概/D405",
-                    "4-0": "操作系统/C102",
+                    "0-0": "translated/A201", "0-2": "translated/A201",
+                    "1-1": "translated/B305", "1-3": "translated/translated",
+                    "2-0": "translated/C102", "2-2": "translated/C102",
+                    "3-1": "translated/A201", "3-3": "translated/D405",
+                    "4-0": "translated/C102",
                 }
 
         if is_en:
             weekday_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
             weekdays_short = ["Mon", "Tue", "Wed", "Thu", "Fri"]
         else:
-            weekday_names = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
-            weekdays_short = ["一", "二", "三", "四", "五"]
+            weekday_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+            weekdays_short = ["translated", "translated", "translated", "translated", "translated"]
 
         wd = now.weekday()
         current_day = wd if wd < 5 else -1
@@ -815,7 +815,7 @@ async def _generate_computed_content(mode_def: dict, content_cfg: dict, fallback
             if is_en:
                 title = f"{weekday_names[wd]} · This Week" if wd < 7 else "This Week"
             else:
-                title = f"{weekday_names[wd]} · 本周课程" if wd < 7 else "本周课程"
+                title = f"{weekday_names[wd]} · translated" if wd < 7 else "translated"
             return {
                 "style": "weekly",
                 "periods": periods,
@@ -845,7 +845,7 @@ async def _generate_computed_content(mode_def: dict, content_cfg: dict, fallback
         if is_en:
             title = f"{weekday_names[wd]} · Today" if wd < 7 else "Today"
         else:
-            title = f"{weekday_names[wd]} · 今日课程" if wd < 7 else "今日课程"
+            title = f"{weekday_names[wd]} · translated" if wd < 7 else "translated"
         return {
             "style": "daily",
             "timetable_title": title,
@@ -899,7 +899,7 @@ async def _generate_external_data_content(mode_def: dict, content_cfg: dict, fal
             summarized_hn, summarized_ph = await summarize_briefing_content(
                 hn_items, ph_item, llm_provider, llm_model, api_key=api_key, llm_base_url=llm_base_url, language=language
             )
-            # 如果返回 None，说明 summarize 失败了
+            # translated None，translated summarize failedtranslated
             if summarized_hn is None or summarized_ph is None:
                 llm_failed = True
             else:
@@ -909,7 +909,7 @@ async def _generate_external_data_content(mode_def: dict, content_cfg: dict, fal
         insight = ""
         if include_insight:
             insight = await generate_briefing_insight(hn_items, ph_item, llm_provider, llm_model, api_key=api_key, llm_base_url=llm_base_url, language=language)
-            # 如果返回 None，说明 insight 生成失败了
+            # translated None，translated insight generatefailedtranslated
             if insight is None:
                 llm_failed = True
                 insight = ""
@@ -929,7 +929,7 @@ async def _generate_external_data_content(mode_def: dict, content_cfg: dict, fal
             "ph_tagline": ph_tagline,
         })
         
-        # 标记 LLM 使用情况
+        # translated LLM translated
         if summarize or include_insight:
             result["_llm_used"] = True
             if llm_failed:
@@ -1103,17 +1103,17 @@ async def _generate_image_gen_content(mode_def: dict, content_cfg: dict, fallbac
                 llm_base_url=kwargs.get("llm_base_url"),
                 language=kwargs.get("language", "zh"),
             )
-            # 仅当真正拿到图像地址时才使用生成结果；否则回退到 JSON 中的 fallback/fallback_pool
+            # translated；translated JSON translated fallback/fallback_pool
             if mode_id != "ARTWALL":
                 result["artwork_title"] = ""
                 result["description"] = ""
             if result.get("image_url"):
-                # 成功生成图像
+                # successtranslated
                 result["_llm_used"] = True
                 result["_llm_ok"] = True
                 return result
             else:
-                # 没有生成图像，使用 fallback
+                # translated，translated fallback
                 logger.warning(f"[JSONContent] image_gen for {mode_id} returned no image_url, using fallback")
                 fb = dict(fallback)
                 fb["_llm_used"] = True
@@ -1155,12 +1155,12 @@ async def _generate_composite_content(mode_def: dict, content_cfg: dict, fallbac
             }
             part = await generate_json_mode_content(step_mode_def, **kwargs)
             if isinstance(part, dict):
-                # 检查这个 step 是否使用了 LLM
+                # translated step translated LLM
                 if part.get("_llm_used"):
                     any_llm_used = True
                     if not part.get("_llm_ok", True):
                         any_llm_failed = True
-                # 移除内部标记，避免污染最终结果
+                # translated，translated
                 part_clean = {k: v for k, v in part.items() if not k.startswith("_")}
                 result.update(part_clean)
         except (LLMKeyMissingError, httpx.HTTPError, OSError, TypeError, ValueError, JSONDecodeError) as e:
@@ -1180,7 +1180,7 @@ async def _generate_composite_content(mode_def: dict, content_cfg: dict, fallbac
     merged = dict(fallback)
     merged.update(result)
     
-    # 设置 LLM 使用标记
+    # translated LLM translated
     if any_llm_used:
         merged["_llm_used"] = True
         if any_llm_failed:

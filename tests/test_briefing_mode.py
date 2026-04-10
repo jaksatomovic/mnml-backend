@@ -1,5 +1,5 @@
 """
-测试 BRIEFING 模式
+test BRIEFING mode
 """
 import asyncio
 import os
@@ -51,8 +51,8 @@ async def main():
     img = render_json_mode(
         mode_def,
         content,
-        date_str="2月14日 周六",
-        weather_str="晴 15°C",
+        date_str="2/14 Sat",
+        weather_str="sunny 15°C",
         battery_pct=85,
         weather_code=0,
         time_str="14:30",

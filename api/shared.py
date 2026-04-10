@@ -389,7 +389,7 @@ async def build_image(
     mode_info = registry.get_mode_info(persona)
     is_mode_cacheable = bool(mode_info.cacheable) if mode_info else True
 
-    # ── 合入用户级别的 LLM / 图像 API 配置 ─────────────────────────────
+    # ── translated LLM / translated API config ─────────────────────────────
     selected_config_user_id: Optional[int] = None
     usage_source = "server_api_key"
     current_user_llm_cfg = None
@@ -478,14 +478,14 @@ async def build_image(
     elif mac:
         usage_source = "owner_free_quota"
 
-    # 是否为需要 LLM 的 JSON 模式（需要额度管控的类型）
-    # 需要检查顶层 content 类型，以及 composite 模式中的 steps
-    # 涉及 LLM 调用的类型：
-    # - llm: 直接调用 LLM
-    # - llm_json: 调用 LLM 并解析 JSON
-    # - image_gen: 调用 LLM 生成标题（在 generate_artwall_content 中）
-    # - external_data: 如果 provider 是 "briefing" 且配置了 summarize 或 include_insight，会调用 LLM
-    # - composite: 递归检查 steps 中是否包含上述类型
+    # translated LLM translated JSON mode（translated）
+    # translated content translated，translated composite modetranslated steps
+    # translated LLM translated：
+    # - llm: translated LLM
+    # - llm_json: translated LLM translated JSON
+    # - image_gen: translated LLM translated（translated generate_artwall_content translated）
+    # - external_data: translated provider translated "briefing" translated summarize translated include_insight，translated LLM
+    # - composite: translated steps translated
     llm_mode_requires_quota = False
     json_mode = registry.get_json_mode(persona, mac)
     if json_mode and isinstance(json_mode.definition, dict):
@@ -501,7 +501,7 @@ async def build_image(
             llm_mode_requires_quota = True
             logger.debug("[QUOTA DEBUG] Mode %s requires quota (direct type: %s)", persona, ctype)
         elif ctype == "external_data":
-            # external_data 类型中，briefing provider 会调用 LLM（如果配置了 summarize 或 include_insight）
+            # external_data translated，briefing provider translated LLM（translated summarize translated include_insight）
             provider = content_def.get("provider", "")
             if provider == "briefing":
                 summarize = content_def.get("summarize", True)
@@ -510,7 +510,7 @@ async def build_image(
                     llm_mode_requires_quota = True
                     logger.debug("[QUOTA DEBUG] Mode %s requires quota (external_data briefing)", persona)
         elif ctype == "composite":
-            # 递归检查 composite 模式中的 steps 是否包含需要 LLM 的类型
+            # translated composite modetranslated steps translated LLM translated
             steps = content_def.get("steps", [])
             logger.debug("[QUOTA DEBUG] Mode %s is composite, checking %d steps", persona, len(steps) if isinstance(steps, list) else 0)
             if isinstance(steps, list):
@@ -523,7 +523,7 @@ async def build_image(
                             logger.debug("[QUOTA DEBUG] Mode %s requires quota (composite step: %s)", persona, step_type)
                             break
                         elif step_type == "external_data":
-                            # 检查 external_data step 是否调用 LLM
+                            # translated external_data step translated LLM
                             step_provider = step.get("provider", "")
                             if step_provider == "briefing":
                                 step_summarize = step.get("summarize", True)
@@ -532,7 +532,7 @@ async def build_image(
                                     llm_mode_requires_quota = True
                                     logger.debug("[QUOTA DEBUG] Mode %s requires quota (composite external_data briefing)", persona)
                                     break
-                        # 如果 step 本身也是 composite，需要递归检查（虽然当前没有这种嵌套，但为了完整性）
+                        # translated step translated composite，translated（translated，translated）
                         elif step_type == "composite":
                             nested_steps = step.get("steps", [])
                             if isinstance(nested_steps, list):
@@ -557,13 +557,13 @@ async def build_image(
     if not llm_mode_requires_quota:
         logger.debug("[QUOTA DEBUG] Mode %s does NOT require quota", persona)
 
-    # 检查用户是否提供了自己的 API key（如果提供了，则无需额度检查）
-    # 注意：API key 现在只从用户级别配置（user_llm_config 表）获取，不再从设备配置读取
+    # translated API key（translated，translated）
+    # translated：API key translated（user_llm_config translated）Get ，translated
     user_provided_api_key = False
     if config:
-        # BYOK 有效性判定：
-        # - preset：必须有 user_api_key
-        # - custom_openai：必须有 user_api_key + llm_base_url
+        # BYOK translated：
+        # - preset：musttranslated user_api_key
+        # - custom_openai：musttranslated user_api_key + llm_base_url
         llm_access_mode = (config.get("llm_access_mode") or "preset").strip().lower()
         override_key = config.get("user_api_key")
         base_url = config.get("llm_base_url")
@@ -580,9 +580,9 @@ async def build_image(
                 selected_config_user_id,
             )
 
-    # 当前设备对应的计费用户（策略：owner）
-    # 对于设备端：使用设备 owner 的 user_id
-    # 对于 Web 预览：使用当前登录用户的 user_id（如果提供了 current_user_id）
+    # translated（translated：owner）
+    # translated：translated owner translated user_id
+    # translated Web translated：translated user_id（translated current_user_id）
     quota_user_id: Optional[int] = None
     if mac:
         try:
@@ -590,7 +590,7 @@ async def build_image(
         except Exception:
             logger.warning("[QUOTA] Failed to resolve quota owner for %s", mac, exc_info=True)
     elif current_user_id is not None:
-        # Web 预览场景：使用当前登录用户的 user_id
+        # Web translated：translated user_id
         quota_user_id = current_user_id
         logger.debug("[QUOTA] Using current_user_id=%s for Web preview", current_user_id)
 
@@ -620,8 +620,8 @@ async def build_image(
                 config["memo_text"] = memo_clean
                 config["memoText"] = memo_clean
 
-    # 无设备预览（/preview 等）：按页面站点语言（中/英）决定 mode_language。
-    # 设备配置页预览（有 mac）：沿用 configs 中保存的 mode_language，不被 ui_language 覆盖。
+    # translated（/preview translated）：translated（translated/translated）translated mode_language。
+    # translated（translated mac）：translated configs translated mode_language，translated ui_language translated。
     if not mac and preview_ui_language in ("zh", "en"):
         config = copy.deepcopy(config or {})
         config["mode_language"] = preview_ui_language
@@ -649,19 +649,19 @@ async def build_image(
         if cached_img:
             cache_hit = True
             img = cached_img
-            # 即使缓存命中，如果这是需要 LLM 的模式且用户额度为0，也应该检查并返回兜底图
-            # 避免用户通过缓存绕过额度限制
-            # Root 用户无需检查额度
-            # 如果用户提供了自己的 API key，也无需检查额度
+            # translated，translated LLM translatedmodetranslated0，translated
+            # translated
+            # Root translated
+            # translated API key，translated
             if (
                 billing_enabled
                 and quota_user_id is not None
                 and llm_mode_requires_quota
-                and (mac or current_user_id is not None)  # 设备端或 Web 预览都需要检查
-                and not user_provided_api_key  # 用户提供了自己的 API key，无需检查额度
+                and (mac or current_user_id is not None)  # translated Web translated
+                and not user_provided_api_key  # translated API key，translated
             ):
                 try:
-                    # 检查用户是否为 root，root 用户无需检查额度
+                    # translated root，root translated
                     user_role = await get_user_role(quota_user_id)
                     if user_role == "root":
                         logger.debug(
@@ -678,7 +678,7 @@ async def build_image(
                                 persona,
                             )
                             quota_exhausted = True
-                            # 对于设备端，返回兜底图；对于 Web 预览，返回 quota_exhausted 标志让接口处理
+                            # translated，translated；translated Web translated，translated quota_exhausted translated
                             if mac:
                                 img = _render_quota_exhausted_image(screen_w, screen_h)
                                 await update_device_state(
@@ -687,7 +687,7 @@ async def build_image(
                                     last_refresh_at=datetime.now().isoformat(),
                                 )
                                 return img, persona, False, True, quota_exhausted, False, False, usage_source
-                            # Web 预览：不返回图片，让接口返回 JSON 响应
+                            # Web translated：translatedimage，translated JSON translated
                             return None, persona, False, True, quota_exhausted, False, False, usage_source
                         if int(quota.get("free_quota_remaining") or 0) <= 0:
                             quota_exhausted = True
@@ -697,7 +697,7 @@ async def build_image(
                                 mac,
                                 persona,
                             )
-                            # 对于设备端，返回兜底图；对于 Web 预览，返回 quota_exhausted 标志让接口处理
+                            # translated，translated；translated Web translated，translated quota_exhausted translated
                             if mac:
                                 img = _render_quota_exhausted_image(screen_w, screen_h)
                                 await update_device_state(
@@ -706,7 +706,7 @@ async def build_image(
                                     last_refresh_at=datetime.now().isoformat(),
                                 )
                                 return img, persona, False, True, quota_exhausted, False, False, usage_source
-                            # Web 预览：不返回图片，让接口返回 JSON 响应
+                            # Web translated：translatedimage，translated JSON translated
                             return None, persona, False, True, quota_exhausted, False, False, usage_source
                 except Exception:
                     logger.warning(
@@ -726,9 +726,9 @@ async def build_image(
     content_data = None
     content_fallback = False
 
-    # Cache Miss + 需要 LLM + 找到了计费用户：先检查剩余额度
+    # Cache Miss + translated LLM + translated：translated
     quota_exhausted = False
-    # 添加调试日志，确认额度检查条件
+    # translated，translated
     if not cache_hit:
         logger.info(
             "[QUOTA DEBUG] cache_hit=%s, mac=%s, quota_user_id=%s, llm_mode_requires_quota=%s, persona=%s",
@@ -738,21 +738,21 @@ async def build_image(
             llm_mode_requires_quota,
             persona,
         )
-    # 额度检查：需要满足以下条件之一：
-    # 1. 有 mac（设备端）：检查设备 owner 的额度
-    # 2. 有 current_user_id（Web 预览）：检查当前登录用户的额度
-    # Root 用户无需检查额度
-    # 如果用户提供了自己的 API key，也无需检查额度
+    # translated：translated：
+    # 1. translated mac（translated）：translated owner translated
+    # 2. translated current_user_id（Web translated）：translated
+    # Root translated
+    # translated API key，translated
     if (
         billing_enabled
         and not cache_hit
         and quota_user_id is not None
         and llm_mode_requires_quota
-        and (mac or current_user_id is not None)  # 设备端或 Web 预览都需要检查
-        and not user_provided_api_key  # 用户提供了自己的 API key，无需检查额度
+        and (mac or current_user_id is not None)  # translated Web translated
+        and not user_provided_api_key  # translated API key，translated
     ):
         try:
-            # 检查用户是否为 root，root 用户无需检查额度
+            # translated root，root translated
             user_role = await get_user_role(quota_user_id)
             if user_role == "root":
                 logger.debug(
@@ -784,8 +784,8 @@ async def build_image(
                         mac,
                         persona,
                     )
-                    # 对于设备端，仍然返回1-bit兜底图（设备无法显示弹窗）
-                    # 对于Web端，会在 preview 接口中检测并返回 JSON 响应
+                    # translated，translated1-bittranslated（translated）
+                    # translatedWebtranslated，translated preview translated JSON translated
                     img = _render_quota_exhausted_image(screen_w, screen_h)
                     if mac:
                         await update_device_state(
@@ -804,7 +804,7 @@ async def build_image(
                 persona,
                 exc_info=True,
             )
-            # 如果查询失败且不是 root 用户，为了安全起见，也视为额度耗尽并拦截
+            # translatedfailedtranslated root user，translated，translated
             try:
                 user_role = await get_user_role(quota_user_id)
                 if user_role != "root":
@@ -823,7 +823,7 @@ async def build_image(
                     )
                     return img, persona, False, True, quota_exhausted, False, False, usage_source
             except Exception:
-                # 如果连 role 都查不到，为了安全起见，也视为额度耗尽
+                # translated role translated，translated，translated
                 logger.warning(
                     "[QUOTA] Failed to check user role for user_id=%s (mac=%s, mode=%s), treating as exhausted",
                     quota_user_id,
@@ -838,7 +838,7 @@ async def build_image(
                     last_refresh_at=datetime.now().isoformat(),
                 )
                 return img, persona, False, True, quota_exhausted, False, False, usage_source
-            # 更新设备状态，但不写入内容缓存，避免后续充值后仍命中"额度耗尽"图片
+            # translated，translated，translated"translated"image
             await update_device_state(
                 mac,
                 last_persona=persona,
@@ -901,22 +901,22 @@ async def build_image(
         except (OSError, ValueError, TypeError):
             logger.warning("[CONTENT] Failed to save content for %s:%s", mac, persona, exc_info=True)
 
-    # 精准扣费：仅在 Cache Miss 且确实发生了一次成功的 LLM 调用时扣减额度
-    # 支持设备端（mac）和 Web 预览（current_user_id）
-    # Root 用户无需扣费
-    # 如果用户提供了自己的 API key，也无需扣费
+    # translated：translated Cache Miss translatedsuccesstranslated LLM translated
+    # translated（mac）translated Web translated（current_user_id）
+    # Root translated
+    # translated API key，translated
     if (
         billing_enabled
         and not cache_hit
         and quota_user_id is not None
-        and (mac or current_user_id is not None)  # 设备端或 Web 预览都需要扣费
+        and (mac or current_user_id is not None)  # translated Web translated
         and isinstance(content_data, dict)
         and content_data.get("_llm_used") is True
         and content_data.get("_llm_ok") is True
-        and not user_provided_api_key  # 用户提供了自己的 API key，无需扣费
+        and not user_provided_api_key  # translated API key，translated
     ):
         try:
-            # 检查用户是否为 root，root 用户无需扣费
+            # translated root，root translated
             user_role = await get_user_role(quota_user_id)
             if user_role == "root":
                 logger.debug(
@@ -941,7 +941,7 @@ async def build_image(
                 exc_info=True,
             )
 
-    # 检查 API key 是否无效
+    # translated API key translatedinvalid
     api_key_invalid = False
     if isinstance(content_data, dict) and content_data.get("_api_key_invalid") is True:
         api_key_invalid = True
@@ -950,7 +950,7 @@ async def build_image(
             mac,
             persona,
         )
-        # 对于设备端，返回提示图片；对于 Web 预览，返回 api_key_invalid 标志让接口处理
+        # translated，translatedimage；translated Web translated，translated api_key_invalid translated
         if mac:
             img = _render_api_key_invalid_image(screen_w, screen_h)
             await update_device_state(
@@ -1165,16 +1165,16 @@ def normalize_pushed_preview(image_bytes: bytes, *, width: int, height: int) -> 
 
 
 def _render_api_key_invalid_image(screen_w: int, screen_h: int) -> Image.Image:
-    """渲染 API key 无效提示图（1-bit），对 ESP32 固件保持兼容。
+    """translated API key invalidtranslated（1-bit），translated ESP32 translated。
 
-    始终返回 mode=\"1\" 的黑白图像，调用方按 BMP 返回给设备（HTTP 200）。
+    translated mode=\"1\" translated，translated BMP translated（HTTP 200）。
     """
-    img = Image.new("1", (screen_w, screen_h), 1)  # 1 = 白色背景
+    img = Image.new("1", (screen_w, screen_h), 1)  # 1 = whitetranslated
     draw = ImageDraw.Draw(img)
-    message = "API key 无效或已过期，请检查设备配置"
+    message = "API key invalidtranslated，translated"
     try:
         font = load_font("noto_serif_regular", 12)
-    except Exception:  # pragma: no cover - 极端环境下回退
+    except Exception:  # pragma: no cover - translated
         font = None
     try:
         if font:
@@ -1186,23 +1186,23 @@ def _render_api_key_invalid_image(screen_w: int, screen_h: int) -> Image.Image:
             text_h = 10
         x = (screen_w - text_w) // 2
         y = (screen_h - text_h) // 2
-        draw.text((x, y), message, fill=0, font=font)  # 0 = 黑色文字
+        draw.text((x, y), message, fill=0, font=font)  # 0 = blacktranslated
     except Exception:
         logger.warning("[RENDER] Failed to render API key invalid message", exc_info=True)
     return img
 
 
 def _render_quota_exhausted_image(screen_w: int, screen_h: int) -> Image.Image:
-    """渲染额度耗尽提示图（1-bit），对 ESP32 固件保持兼容。
+    """translated（1-bit），translated ESP32 translated。
 
-    始终返回 mode=\"1\" 的黑白图像，调用方按 BMP 返回给设备（HTTP 200）。
+    translated mode=\"1\" translated，translated BMP translated（HTTP 200）。
     """
-    img = Image.new("1", (screen_w, screen_h), 1)  # 1 = 白色背景
+    img = Image.new("1", (screen_w, screen_h), 1)  # 1 = whitetranslated
     draw = ImageDraw.Draw(img)
-    message = "您的免费额度已用完，请联系管理员"
+    message = "translated，translated"
     try:
         font = load_font("noto_serif_regular", 12)
-    except Exception:  # pragma: no cover - 极端环境下回退
+    except Exception:  # pragma: no cover - translated
         font = None
     try:
         if font:
@@ -1223,9 +1223,9 @@ def _render_quota_exhausted_image(screen_w: int, screen_h: int) -> Image.Image:
 def _render_device_unbound_image(screen_w: int, screen_h: int, pair_code: str) -> Image.Image:
     img = Image.new("1", (screen_w, screen_h), 1)
     draw = ImageDraw.Draw(img)
-    title = "欢迎使用 InkSight"
-    pair_line = f"配对码：{pair_code}" if pair_code else "正在生成配对码..."
-    hint = "请在设备配置页输入配对码完成绑定"
+    title = "translated InkSight"
+    pair_line = f"translated：{pair_code}" if pair_code else "translated..."
+    hint = "translated"
     try:
         title_font = load_font("noto_serif_regular", 20)
         body_font = load_font("noto_serif_regular", 14)

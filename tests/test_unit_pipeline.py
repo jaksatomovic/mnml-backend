@@ -35,7 +35,7 @@ def _mock_registry(*, json_modes=None, builtin_modes=None):
     mock_reg.get_builtin.side_effect = _get_builtin
 
     def _get_json_mode(p, mac=None, *args, **kwargs):
-        # 测试环境下忽略 mac，仅根据模式 ID 判断是否为 JSON 模式
+        # testtext mac，textmode ID text JSON mode
         if p in json_modes:
             jm = MagicMock()
             jm.definition = {"mode_id": p, "content": {"type": "llm"}, "layout": {"body": []}}
@@ -50,22 +50,22 @@ class TestGetEffectiveModeConfig:
     def test_merges_location_fields_from_mode_override(self):
         result = get_effective_mode_config(
             {
-                "city": "杭州",
+                "city": "Hangzhou",
                 "latitude": 30.27,
                 "longitude": 120.15,
                 "mode_overrides": {
                     "WEATHER": {
-                        "city": "平阳县",
+                        "city": "Pingyang",
                         "latitude": 27.66,
                         "longitude": 120.56,
                         "timezone": "Asia/Shanghai",
-                        "country": "中国",
+                        "country": "China",
                     }
                 },
             },
             "WEATHER",
         )
-        assert result["city"] == "平阳县"
+        assert result["city"] == "Pingyang"
         assert result["latitude"] == pytest.approx(27.66)
         assert result["longitude"] == pytest.approx(120.56)
         assert result["timezone"] == "Asia/Shanghai"

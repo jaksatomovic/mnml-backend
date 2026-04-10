@@ -1,5 +1,5 @@
 """
-测试 ModeRegistry 模式注册中心
+test ModeRegistry modetext
 """
 import json
 import os
@@ -13,7 +13,7 @@ from core.mode_registry import ModeRegistry, _validate_mode_def, JsonMode
 
 SAMPLE_MODE_DEF = {
     "mode_id": "TEST_MODE",
-    "display_name": "测试模式",
+    "display_name": "testmode",
     "icon": "star",
     "cacheable": True,
     "description": "A test mode",
@@ -135,7 +135,7 @@ def test_registry_load_json_mode():
 
         jm = reg.get_json_mode("TEST_MODE")
         assert jm is not None
-        assert jm.info.display_name == "测试模式"
+        assert jm.info.display_name == "testmode"
         assert jm.definition["content"]["type"] == "llm"
     finally:
         os.unlink(tmp_path)

@@ -192,8 +192,6 @@ h1{font-size:1.8rem;margin-bottom:8px}
         <label>AI Provider</label>
         <select id="wizLlmProvider" class="wiz-input">
           <option value="deepseek">DeepSeek</option>
-          <option value="aliyun">Alibaba Bailian</option>
-          <option value="moonshot">Moonshot</option>
         </select>
       </div>
       <div class="wiz-field">
@@ -260,7 +258,7 @@ h1{font-size:1.8rem;margin-bottom:8px}
 <div id="previewModal" class="modal-overlay" onclick="if(event.target===this)closePreviewModal()">
 <div class="modal-content">
 <button class="modal-close" onclick="closePreviewModal()">&times;</button>
-<h3>配置预览</h3>
+<h3>translated</h3>
 <div id="previewModeSelect" style="margin-bottom:12px"></div>
 <div style="text-align:center">
 <img id="previewImg" style="max-width:100%;border:2px solid #d4d4d4;border-radius:6px;background:#f5f5f5" alt="Preview">
@@ -273,28 +271,28 @@ h1{font-size:1.8rem;margin-bottom:8px}
 <div class="modal-content" style="max-width:400px">
 <p id="confirmMsg" style="font-size:.9rem;line-height:1.6"></p>
 <div class="confirm-bar">
-<button class="btn btn-outline" onclick="closeConfirm(false)">取消</button>
-<button class="btn" onclick="closeConfirm(true)">确定</button>
+<button class="btn btn-outline" onclick="closeConfirm(false)">translated</button>
+<button class="btn" onclick="closeConfirm(true)">translated</button>
 </div>
 </div>
 </div>
 
 <div class="container">
 <div class="card">
-<h1>InkSight 配置管理</h1>
-<p class="subtitle">在线修改设备配置，无需重新连接热点</p>
+<h1>InkSight translated</h1>
+<p class="subtitle">translated，translated</p>
 
 <div class="fg">
-<label class="lbl">设备 MAC 地址</label>
-<input type="text" class="inp" id="macIn" placeholder="例如: 88:56:A6:7B:C7:0C">
+<label class="lbl">device MAC translated</label>
+<input type="text" class="inp" id="macIn" placeholder="translated: 88:56:A6:7B:C7:0C">
 <div id="deviceList" style="margin-top:6px"></div>
-<div style="font-size:.75rem;color:var(--gy);margin-top:4px">在设备屏幕底部或初始配置页面可以找到，也可以通过 URL 参数传递</div>
+<div style="font-size:.75rem;color:var(--gy);margin-top:4px">translated，translated URL translated</div>
 </div>
 
 <div style="display:flex;gap:8px;flex-wrap:wrap">
-<button class="btn" onclick="loadConfig()" id="loadBtn" style="flex:1;min-width:120px">加载当前配置</button>
-<button class="btn btn-secondary" onclick="loadHistory()" id="historyBtn" style="flex:1;min-width:120px">查看历史配置</button>
-<button class="btn" onclick="triggerRefresh()" style="flex:1;min-width:120px;background:var(--green)">立即刷新</button>
+<button class="btn" onclick="loadConfig()" id="loadBtn" style="flex:1;min-width:120px">translated</button>
+<button class="btn btn-secondary" onclick="loadHistory()" id="historyBtn" style="flex:1;min-width:120px">translated</button>
+<button class="btn" onclick="triggerRefresh()" style="flex:1;min-width:120px;background:var(--green)">translated</button>
 </div>
 
 <div id="historyList" style="display:none;margin-top:16px"></div>
@@ -303,21 +301,21 @@ h1{font-size:1.8rem;margin-bottom:8px}
 <div id="configForm" style="display:none">
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-<h2 style="font-size:1.3rem">设备配置</h2>
+<h2 style="font-size:1.3rem">deviceconfig</h2>
 <div style="display:flex;gap:6px">
-<button class="btn btn-outline" onclick="exportConfig()" style="padding:6px 12px;font-size:.75rem">导出 JSON</button>
-<button class="btn btn-outline" onclick="document.getElementById('importFile').click()" style="padding:6px 12px;font-size:.75rem">导入 JSON</button>
+<button class="btn btn-outline" onclick="exportConfig()" style="padding:6px 12px;font-size:.75rem">translated JSON</button>
+<button class="btn btn-outline" onclick="document.getElementById('importFile').click()" style="padding:6px 12px;font-size:.75rem">translated JSON</button>
 <input type="file" id="importFile" accept=".json" style="display:none" onchange="importConfig(event)">
 </div>
 </div>
 
 <div class="fg">
-<label class="lbl">昵称</label>
-<input type="text" class="inp" id="nickname" placeholder="可选">
+<label class="lbl">translated</label>
+<input type="text" class="inp" id="nickname" placeholder="translated">
 </div>
 
 <div class="fg">
-<label class="lbl">屏幕尺寸</label>
+<label class="lbl">translated</label>
 <div class="pg" id="screenSize">
 <span class="pi sel" data-v="400x300" onclick="ps(this)">4.2" (400×300)</span>
 <span class="pi" data-v="296x128" onclick="ps(this)">2.9" (296×128)</span>
@@ -327,174 +325,173 @@ h1{font-size:1.8rem;margin-bottom:8px}
 </div>
 
 <div class="fg">
-<label class="lbl">内容模式（多选）</label>
+<label class="lbl">translatedmode（translated）</label>
 <div id="modes">
 <div class="tc">
-<div class="tcl">推荐核心（10）</div>
+<div class="tcl">translated（10）</div>
 <div class="cg" id="modesCore">
-<span class="ch" data-m="DAILY" data-tip="语录、书籍推荐、冷知识的综合日报" onclick="tc(this)">DAILY 每日</span>
-<span class="ch" data-m="WEATHER" data-tip="实时天气和未来趋势看板" onclick="tc(this)">WEATHER 天气</span>
-<span class="ch" data-m="ZEN" data-tip="一个大字表达当下心境" onclick="tc(this)">ZEN 禅意</span>
-<span class="ch" data-m="BRIEFING" data-tip="科技热榜 + AI 洞察简报" onclick="tc(this)">BRIEFING 简报</span>
-<span class="ch" data-m="STOIC" data-tip="每日一句哲学箴言" onclick="tc(this)">STOIC 斯多葛</span>
-<span class="ch" data-m="POETRY" data-tip="古诗词与简短注解" onclick="tc(this)">POETRY 诗词</span>
-<span class="ch" data-m="ARTWALL" data-tip="根据时令生成黑白艺术画" onclick="tc(this)">ARTWALL 画廊</span>
-<span class="ch" data-m="ALMANAC" data-tip="农历、节气、宜忌信息" onclick="tc(this)">ALMANAC 老黄历</span>
-<span class="ch" data-m="RECIPE" data-tip="按时段推荐三餐方案" onclick="tc(this)">RECIPE 食谱</span>
-<span class="ch" data-m="COUNTDOWN" data-tip="重要日程倒计时/正计时" onclick="tc(this)">COUNTDOWN 倒计时</span>
+<span class="ch" data-m="DAILY" data-tip="translated、translated、translated" onclick="tc(this)">DAILY translated</span>
+<span class="ch" data-m="WEATHER" data-tip="translated" onclick="tc(this)">WEATHER weather</span>
+<span class="ch" data-m="ZEN" data-tip="translated" onclick="tc(this)">ZEN translated</span>
+<span class="ch" data-m="BRIEFING" data-tip="translated + AI translated" onclick="tc(this)">BRIEFING translated</span>
+<span class="ch" data-m="STOIC" data-tip="translated" onclick="tc(this)">STOIC translated</span>
+<span class="ch" data-m="POETRY" data-tip="translated" onclick="tc(this)">POETRY translated</span>
+<span class="ch" data-m="ARTWALL" data-tip="Get by translated" onclick="tc(this)">ARTWALL translated</span>
+<span class="ch" data-m="ALMANAC" data-tip="lunar、translated、translated" onclick="tc(this)">ALMANAC translated</span>
+<span class="ch" data-m="RECIPE" data-tip="translated" onclick="tc(this)">RECIPE translated</span>
+<span class="ch" data-m="COUNTDOWN" data-tip="Importanttranslated/translated" onclick="tc(this)">COUNTDOWN translated</span>
 </div>
 </div>
 <div class="tc">
-<div class="tcl">工具模式</div>
+<div class="tcl">translatedmode</div>
 <div class="cg" id="modesTools">
-<span class="ch" data-m="MEMO" data-tip="展示自定义便签文字" onclick="tc(this)">MEMO 便签</span>
-<span class="ch" data-m="HABIT" data-tip="每日习惯完成进度" onclick="tc(this)">HABIT 打卡</span>
+<span class="ch" data-m="MEMO" data-tip="translated" onclick="tc(this)">MEMO translated</span>
+<span class="ch" data-m="HABIT" data-tip="translated" onclick="tc(this)">HABIT translated</span>
 </div>
 </div>
-<button type="button" class="mode-fold-toggle" id="modesMoreToggle" onclick="toggleMoreModes()">展开更多模式</button>
+<button type="button" class="mode-fold-toggle" id="modesMoreToggle" onclick="toggleMoreModes()">translatedmode</button>
 <div class="tc" id="modesMoreWrap" style="display:none">
-<div class="tcl">更多模式</div>
+<div class="tcl">translatedmode</div>
 <div class="cg" id="modesMore">
-<span class="ch" data-m="ROAST" data-tip="轻松幽默的吐槽风格内容" onclick="tc(this)">ROAST 毒舌</span>
-<span class="ch" data-m="FITNESS" data-tip="居家健身动作与建议" onclick="tc(this)">FITNESS 健身</span>
-<span class="ch" data-m="LETTER" data-tip="来自不同时空的一封慢信" onclick="tc(this)">LETTER 慢信</span>
-<span class="ch" data-m="THISDAY" data-tip="历史上的今天重大事件" onclick="tc(this)">THISDAY 今日历史</span>
-<span class="ch" data-m="RIDDLE" data-tip="谜题与脑筋急转弯" onclick="tc(this)">RIDDLE 猜谜</span>
-<span class="ch" data-m="QUESTION" data-tip="值得思考的开放式问题" onclick="tc(this)">QUESTION 每日一问</span>
-<span class="ch" data-m="BIAS" data-tip="认知偏差与心理效应" onclick="tc(this)">BIAS 认知偏差</span>
-<span class="ch" data-m="STORY" data-tip="可在 30 秒内读完的微故事" onclick="tc(this)">STORY 微故事</span>
-<span class="ch" data-m="LIFEBAR" data-tip="年/月/周/人生进度条" onclick="tc(this)">LIFEBAR 进度条</span>
-<span class="ch" data-m="CHALLENGE" data-tip="每天一个 5 分钟微挑战" onclick="tc(this)">CHALLENGE 微挑战</span>
+<span class="ch" data-m="ROAST" data-tip="translated" onclick="tc(this)">ROAST translated</span>
+<span class="ch" data-m="FITNESS" data-tip="translated" onclick="tc(this)">FITNESS translated</span>
+<span class="ch" data-m="LETTER" data-tip="translated" onclick="tc(this)">LETTER translated</span>
+<span class="ch" data-m="THISDAY" data-tip="translated" onclick="tc(this)">THISDAY translated</span>
+<span class="ch" data-m="RIDDLE" data-tip="translated" onclick="tc(this)">RIDDLE translated</span>
+<span class="ch" data-m="QUESTION" data-tip="translated" onclick="tc(this)">QUESTION translated</span>
+<span class="ch" data-m="BIAS" data-tip="translated" onclick="tc(this)">BIAS translated</span>
+<span class="ch" data-m="STORY" data-tip="translated 30 translated" onclick="tc(this)">STORY translated</span>
+<span class="ch" data-m="LIFEBAR" data-tip="year/month/translated/translated" onclick="tc(this)">LIFEBAR translated</span>
+<span class="ch" data-m="CHALLENGE" data-tip="translated 5 translated" onclick="tc(this)">CHALLENGE translated</span>
 </div>
 </div>
 <div class="mode-thumb" id="modeThumbPanel">
 <div class="mode-thumb-head">
-<span class="mode-thumb-title" id="modeThumbTitle">DAILY 每日</span>
-<span class="mode-thumb-desc" id="modeThumbDesc">语录、书籍推荐、冷知识的综合日报</span>
+<span class="mode-thumb-title" id="modeThumbTitle">DAILY translated</span>
+<span class="mode-thumb-desc" id="modeThumbDesc">translated、translated、translated</span>
 </div>
-<img class="mode-thumb-img" id="modeThumbImg" alt="模式缩略图">
+<img class="mode-thumb-img" id="modeThumbImg" alt="modetranslated">
 </div>
 </div>
 </div>
 
 <div class="fg">
-<label class="lbl">刷新策略</label>
+<label class="lbl">refresh strategy</label>
 <div class="pg" id="strategy">
-<div class="pi" data-v="random" onclick="selectStrategy(this)">随机轮换</div>
-<div class="pi" data-v="cycle" onclick="selectStrategy(this)">循环轮换</div>
-<div class="pi" data-v="time_slot" onclick="selectStrategy(this)">时段绑定</div>
-<div class="pi" data-v="smart" onclick="selectStrategy(this)">智能模式</div>
+<div class="pi" data-v="random" onclick="selectStrategy(this)">translated</div>
+<div class="pi" data-v="cycle" onclick="selectStrategy(this)">translated</div>
+<div class="pi" data-v="time_slot" onclick="selectStrategy(this)">translated</div>
+<div class="pi" data-v="smart" onclick="selectStrategy(this)">translatedmode</div>
 </div>
 <div class="strategy-desc" id="strategyDesc"></div>
 </div>
 
 <div class="fg" id="timeSlotSection" style="display:none">
-<label class="lbl">时段规则</label>
+<label class="lbl">translated</label>
 <div id="timeSlotRules"></div>
-<button type="button" onclick="addTimeSlotRule()" style="margin-top:8px;padding:6px 14px;font-size:.8rem;border:1px solid var(--bd);border-radius:6px;cursor:pointer;background:#fff">+ 添加时段</button>
-<div style="font-size:.7rem;color:var(--gy);margin-top:4px">为不同时间段配置不同的内容模式，未覆盖的时段使用随机选择</div>
+<button type="button" onclick="addTimeSlotRule()" style="margin-top:8px;padding:6px 14px;font-size:.8rem;border:1px solid var(--bd);border-radius:6px;cursor:pointer;background:#fff">+ translated</button>
+<div style="font-size:.7rem;color:var(--gy);margin-top:4px">translatedmode，translated</div>
 </div>
 
 <div class="fg">
-<label class="lbl">语言偏好</label>
+<label class="lbl">translated</label>
 <div class="pg" id="language">
-<div class="pi" data-v="zh" onclick="sp(this,'language')">中文为主</div>
-<div class="pi" data-v="en" onclick="sp(this,'language')">英文为主</div>
-<div class="pi" data-v="mixed" onclick="sp(this,'language')">中英混合</div>
+<div class="pi" data-v="zh" onclick="sp(this,'language')">translated</div>
+<div class="pi" data-v="en" onclick="sp(this,'language')">translated</div>
+<div class="pi" data-v="mixed" onclick="sp(this,'language')">translated</div>
 </div>
 </div>
 
 <div class="fg">
-<label class="lbl">内容调性</label>
+<label class="lbl">translatedtone</label>
 <div class="pg" id="tone">
-<div class="pi" data-v="positive" onclick="sp(this,'tone')">积极鼓励</div>
-<div class="pi" data-v="neutral" onclick="sp(this,'tone')">中性克制</div>
-<div class="pi" data-v="deep" onclick="sp(this,'tone')">深沉内省</div>
-<div class="pi" data-v="humor" onclick="sp(this,'tone')">轻松幽默</div>
+<div class="pi" data-v="positive" onclick="sp(this,'tone')">translated</div>
+<div class="pi" data-v="neutral" onclick="sp(this,'tone')">translated</div>
+<div class="pi" data-v="deep" onclick="sp(this,'tone')">translated</div>
+<div class="pi" data-v="humor" onclick="sp(this,'tone')">translated</div>
 </div>
 </div>
 
 <div class="fg">
-<label class="lbl">角色语气</label>
-<div class="tc"><div class="tcl">文学</div><div class="cg">
-<span class="ch" data-t="鲁迅" data-tip="犀利讽刺，针砭时弊" onclick="tc(this)">鲁迅</span>
-<span class="ch" data-t="王小波" data-tip="黑色幽默，自由不羁" onclick="tc(this)">王小波</span>
-<span class="ch" data-t="张爱玲" data-tip="冷峻细腻，洞察人性" onclick="tc(this)">张爱玲</span>
-<span class="ch" data-t="村上春树" data-tip="孤独美学，淡淡忧伤" onclick="tc(this)">村上春树</span>
+<label class="lbl">translated</label>
+<div class="tc"><div class="tcl">translated</div><div class="cg">
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
+<span class="ch" data-t="translated" data-tip="blacktranslated，translated" onclick="tc(this)">translated</span>
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
 </div></div>
-<div class="tc"><div class="tcl">影视</div><div class="cg">
-<span class="ch" data-t="王家卫" data-tip="文艺腔调，情绪留白" onclick="tc(this)">王家卫</span>
-<span class="ch" data-t="周星驰" data-tip="无厘头喜剧，笑中带泪" onclick="tc(this)">周星驰</span>
-<span class="ch" data-t="甄嬛" data-tip="宫斗话术，步步为营" onclick="tc(this)">甄嬛</span>
-<span class="ch" data-t="白展堂" data-tip="江湖气息，搞笑担当" onclick="tc(this)">白展堂</span>
+<div class="tc"><div class="tcl">translated</div><div class="cg">
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
 </div></div>
-<div class="tc"><div class="tcl">哲学</div><div class="cg">
-<span class="ch" data-t="苏格拉底" data-tip="追问本质，反诘启发" onclick="tc(this)">苏格拉底</span>
-<span class="ch" data-t="庄子" data-tip="逍遥自在，万物齐同" onclick="tc(this)">庄子</span>
-<span class="ch" data-t="尼采" data-tip="超人意志，永恒回归" onclick="tc(this)">尼采</span>
+<div class="tc"><div class="tcl">translated</div><div class="cg">
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
 </div></div>
-<div class="tc"><div class="tcl">AI / 科幻</div><div class="cg">
-<span class="ch" data-t="JARVIS" data-tip="智能管家，优雅高效" onclick="tc(this)">JARVIS</span>
-<span class="ch" data-t="智子" data-tip="冷酷理性，降维打击" onclick="tc(this)">智子</span>
-<span class="ch" data-t="马文" data-tip="偏执型机器人，宇宙级丧" onclick="tc(this)">马文</span>
+<div class="tc"><div class="tcl">AI / translated</div><div class="cg">
+<span class="ch" data-t="JARVIS" data-tip="translated，translated" onclick="tc(this)">JARVIS</span>
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
+<span class="ch" data-t="translated" data-tip="translated，translated" onclick="tc(this)">translated</span>
 </div></div>
 <div style="margin-top:6px">
-<input type="text" class="inp" id="custTone" placeholder="或自定义：东北大爷、川普...">
+<input type="text" class="inp" id="custTone" placeholder="translated：translated、translated...">
 </div>
 </div>
 
 <div class="fg">
-<label class="lbl">地理位置</label>
-<input type="text" class="inp" id="city" placeholder="城市名">
+<label class="lbl">translated</label>
+<input type="text" class="inp" id="city" placeholder="translated">
 </div>
 
 <div class="fg">
-<label class="lbl">AI 模型提供商</label>
+<label class="lbl">AI translated</label>
 <select class="sel" id="llmProvider" onchange="updateModels()">
 <option value="deepseek">Deepseek</option>
-<option value="aliyun">阿里百炼</option>
-<option value="moonshot">月之暗面</option>
+<option value="openai">OpenAI</option>
 </select>
 </div>
 
 <div class="fg">
-<label class="lbl">AI 模型</label>
+<label class="lbl">AI translated</label>
 <select class="sel" id="llmModel"></select>
 </div>
 
 <div class="fg">
-<label class="lbl">刷新间隔（分钟）</label>
+<label class="lbl">translated（translated）</label>
 <input type="number" class="inp" id="interval" min="10" max="1440" placeholder="60">
 </div>
 
 <div class="fg" id="memoSection" style="display:none">
-<label class="lbl">便签内容（MEMO 模式使用）</label>
-<textarea class="inp" id="memoText" rows="3" placeholder="输入要在墨水屏上显示的文字..." style="resize:vertical;font-size:.85rem;line-height:1.5"></textarea>
-<div style="font-size:.7rem;color:var(--gy);margin-top:4px">内容将以大字显示在屏幕中央</div>
+<label class="lbl">translated（MEMO modetranslated）</label>
+<textarea class="inp" id="memoText" rows="3" placeholder="translated..." style="resize:vertical;font-size:.85rem;line-height:1.5"></textarea>
+<div style="font-size:.7rem;color:var(--gy);margin-top:4px">translated</div>
 </div>
 
 <div class="fg" id="countdownSection">
-<label class="lbl">倒计时事件（COUNTDOWN 模式使用）</label>
+<label class="lbl">translated（COUNTDOWN modetranslated）</label>
 <div id="countdownEvents"></div>
-<button type="button" onclick="addCountdownEvent()" style="margin-top:8px;padding:6px 14px;font-size:.8rem;border:1px solid var(--bd);border-radius:6px;cursor:pointer;background:#fff">+ 添加事件</button>
-<div style="font-size:.7rem;color:var(--gy);margin-top:4px">最多 10 个事件，倒计时显示最近 3 个</div>
+<button type="button" onclick="addCountdownEvent()" style="margin-top:8px;padding:6px 14px;font-size:.8rem;border:1px solid var(--bd);border-radius:6px;cursor:pointer;background:#fff">+ translated</button>
+<div style="font-size:.7rem;color:var(--gy);margin-top:4px">translated 10 translated，translated 3 translated</div>
 </div>
 
 <div class="fg">
-<label class="lbl">管理密钥 (Admin Token)</label>
-<input type="password" class="inp" id="adminToken" placeholder="留空表示无需认证"
+<label class="lbl">translated (Admin Token)</label>
+<input type="password" class="inp" id="adminToken" placeholder="translated"
        onchange="setAdminToken(this.value)">
-<div style="font-size:.7rem;color:var(--gy);margin-top:4px">部署时设置 ADMIN_TOKEN 环境变量后，需要在此输入对应密钥</div>
+<div style="font-size:.7rem;color:var(--gy);margin-top:4px">translated ADMIN_TOKEN translated，translated</div>
 </div>
 
 <div style="display:flex;gap:8px;flex-wrap:wrap">
-<button class="btn" onclick="saveConfig()" style="flex:1">保存配置</button>
-<button class="btn btn-outline" onclick="openPreviewModal()" style="flex:1">预览效果</button>
+<button class="btn" onclick="saveConfig()" style="flex:1">translated</button>
+<button class="btn btn-outline" onclick="openPreviewModal()" style="flex:1">translated</button>
 </div>
 
 <div id="inlinePreview" style="display:none;margin-top:16px;border:1px solid var(--bd);border-radius:12px;padding:16px;background:var(--bg)">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-<label class="lbl" style="margin:0">实时预览</label>
+<label class="lbl" style="margin:0">translated</label>
 <div class="cg" id="inlinePreviewModes" style="gap:4px"></div>
 </div>
 <div style="text-align:center">
@@ -508,24 +505,24 @@ h1{font-size:1.8rem;margin-bottom:8px}
 <!-- Custom mode management -->
 <div class="card">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-<h2 style="font-size:1.3rem">自定义模式</h2>
+<h2 style="font-size:1.3rem">translatedmode</h2>
 <div style="display:flex;gap:6px">
-<button class="btn btn-outline" onclick="refreshModeList()" style="padding:6px 12px;font-size:.75rem">刷新列表</button>
-<button class="btn" onclick="openModeEditor()" style="padding:6px 12px;font-size:.75rem">+ 新建模式</button>
+<button class="btn btn-outline" onclick="refreshModeList()" style="padding:6px 12px;font-size:.75rem">translated</button>
+<button class="btn" onclick="openModeEditor()" style="padding:6px 12px;font-size:.75rem">+ translatedmode</button>
 </div>
 </div>
 <div id="modeList" class="mode-list">
-<div style="color:var(--gy);font-size:.85rem;text-align:center;padding:16px">加载中...</div>
+<div style="color:var(--gy);font-size:.85rem;text-align:center;padding:16px">translated...</div>
 </div>
 </div>
 
 <!-- Habit tracking -->
 <div class="card" id="habitSection" style="display:none">
-<h2 style="font-size:1.3rem;margin-bottom:16px">习惯打卡</h2>
+<h2 style="font-size:1.3rem;margin-bottom:16px">translated</h2>
 <div id="habitGrid"></div>
 <div style="display:flex;gap:8px;margin-top:12px">
-<input type="text" class="inp" id="newHabitName" placeholder="输入新习惯名称" style="flex:1">
-<button class="btn" onclick="addHabit()" style="padding:8px 16px;font-size:.85rem">添加</button>
+<input type="text" class="inp" id="newHabitName" placeholder="translated" style="flex:1">
+<button class="btn" onclick="addHabit()" style="padding:8px 16px;font-size:.85rem">translated</button>
 </div>
 </div>
 
@@ -533,45 +530,45 @@ h1{font-size:1.8rem;margin-bottom:8px}
 <div id="modeEditorModal" class="modal-overlay" onclick="if(event.target===this)closeModeEditor()">
 <div class="modal-content" style="max-width:700px">
 <button class="modal-close" onclick="closeModeEditor()">&times;</button>
-<h3 id="modeEditorTitle">新建自定义模式</h3>
+<h3 id="modeEditorTitle">translatedmode</h3>
 
 <!-- Tabs -->
 <div class="editor-tabs">
-  <button class="editor-tab active" onclick="switchEditorTab('ai')" id="tabAi">AI 生成</button>
-  <button class="editor-tab" onclick="switchEditorTab('manual')" id="tabManual">手动编辑</button>
+  <button class="editor-tab active" onclick="switchEditorTab('ai')" id="tabAi">AI generate</button>
+  <button class="editor-tab" onclick="switchEditorTab('manual')" id="tabManual">translated</button>
 </div>
 
 <!-- AI Generate Panel -->
 <div class="ai-gen-panel active" id="aiGenPanel">
   <div class="fg">
-    <label class="lbl">描述你想要的模式</label>
-    <textarea class="ai-desc-input" id="aiDescInput" placeholder="例如：我想要一个每天显示一个英语单词和释义的模式，单词要大号字体居中显示，下面显示中文释义和一个例句。" maxlength="2000"></textarea>
-    <div style="font-size:.72rem;color:var(--gy);margin-top:4px">支持中文或英文描述，越详细效果越好（最多 2000 字）</div>
+    <label class="lbl">translatedmode</label>
+    <textarea class="ai-desc-input" id="aiDescInput" placeholder="translated：translatedmode，translated，translated。" maxlength="2000"></textarea>
+    <div style="font-size:.72rem;color:var(--gy);margin-top:4px">translated，translated（translated 2000 translated）</div>
   </div>
 
   <div class="fg">
-    <label class="lbl">参考图片（可选）</label>
+    <label class="lbl">translatedimage（translated）</label>
     <div class="ai-img-upload" id="aiImgUpload" onclick="document.getElementById('aiImgFile').click()">
-      <div id="aiImgPlaceholder">点击上传参考图片<br><span style="font-size:.7rem">支持 PNG / JPG，最大 4MB</span></div>
+      <div id="aiImgPlaceholder">translatedimage<br><span style="font-size:.7rem">translated PNG / JPG，translated 4MB</span></div>
       <img id="aiImgPreview" class="ai-img-preview" style="display:none">
       <input type="file" id="aiImgFile" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="handleAiImageUpload(event)">
     </div>
     <div style="display:flex;justify-content:flex-end;margin-top:4px">
-      <button id="aiImgClear" style="display:none;font-size:.72rem;color:var(--red);border:none;background:none;cursor:pointer" onclick="clearAiImage()">移除图片</button>
+      <button id="aiImgClear" style="display:none;font-size:.72rem;color:var(--red);border:none;background:none;cursor:pointer" onclick="clearAiImage()">translatedimage</button>
     </div>
   </div>
 
   <button class="ai-gen-btn" id="aiGenBtn" onclick="generateModeWithAI()">
     <span class="spinner"></span>
-    <span class="btn-text">AI 生成模式</span>
+    <span class="btn-text">AI generatemode</span>
   </button>
 
   <div class="ai-gen-result" id="aiGenResult">
-    <div style="font-size:.82rem;font-weight:600;color:#15803d;margin-bottom:6px">生成成功！JSON 已填入编辑器</div>
-    <div style="font-size:.78rem;color:var(--gy)">请切换到「手动编辑」检查并调整，然后保存或预览。</div>
+    <div style="font-size:.82rem;font-weight:600;color:#15803d;margin-bottom:6px">generatesuccess！JSON translated</div>
+    <div style="font-size:.78rem;color:var(--gy)">translated「translated」translated，translated。</div>
     <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="btn btn-outline" onclick="switchEditorTab('manual')" style="flex:1;padding:8px;font-size:.82rem">查看 / 编辑 JSON</button>
-      <button class="btn" onclick="saveModeDefinition()" style="flex:1;padding:8px;font-size:.82rem">直接保存</button>
+      <button class="btn btn-outline" onclick="switchEditorTab('manual')" style="flex:1;padding:8px;font-size:.82rem">translated / translated JSON</button>
+      <button class="btn" onclick="saveModeDefinition()" style="flex:1;padding:8px;font-size:.82rem">translated</button>
     </div>
   </div>
 </div>
@@ -579,24 +576,24 @@ h1{font-size:1.8rem;margin-bottom:8px}
 <!-- Manual Edit Panel -->
 <div class="manual-panel" id="manualPanel">
   <div style="margin:12px 0">
-    <label class="lbl">从模板开始</label>
+    <label class="lbl">translated</label>
     <div class="tpl-grid">
-      <div class="tpl-card" onclick="fillModeTemplate('quote')"><strong>语录模式</strong><span>居中文本 + 作者</span></div>
-      <div class="tpl-card" onclick="fillModeTemplate('list')"><strong>列表模式</strong><span>标题 + 项目列表</span></div>
-      <div class="tpl-card" onclick="fillModeTemplate('zen')"><strong>极简模式</strong><span>大字居中单字</span></div>
-      <div class="tpl-card" onclick="fillModeTemplate('sections')"><strong>分栏模式</strong><span>多区块 + 图标</span></div>
+      <div class="tpl-card" onclick="fillModeTemplate('quote')"><strong>translatedmode</strong><span>translated + translated</span></div>
+      <div class="tpl-card" onclick="fillModeTemplate('list')"><strong>listmode</strong><span>translated + translated</span></div>
+      <div class="tpl-card" onclick="fillModeTemplate('zen')"><strong>translatedmode</strong><span>translated</span></div>
+      <div class="tpl-card" onclick="fillModeTemplate('sections')"><strong>translatedmode</strong><span>translated + translated</span></div>
     </div>
   </div>
 
   <div class="fg">
-    <label class="lbl">模式定义 (JSON)</label>
+    <label class="lbl">modetranslated (JSON)</label>
     <textarea class="json-editor" id="modeJsonIn" spellcheck="false" oninput="validateModeJson()"></textarea>
     <div class="json-error" id="modeJsonError"></div>
   </div>
 
   <div style="display:flex;gap:8px">
-    <button class="btn" onclick="saveModeDefinition()" style="flex:1">保存模式</button>
-    <button class="btn btn-outline" onclick="previewCustomMode()" style="flex:1">预览效果</button>
+    <button class="btn" onclick="saveModeDefinition()" style="flex:1">translatedmode</button>
+    <button class="btn btn-outline" onclick="previewCustomMode()" style="flex:1">translated</button>
   </div>
 </div>
 
@@ -608,7 +605,7 @@ h1{font-size:1.8rem;margin-bottom:8px}
 <script>
 const API_BASE = window.location.origin;
 
-// ── 管理员鉴权 ──────────────────────────────────────────────
+// ── translated ──────────────────────────────────────────────
 function getAdminToken() {
   return localStorage.getItem('inksight_admin_token') || '';
 }
@@ -624,40 +621,39 @@ function authHeaders() {
 
 const llmModels = {
   deepseek: [{v:'deepseek-chat',n:'DeepSeek Chat'}],
-  aliyun: [{v:'qwen-max',n:'通义千问 Max'},{v:'qwen-plus',n:'通义千问 Plus'},{v:'qwen-turbo',n:'通义千问 Turbo'},{v:'deepseek-v3',n:'DeepSeek V3'},{v:'kimi-2.5',n:'Kimi 2.5'},{v:'glm-4-plus',n:'智谱 GLM-4 Plus'}],
-  moonshot: [{v:'moonshot-v1-8k',n:'Kimi K1.5'},{v:'moonshot-v1-32k',n:'Kimi K1.5 32K'},{v:'kimi-k2-turbo-preview',n:'Kimi K2 Turbo'}]
+  openai: [{v:'gpt-4o-mini',n:'GPT-4o mini'},{v:'gpt-4.1-mini',n:'GPT-4.1 mini'}]
 };
 
 const strategyDescs = {
-  random: '从已启用的模式中随机选取',
-  cycle: '按顺序循环切换已启用的模式',
-  time_slot: '根据时间段显示不同内容模式（需配置时段规则）',
-  smart: '根据时间段自动匹配最佳模式（早餐建议/科技简报/运动计划等）'
+  random: 'translatedmodetranslated',
+  cycle: 'translatedmode',
+  time_slot: 'Get by translatedmode（translated）',
+  smart: 'Get by translatedmode（translated/translated/translated）'
 };
 
 const MODE_META = {
-  DAILY: { name: '每日', tip: '语录、书籍推荐、冷知识的综合日报' },
-  WEATHER: { name: '天气', tip: '实时天气和未来趋势看板' },
-  ZEN: { name: '禅意', tip: '一个大字表达当下心境' },
-  BRIEFING: { name: '简报', tip: '科技热榜 + AI 洞察简报' },
-  STOIC: { name: '斯多葛', tip: '每日一句哲学箴言' },
-  POETRY: { name: '诗词', tip: '古诗词与简短注解' },
-  ARTWALL: { name: '画廊', tip: '根据时令生成黑白艺术画' },
-  ALMANAC: { name: '老黄历', tip: '农历、节气、宜忌信息' },
-  RECIPE: { name: '食谱', tip: '按时段推荐三餐方案' },
-  COUNTDOWN: { name: '倒计时', tip: '重要日程倒计时/正计时' },
-  MEMO: { name: '便签', tip: '展示自定义便签文字' },
-  HABIT: { name: '打卡', tip: '每日习惯完成进度' },
-  ROAST: { name: '毒舌', tip: '轻松幽默的吐槽风格内容' },
-  FITNESS: { name: '健身', tip: '居家健身动作与建议' },
-  LETTER: { name: '慢信', tip: '来自不同时空的一封慢信' },
-  THISDAY: { name: '今日历史', tip: '历史上的今天重大事件' },
-  RIDDLE: { name: '猜谜', tip: '谜题与脑筋急转弯' },
-  QUESTION: { name: '每日一问', tip: '值得思考的开放式问题' },
-  BIAS: { name: '认知偏差', tip: '认知偏差与心理效应' },
-  STORY: { name: '微故事', tip: '可在 30 秒内读完的微故事' },
-  LIFEBAR: { name: '进度条', tip: '年/月/周/人生进度条' },
-  CHALLENGE: { name: '微挑战', tip: '每天一个 5 分钟微挑战' }
+  DAILY: { name: 'translated', tip: 'translated、translated、translated' },
+  WEATHER: { name: 'weather', tip: 'translated' },
+  ZEN: { name: 'translated', tip: 'translated' },
+  BRIEFING: { name: 'translated', tip: 'translated + AI translated' },
+  STOIC: { name: 'translated', tip: 'translated' },
+  POETRY: { name: 'translated', tip: 'translated' },
+  ARTWALL: { name: 'translated', tip: 'Get by translated' },
+  ALMANAC: { name: 'translated', tip: 'lunar、translated、translated' },
+  RECIPE: { name: 'translated', tip: 'translated' },
+  COUNTDOWN: { name: 'translated', tip: 'Importanttranslated/translated' },
+  MEMO: { name: 'translated', tip: 'translated' },
+  HABIT: { name: 'translated', tip: 'translated' },
+  ROAST: { name: 'translated', tip: 'translated' },
+  FITNESS: { name: 'translated', tip: 'translated' },
+  LETTER: { name: 'translated', tip: 'translated' },
+  THISDAY: { name: 'translated', tip: 'translated' },
+  RIDDLE: { name: 'translated', tip: 'translated' },
+  QUESTION: { name: 'translated', tip: 'translated' },
+  BIAS: { name: 'translated', tip: 'translated' },
+  STORY: { name: 'translated', tip: 'translated 30 translated' },
+  LIFEBAR: { name: 'translated', tip: 'year/month/translated/translated' },
+  CHALLENGE: { name: 'translated', tip: 'translated 5 translated' }
 };
 const CORE_MODE_IDS = ['DAILY','WEATHER','ZEN','BRIEFING','STOIC','POETRY','ARTWALL','ALMANAC','RECIPE','COUNTDOWN'];
 const TOOL_MODE_IDS = ['MEMO','HABIT'];
@@ -686,7 +682,7 @@ function toggleMoreModes(forceOpen) {
   if (!wrap || !btn) return;
   const open = typeof forceOpen === 'boolean' ? forceOpen : wrap.style.display === 'none';
   wrap.style.display = open ? '' : 'none';
-  btn.textContent = open ? '收起更多模式' : '展开更多模式';
+  btn.textContent = open ? 'translatedmode' : 'translatedmode';
 }
 function ensureMoreModesVisibleForSelection() {
   const hasExtraModeSelected = Array.from(document.querySelectorAll('#modes .ch.sel')).some(el => {
@@ -710,7 +706,7 @@ function updateModeThumbnail(modeId) {
   const img = document.getElementById('modeThumbImg');
   if (!title || !desc || !img) return;
   title.textContent = getModeChipLabel(modeId);
-  desc.textContent = meta.tip || '该模式暂无描述';
+  desc.textContent = meta.tip || 'translatedmodetranslated';
   const fallbackSvg = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#f8f8f8"/><rect x="18" y="18" width="364" height="264" fill="none" stroke="#bbb"/><text x="200" y="140" text-anchor="middle" font-size="26" fill="#333">${modeId}</text><text x="200" y="172" text-anchor="middle" font-size="14" fill="#666">No static thumbnail</text></svg>`
   );
@@ -828,7 +824,7 @@ function normalizeArrayField(value) {
 
 function addTimeSlotRule(startHour=9, endHour=12, modes=[]) {
   const container = document.getElementById('timeSlotRules');
-  if (container.children.length >= 12) { showToast('最多添加 12 个时段', 'error'); return; }
+  if (container.children.length >= 12) { showToast('translated 12 translated', 'error'); return; }
 
   const row = document.createElement('div');
   row.className = 'ts-row';
@@ -840,10 +836,10 @@ function addTimeSlotRule(startHour=9, endHour=12, modes=[]) {
   }).join('');
 
   row.innerHTML = `
-    <input type="number" class="inp" min="0" max="23" value="${startHour}" style="width:60px;padding:6px 8px;font-size:.8rem" placeholder="起">
+    <input type="number" class="inp" min="0" max="23" value="${startHour}" style="width:60px;padding:6px 8px;font-size:.8rem" placeholder="translated">
     <span style="color:var(--gy)">—</span>
-    <input type="number" class="inp" min="0" max="24" value="${endHour}" style="width:60px;padding:6px 8px;font-size:.8rem" placeholder="止">
-    <span style="color:var(--gy);font-size:.75rem">时</span>
+    <input type="number" class="inp" min="0" max="24" value="${endHour}" style="width:60px;padding:6px 8px;font-size:.8rem" placeholder="translated">
+    <span style="color:var(--gy);font-size:.75rem">translated</span>
     <div class="ts-modes">${modesHtml}</div>
     <button onclick="this.parentElement.remove()" style="padding:4px 8px;border:1px solid var(--bd);border-radius:6px;cursor:pointer;background:#fff;color:var(--red);font-size:.8rem">✕</button>
   `;
@@ -875,36 +871,36 @@ function fillTimeSlotRules(rules) {
 
 async function loadConfig() {
   const mac = document.getElementById('macIn').value.trim();
-  if (!mac) { showToast('请输入 MAC 地址', 'error'); return; }
+  if (!mac) { showToast('translated MAC translated', 'error'); return; }
 
   try {
     const res = await fetch(`${API_BASE}/api/config/${mac}`);
-    if (!res.ok) { showToast('未找到该设备的配置', 'error'); return; }
+    if (!res.ok) { showToast('translated', 'error'); return; }
     const cfg = await res.json();
     fillForm(cfg);
     document.getElementById('configForm').style.display = 'block';
     document.getElementById('historyList').style.display = 'none';
-    showToast('配置加载成功', 'success');
+    showToast('translatedsuccess', 'success');
     loadHabits();
   } catch (e) {
-    showToast('加载失败: ' + e.message, 'error');
+    showToast('translatedfailed: ' + e.message, 'error');
   }
 }
 
 async function loadHistory() {
   const mac = document.getElementById('macIn').value.trim();
-  if (!mac) { showToast('请输入 MAC 地址', 'error'); return; }
+  if (!mac) { showToast('translated MAC translated', 'error'); return; }
 
   try {
     const res = await fetch(`${API_BASE}/api/config/${mac}/history`);
-    if (!res.ok) { showToast('未找到历史配置', 'error'); return; }
+    if (!res.ok) { showToast('translated', 'error'); return; }
     const data = await res.json();
     const configs = data.configs || [];
-    if (configs.length === 0) { showToast('暂无历史配置', 'info'); return; }
+    if (configs.length === 0) { showToast('translated', 'info'); return; }
 
-    const strategyNames = {random:'随机',cycle:'循环',time_slot:'时段绑定',smart:'智能'};
+    const strategyNames = {random:'translated',cycle:'translated',time_slot:'translated',smart:'translated'};
     const historyList = document.getElementById('historyList');
-    historyList.innerHTML = '<h3 style="font-size:1.1rem;margin-bottom:12px">历史配置</h3>';
+    historyList.innerHTML = '<h3 style="font-size:1.1rem;margin-bottom:12px">translated</h3>';
 
     configs.forEach((cfg) => {
       const isActive = cfg.is_active === 1;
@@ -913,16 +909,16 @@ async function loadHistory() {
       item.className = 'hist-item' + (isActive ? ' active' : '');
       item.innerHTML = `
         <div class="hist-meta">
-          <strong>#${cfg.id}</strong> · ${date} ${isActive ? '<span style="color:#22c55e">● 当前使用</span>' : ''}
+          <strong>#${cfg.id}</strong> · ${date} ${isActive ? '<span style="color:#22c55e">● translated</span>' : ''}
         </div>
         <div class="hist-content">
-          <strong>模式:</strong> ${cfg.modes.join(', ')}<br>
-          <strong>刷新:</strong> ${strategyNames[cfg.refresh_strategy] || cfg.refresh_strategy} / ${cfg.refresh_interval}分钟<br>
-          <strong>城市:</strong> ${cfg.city} · <strong>AI:</strong> ${cfg.llm_provider}/${cfg.llm_model}
+          <strong>mode:</strong> ${cfg.modes.join(', ')}<br>
+          <strong>translated:</strong> ${strategyNames[cfg.refresh_strategy] || cfg.refresh_strategy} / ${cfg.refresh_interval}translated<br>
+          <strong>translated:</strong> ${cfg.city} · <strong>AI:</strong> ${cfg.llm_provider}/${cfg.llm_model}
         </div>
         <div class="hist-actions">
-          <button onclick="useHistoryConfig(${cfg.id})">编辑此配置</button>
-          ${!isActive ? `<button onclick="activateConfig(${cfg.id})">使用此配置</button>` : ''}
+          <button onclick="useHistoryConfig(${cfg.id})">translated</button>
+          ${!isActive ? `<button onclick="activateConfig(${cfg.id})">translated</button>` : ''}
         </div>
       `;
       historyList.appendChild(item);
@@ -931,7 +927,7 @@ async function loadHistory() {
     historyList.style.display = 'block';
     document.getElementById('configForm').style.display = 'none';
   } catch (e) {
-    showToast('加载失败: ' + e.message, 'error');
+    showToast('translatedfailed: ' + e.message, 'error');
   }
 }
 
@@ -941,28 +937,28 @@ async function useHistoryConfig(configId) {
     const res = await fetch(`${API_BASE}/api/config/${mac}/history`);
     const data = await res.json();
     const cfg = data.configs.find(c => c.id === configId);
-    if (!cfg) { showToast('配置不存在', 'error'); return; }
+    if (!cfg) { showToast('configdoes not exist', 'error'); return; }
     fillForm(cfg);
     document.getElementById('configForm').style.display = 'block';
     document.getElementById('historyList').style.display = 'none';
-    showToast('已加载历史配置，可以编辑后保存', 'info');
+    showToast('translated，translated', 'info');
   } catch (e) {
-    showToast('加载失败: ' + e.message, 'error');
+    showToast('translatedfailed: ' + e.message, 'error');
   }
 }
 
 async function activateConfig(configId) {
   const mac = document.getElementById('macIn').value.trim();
-  const ok = await showConfirm('确定要激活此配置吗？设备将在下次刷新时应用。');
+  const ok = await showConfirm('translated？translated。');
   if (!ok) return;
 
   try {
     const res = await fetch(`${API_BASE}/api/config/${mac}/activate/${configId}`, { method: 'PUT', headers: authHeaders() });
-    if (!res.ok) throw new Error('激活失败');
-    showToast('配置已激活，设备将在下次刷新时应用', 'success');
+    if (!res.ok) throw new Error('translatedfailed');
+    showToast('translated，translated', 'success');
     loadHistory();
   } catch (e) {
-    showToast('激活失败: ' + e.message, 'error');
+    showToast('translatedfailed: ' + e.message, 'error');
   }
 }
 
@@ -976,9 +972,9 @@ function fillForm(cfg) {
     if (el.dataset.v === screenSize) el.classList.add('sel');
   });
 
-  document.getElementById('city').value = cfg.city || '杭州';
+  document.getElementById('city').value = cfg.city || 'translated';
   window.__selectedLocation = {
-    city: cfg.city || '杭州',
+    city: cfg.city || 'translated',
     latitude: cfg.latitude ?? null,
     longitude: cfg.longitude ?? null,
     timezone: cfg.timezone || '',
@@ -1022,7 +1018,7 @@ function fillForm(cfg) {
     if (cfg.character_tones && cfg.character_tones.includes(el.dataset.t)) el.classList.add('sel');
   });
 
-  const builtinTones = ['鲁迅','王小波','张爱玲','村上春树','王家卫','周星驰','甄嬛','白展堂','苏格拉底','庄子','尼采','JARVIS','智子','马文'];
+  const builtinTones = ['translated','translated','translated','translated','translated','translated','translated','translated','translated','translated','translated','JARVIS','translated','translated'];
   const customTones = (cfg.character_tones || []).filter(t => !builtinTones.includes(t));
   document.getElementById('custTone').value = customTones.length > 0 ? customTones.join(', ') : '';
 
@@ -1064,7 +1060,7 @@ async function resolveLocationMeta(city) {
 
   const locale = document.querySelector('#language .pi.sel')?.dataset.v === 'en' ? 'en' : 'zh';
   const res = await fetch(`${API_BASE}/api/locations/search?q=${encodeURIComponent(query)}&limit=1&scope=global&locale=${locale}`);
-  if (!res.ok) throw new Error('地点查询失败');
+  if (!res.ok) throw new Error('locationtranslatedfailed');
 
   const data = await res.json();
   const first = (data.items || [])[0];
@@ -1083,7 +1079,7 @@ async function resolveLocationMeta(city) {
 }
 
 async function ensureLocationMeta() {
-  const city = document.getElementById('city').value.trim() || '杭州';
+  const city = document.getElementById('city').value.trim() || 'translated';
   try {
     const resolved = await resolveLocationMeta(city);
     if (resolved && resolved.city) {
@@ -1121,7 +1117,7 @@ function collectFormData() {
   }
 
   const locationMeta = window.__selectedLocation || {};
-  const city = document.getElementById('city').value.trim() || locationMeta.city || '杭州';
+  const city = document.getElementById('city').value.trim() || locationMeta.city || 'translated';
 
   return {
     mac,
@@ -1157,8 +1153,8 @@ function updateModeSections() {
 async function saveConfig() {
   await ensureLocationMeta();
   const data = collectFormData();
-  if (!data.mac) { showToast('请输入 MAC 地址', 'error'); return; }
-  if (data.modes.length === 0) { showToast('请至少选择一个内容模式', 'error'); return; }
+  if (!data.mac) { showToast('translated MAC translated', 'error'); return; }
+  if (data.modes.length === 0) { showToast('translatedmode', 'error'); return; }
 
   try {
     const res = await fetch(`${API_BASE}/api/config`, {
@@ -1167,7 +1163,7 @@ async function saveConfig() {
       body: JSON.stringify(data)
     });
     if (!res.ok) {
-      let errMsg = '保存失败';
+      let errMsg = 'translatedfailed';
       try {
         const body = await res.json();
         const detail = formatApiError(body);
@@ -1183,12 +1179,12 @@ async function saveConfig() {
     } catch (_) {}
 
     if (refreshQueued) {
-      showToast('配置保存成功！已发送刷新指令，设备将尽快刷新（也可手动点击 BOOT 立即刷新）', 'success');
+      showToast('translatedsuccess！translated，translated（translated BOOT translated）', 'success');
     } else {
-      showToast('配置保存成功！设备将在下次刷新时应用', 'success');
+      showToast('translatedsuccess！translated', 'success');
     }
   } catch (e) {
-    showToast('保存失败: ' + e.message, 'error');
+    showToast('translatedfailed: ' + e.message, 'error');
   }
 }
 
@@ -1196,14 +1192,14 @@ async function saveConfig() {
 
 async function triggerRefresh() {
   const mac = document.getElementById('macIn').value.trim();
-  if (!mac) { showToast('请先输入 MAC 地址', 'error'); return; }
+  if (!mac) { showToast('translated MAC translated', 'error'); return; }
 
   try {
     const res = await fetch(`${API_BASE}/api/device/${encodeURIComponent(mac)}/refresh`, { method: 'POST', headers: authHeaders() });
-    if (!res.ok) throw new Error('请求失败');
-    showToast('刷新指令已发送，设备将在下次唤醒时刷新（也可手动点击 BOOT 立即刷新）', 'success');
+    if (!res.ok) throw new Error('translatedfailed');
+    showToast('translated，translated（translated BOOT translated）', 'success');
   } catch (e) {
-    showToast('发送失败: ' + e.message, 'error');
+    showToast('translatedfailed: ' + e.message, 'error');
   }
 }
 
@@ -1211,7 +1207,7 @@ async function triggerRefresh() {
 
 function exportConfig() {
   const data = collectFormData();
-  if (!data.mac) { showToast('请先加载配置', 'error'); return; }
+  if (!data.mac) { showToast('translated', 'error'); return; }
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1219,7 +1215,7 @@ function exportConfig() {
   a.download = `inksight-config-${data.mac.replace(/:/g, '')}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('配置已导出', 'success');
+  showToast('translated', 'success');
 }
 
 function importConfig(event) {
@@ -1238,7 +1234,7 @@ function importConfig(event) {
         language: data.language || 'zh',
         content_tone: data.contentTone || data.content_tone || 'neutral',
         character_tones: data.characterTones || data.character_tones || [],
-        city: data.city || '杭州',
+        city: data.city || 'translated',
         latitude: data.latitude ?? null,
         longitude: data.longitude ?? null,
         timezone: data.timezone || '',
@@ -1252,9 +1248,9 @@ function importConfig(event) {
       };
       fillForm(cfg);
       document.getElementById('configForm').style.display = 'block';
-      showToast('配置已导入，检查后点击保存', 'success');
+      showToast('translated，translated', 'success');
     } catch (err) {
-      showToast('JSON 格式无效: ' + err.message, 'error');
+      showToast('JSON translatedinvalid: ' + err.message, 'error');
     }
   };
   reader.readAsText(file);
@@ -1265,7 +1261,7 @@ function importConfig(event) {
 
 function openPreviewModal() {
   const data = collectFormData();
-  if (data.modes.length === 0) { showToast('请至少选择一个模式', 'error'); return; }
+  if (data.modes.length === 0) { showToast('translatedmode', 'error'); return; }
 
   const selectDiv = document.getElementById('previewModeSelect');
   selectDiv.innerHTML = '<div class="cg">' + data.modes.map(m =>
@@ -1273,7 +1269,7 @@ function openPreviewModal() {
   ).join('') + '</div>';
 
   document.getElementById('previewImg').src = '';
-  document.getElementById('previewStatus').textContent = '选择一个模式开始预览';
+  document.getElementById('previewStatus').textContent = 'translatedmodetranslated';
   document.getElementById('previewModal').classList.add('active');
 }
 
@@ -1294,7 +1290,7 @@ async function previewMode(mode, el) {
     el.closest('.cg').querySelectorAll('.ch').forEach(c => c.classList.remove('sel'));
     el.classList.add('sel');
   }
-  document.getElementById('previewStatus').textContent = '渲染中...';
+  document.getElementById('previewStatus').textContent = 'translated...';
   const img = document.getElementById('previewImg');
   try {
     const start = performance.now();
@@ -1305,7 +1301,7 @@ async function previewMode(mode, el) {
     img.src = URL.createObjectURL(blob);
     document.getElementById('previewStatus').textContent = `${mode} · ${elapsed}ms · ${(blob.size/1024).toFixed(1)}KB`;
   } catch (e) {
-    document.getElementById('previewStatus').textContent = '渲染失败: ' + e.message;
+    document.getElementById('previewStatus').textContent = 'translatedfailed: ' + e.message;
   }
 }
 
@@ -1313,13 +1309,13 @@ async function previewMode(mode, el) {
 
 function addCountdownEvent(name='', date='', type='countdown') {
   const container = document.getElementById('countdownEvents');
-  if (container.children.length >= 10) { showToast('最多添加 10 个事件', 'error'); return; }
+  if (container.children.length >= 10) { showToast('translated 10 translated', 'error'); return; }
   const row = document.createElement('div');
   row.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:6px';
   row.innerHTML = `
-    <input type="text" class="inp cd-name" placeholder="事件名称" value="${name}" style="flex:2">
+    <input type="text" class="inp cd-name" placeholder="translated" value="${name}" style="flex:2">
     <input type="date" class="inp cd-date" value="${date}" style="flex:2">
-    <select class="sel cd-type" style="flex:1;padding:8px"><option value="countdown" ${type==='countdown'?'selected':''}>倒计时</option><option value="countup" ${type==='countup'?'selected':''}>正计日</option></select>
+    <select class="sel cd-type" style="flex:1;padding:8px"><option value="countdown" ${type==='countdown'?'selected':''}>translated</option><option value="countup" ${type==='countup'?'selected':''}>translated</option></select>
     <button onclick="this.parentElement.remove()" style="padding:6px 10px;border:1px solid var(--bd);border-radius:6px;cursor:pointer;background:#fff;color:var(--red);font-size:.8rem">✕</button>
   `;
   container.appendChild(row);
@@ -1349,18 +1345,18 @@ function fillCountdownEvents(events) {
 const MODE_TEMPLATES = {
   quote: {
     mode_id: "MY_QUOTE",
-    display_name: "我的语录",
+    display_name: "translated",
     icon: "book",
     cacheable: true,
-    description: "自定义语录模式",
+    description: "translatedmode",
     content: {
       type: "llm",
-      prompt_template: "你是一位人生导师。根据以下环境信息，生成一句富有哲理的语录和作者，用 | 分隔。\n环境：{context}",
+      prompt_template: "translated。Get by translated，translated，translated | translated。\ntranslated：{context}",
       output_format: "text_split",
       output_separator: "|",
       output_fields: ["quote", "author"],
       temperature: 0.8,
-      fallback: { quote: "生活不止眼前的苟且", author: "高晓松" }
+      fallback: { quote: "translated", author: "translated" }
     },
     layout: {
       status_bar: { line_width: 1, dashed: false },
@@ -1370,19 +1366,19 @@ const MODE_TEMPLATES = {
   },
   list: {
     mode_id: "MY_LIST",
-    display_name: "我的列表",
+    display_name: "translated",
     icon: "star",
     cacheable: false,
-    description: "自定义列表模式",
+    description: "translatedmode",
     content: {
       type: "llm_json",
-      prompt_template: "推荐 5 个今日值得关注的话题，用 JSON 输出：{{\"title\": \"标题\", \"items\": [{{\"name\": \"话题\", \"desc\": \"简述\"}}]}}\n只输出 JSON。\n环境：{context}",
+      prompt_template: "translated 5 translated，translated JSON translated：{{\"title\": \"translated\", \"items\": [{{\"name\": \"translated\", \"desc\": \"translated\"}}]}}\ntranslated JSON。\ntranslated：{context}",
       output_schema: {
-        title: { type: "string", "default": "今日话题" },
-        items: { type: "array", "default": [{ name: "示例话题", desc: "简要描述" }] }
+        title: { type: "string", "default": "translated" },
+        items: { type: "array", "default": [{ name: "translated", desc: "translated" }] }
       },
       temperature: 0.8,
-      fallback: { title: "今日话题", items: [{ name: "暂无数据", desc: "请稍后重试" }] }
+      fallback: { title: "translated", items: [{ name: "translated", desc: "please try again later" }] }
     },
     layout: {
       status_bar: { line_width: 1 },
@@ -1398,18 +1394,18 @@ const MODE_TEMPLATES = {
   },
   zen: {
     mode_id: "MY_ZEN",
-    display_name: "极简字",
+    display_name: "translated",
     icon: "zen",
     cacheable: true,
-    description: "一个大字代表当下",
+    description: "translated",
     content: {
       type: "llm",
-      prompt_template: "根据当前环境，输出一个最有意境的汉字，不要其他内容。\n环境：{context}",
+      prompt_template: "Get by translated，translated，translated。\ntranslated：{context}",
       output_format: "raw",
       output_fields: ["word"],
       post_process: { word: "first_char" },
       temperature: 0.9,
-      fallback: { word: "悟" }
+      fallback: { word: "translated" }
     },
     layout: {
       status_bar: { dashed: true },
@@ -1419,20 +1415,20 @@ const MODE_TEMPLATES = {
   },
   sections: {
     mode_id: "MY_SECTIONS",
-    display_name: "分栏展示",
+    display_name: "translated",
     icon: "sunny",
     cacheable: false,
-    description: "多区块内容展示",
+    description: "translated",
     content: {
       type: "llm_json",
-      prompt_template: "你是一位生活助手。用 JSON 输出今日推荐：{{\"greeting\": \"一句问候\", \"tip\": \"一条实用建议\", \"fun_fact\": \"一个冷知识\"}}\n只输出 JSON。\n环境：{context}",
+      prompt_template: "translated。translated JSON translated：{{\"greeting\": \"translated\", \"tip\": \"translated\", \"fun_fact\": \"translated\"}}\ntranslated JSON。\ntranslated：{context}",
       output_schema: {
-        greeting: { type: "string", "default": "美好的一天" },
-        tip: { type: "string", "default": "多喝水" },
-        fun_fact: { type: "string", "default": "蜜蜂可以识别人脸" }
+        greeting: { type: "string", "default": "translated" },
+        tip: { type: "string", "default": "translated" },
+        fun_fact: { type: "string", "default": "translated" }
       },
       temperature: 0.8,
-      fallback: { greeting: "美好的一天", tip: "保持微笑", fun_fact: "章鱼有三颗心脏" }
+      fallback: { greeting: "translated", tip: "translated", fun_fact: "translated" }
     },
     layout: {
       status_bar: { line_width: 1 },
@@ -1441,12 +1437,12 @@ const MODE_TEMPLATES = {
         { type: "text", field: "greeting", font: "noto_serif_bold", font_size: 16, align: "center" },
         { type: "spacer", height: 8 },
         { type: "separator", style: "solid", margin_x: 24 },
-        { type: "section", title: "今日建议", icon: "tips", children: [
+        { type: "section", title: "translated", icon: "tips", children: [
           { type: "text", field: "tip", font: "noto_serif_regular", font_size: 14, align: "left", margin_x: 40 }
         ]},
         { type: "spacer", height: 4 },
         { type: "separator", style: "dashed", margin_x: 24 },
-        { type: "section", title: "冷知识", icon: "book", children: [
+        { type: "section", title: "translated", icon: "book", children: [
           { type: "text", field: "fun_fact", font: "noto_serif_light", font_size: 13, align: "left", margin_x: 40 }
         ]}
       ],
@@ -1466,11 +1462,11 @@ async function refreshModeList() {
     const modes = data.modes || [];
 
     if (modes.length === 0) {
-      container.innerHTML = '<div style="color:var(--gy);font-size:.85rem;text-align:center;padding:16px">暂无模式</div>';
+      container.innerHTML = '<div style="color:var(--gy);font-size:.85rem;text-align:center;padding:16px">translatedmode</div>';
       return;
     }
 
-    const srcLabels = { builtin: '内置', builtin_json: 'JSON内置', custom: '自定义' };
+    const srcLabels = { builtin: 'translated', builtin_json: 'JSONtranslated', custom: 'translated' };
     const srcClasses = { builtin: 'mode-src-builtin', builtin_json: 'mode-src-builtin_json', custom: 'mode-src-custom' };
 
     container.innerHTML = modes.map(m => {
@@ -1485,9 +1481,9 @@ async function refreshModeList() {
           ${m.description ? `<p>${m.description}</p>` : ''}
         </div>
         <div class="mode-actions">
-          ${isCustom ? `<button onclick="editCustomMode('${m.mode_id}')">编辑</button>` : ''}
-          ${isCustom ? `<button class="btn-del" onclick="deleteCustomMode('${m.mode_id}')">删除</button>` : ''}
-          <button onclick="previewMode('${m.mode_id}')">预览</button>
+          ${isCustom ? `<button onclick="editCustomMode('${m.mode_id}')">translated</button>` : ''}
+          ${isCustom ? `<button class="btn-del" onclick="deleteCustomMode('${m.mode_id}')">delete</button>` : ''}
+          <button onclick="previewMode('${m.mode_id}')">translated</button>
         </div>
       </div>`;
     }).join('');
@@ -1495,7 +1491,7 @@ async function refreshModeList() {
     // Also update the mode chips in the config form with any custom modes
     updateModeChips(modes);
   } catch (e) {
-    container.innerHTML = `<div style="color:var(--red);font-size:.85rem;text-align:center;padding:16px">加载失败: ${e.message}</div>`;
+    container.innerHTML = `<div style="color:var(--red);font-size:.85rem;text-align:center;padding:16px">translatedfailed: ${e.message}</div>`;
   }
 }
 
@@ -1520,7 +1516,7 @@ function updateModeChips(modes) {
 
 function openModeEditor(modeId) {
   _editingModeId = modeId || null;
-  document.getElementById('modeEditorTitle').textContent = modeId ? `编辑模式: ${modeId}` : '新建自定义模式';
+  document.getElementById('modeEditorTitle').textContent = modeId ? `translatedmode: ${modeId}` : 'translatedmode';
   document.getElementById('modeJsonError').textContent = '';
 
   // Reset AI panel
@@ -1549,16 +1545,16 @@ function closeModeEditor() {
 async function editCustomMode(modeId) {
   try {
     const res = await fetch(`${API_BASE}/api/modes/custom/${modeId}`);
-    if (!res.ok) throw new Error('获取失败');
+    if (!res.ok) throw new Error('Get failed');
     const def = await res.json();
     _editingModeId = modeId;
-    document.getElementById('modeEditorTitle').textContent = `编辑模式: ${modeId}`;
+    document.getElementById('modeEditorTitle').textContent = `translatedmode: ${modeId}`;
     document.getElementById('modeJsonIn').value = JSON.stringify(def, null, 2);
     document.getElementById('modeJsonError').textContent = '';
     switchEditorTab('manual');
     document.getElementById('modeEditorModal').classList.add('active');
   } catch (e) {
-    showToast('加载失败: ' + e.message, 'error');
+    showToast('translatedfailed: ' + e.message, 'error');
   }
 }
 
@@ -1577,7 +1573,7 @@ function handleAiImageUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
   if (file.size > 4 * 1024 * 1024) {
-    showToast('图片太大，请选择 4MB 以内的图片', 'error');
+    showToast('imagetranslated，translated 4MB translatedimage', 'error');
     return;
   }
   const reader = new FileReader();
@@ -1620,7 +1616,7 @@ function clearAiImage() {
 
 async function generateModeWithAI() {
   const description = document.getElementById('aiDescInput').value.trim();
-  if (!description) { showToast('请描述你想要的模式', 'error'); return; }
+  if (!description) { showToast('translatedmode', 'error'); return; }
 
   const btn = document.getElementById('aiGenBtn');
   btn.disabled = true;
@@ -1641,7 +1637,7 @@ async function generateModeWithAI() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-    if (!data.ok) throw new Error(data.error || '生成失败');
+    if (!data.ok) throw new Error(data.error || 'generatefailed');
 
     document.getElementById('modeJsonIn').value = JSON.stringify(data.mode_def, null, 2);
     document.getElementById('modeJsonError').textContent = '';
@@ -1650,10 +1646,10 @@ async function generateModeWithAI() {
     if (data.warning) {
       showToast(data.warning, 'info');
     } else {
-      showToast('模式生成成功！', 'success');
+      showToast('modegeneratesuccess！', 'success');
     }
   } catch (e) {
-    showToast('AI 生成失败: ' + e.message, 'error');
+    showToast('AI generatefailed: ' + e.message, 'error');
   } finally {
     btn.disabled = false;
     btn.classList.remove('loading');
@@ -1673,19 +1669,19 @@ function validateModeJson() {
   const errorDiv = document.getElementById('modeJsonError');
   try {
     const obj = JSON.parse(textarea.value);
-    if (!obj.mode_id) { errorDiv.textContent = 'mode_id 必填'; return false; }
-    if (!obj.content || !obj.content.type) { errorDiv.textContent = 'content.type 必填'; return false; }
-    if (!obj.layout || !obj.layout.body || !obj.layout.body.length) { errorDiv.textContent = 'layout.body 必须包含至少一个块'; return false; }
+    if (!obj.mode_id) { errorDiv.textContent = 'mode_id translated'; return false; }
+    if (!obj.content || !obj.content.type) { errorDiv.textContent = 'content.type translated'; return false; }
+    if (!obj.layout || !obj.layout.body || !obj.layout.body.length) { errorDiv.textContent = 'layout.body musttranslated'; return false; }
     errorDiv.textContent = '';
     return true;
   } catch (e) {
-    errorDiv.textContent = 'JSON 格式错误: ' + e.message;
+    errorDiv.textContent = 'JSON format error: ' + e.message;
     return false;
   }
 }
 
 async function saveModeDefinition() {
-  if (!validateModeJson()) { showToast('请修正 JSON 错误', 'error'); return; }
+  if (!validateModeJson()) { showToast('translated JSON translated', 'error'); return; }
 
   try {
     const def = JSON.parse(document.getElementById('modeJsonIn').value);
@@ -1695,31 +1691,31 @@ async function saveModeDefinition() {
       body: JSON.stringify(def)
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || '保存失败');
-    showToast(`模式 ${data.mode_id} 保存成功`, 'success');
+    if (!res.ok) throw new Error(data.error || 'translatedfailed');
+    showToast(`mode ${data.mode_id} translatedsuccess`, 'success');
     closeModeEditor();
     refreshModeList();
   } catch (e) {
-    showToast('保存失败: ' + e.message, 'error');
+    showToast('translatedfailed: ' + e.message, 'error');
   }
 }
 
 async function deleteCustomMode(modeId) {
-  const ok = await showConfirm(`确定删除自定义模式 "${modeId}" 吗？此操作不可恢复。`);
+  const ok = await showConfirm(`translatedmode "${modeId}" translated？translated。`);
   if (!ok) return;
 
   try {
     const res = await fetch(`${API_BASE}/api/modes/custom/${modeId}`, { method: 'DELETE', headers: authHeaders() });
-    if (!res.ok) throw new Error('删除失败');
-    showToast(`模式 ${modeId} 已删除`, 'success');
+    if (!res.ok) throw new Error('deletefailed');
+    showToast(`mode ${modeId} translated`, 'success');
     refreshModeList();
   } catch (e) {
-    showToast('删除失败: ' + e.message, 'error');
+    showToast('deletefailed: ' + e.message, 'error');
   }
 }
 
 async function previewCustomMode() {
-  if (!validateModeJson()) { showToast('请修正 JSON 错误', 'error'); return; }
+  if (!validateModeJson()) { showToast('translated JSON translated', 'error'); return; }
 
   try {
     const def = JSON.parse(document.getElementById('modeJsonIn').value);
@@ -1731,12 +1727,12 @@ async function previewCustomMode() {
     });
     if (!saveRes.ok) {
       const err = await saveRes.json();
-      throw new Error(err.error || '保存失败');
+      throw new Error(err.error || 'translatedfailed');
     }
 
     const modeId = def.mode_id.toUpperCase();
     const img = document.getElementById('previewImg');
-    document.getElementById('previewStatus').textContent = '渲染中...';
+    document.getElementById('previewStatus').textContent = 'translated...';
     document.getElementById('previewModal').classList.add('active');
 
     const start = performance.now();
@@ -1748,7 +1744,7 @@ async function previewCustomMode() {
     document.getElementById('previewStatus').textContent = `${modeId} · ${elapsed}ms · ${(blob.size/1024).toFixed(1)}KB`;
     document.getElementById('previewModeSelect').innerHTML = '';
   } catch (e) {
-    showToast('预览失败: ' + e.message, 'error');
+    showToast('translatedfailed: ' + e.message, 'error');
   }
 }
 
@@ -1763,12 +1759,12 @@ async function loadDeviceList() {
     if (devices.length === 0) return;
 
     const container = document.getElementById('deviceList');
-    container.innerHTML = '<div style="font-size:.72rem;color:var(--gy);margin-bottom:4px">已发现设备：</div>' +
+    container.innerHTML = '<div style="font-size:.72rem;color:var(--gy);margin-bottom:4px">translated：</div>' +
       '<div class="cg" style="gap:4px">' +
       devices.map(d => {
         const shortMac = d.mac.replace(/:/g, '').slice(-6);
         const ago = timeSince(d.last_seen);
-        return `<span class="ch" style="font-size:.72rem;padding:4px 10px" onclick="selectDevice('${d.mac}')" title="最近活跃: ${ago}前">${shortMac} <span style="opacity:.6">(${d.total_renders})</span></span>`;
+        return `<span class="ch" style="font-size:.72rem;padding:4px 10px" onclick="selectDevice('${d.mac}')" title="translated: ${ago}translated">${shortMac} <span style="opacity:.6">(${d.total_renders})</span></span>`;
       }).join('') +
       '</div>';
   } catch (e) {}
@@ -1782,12 +1778,12 @@ function selectDevice(mac) {
 function timeSince(isoStr) {
   const ms = Date.now() - new Date(isoStr).getTime();
   const s = Math.floor(ms / 1000);
-  if (s < 60) return s + '秒';
+  if (s < 60) return s + 'translated';
   const m = Math.floor(s / 60);
-  if (m < 60) return m + '分钟';
+  if (m < 60) return m + 'translated';
   const h = Math.floor(m / 60);
-  if (h < 24) return h + '小时';
-  return Math.floor(h / 24) + '天';
+  if (h < 24) return h + 'translated';
+  return Math.floor(h / 24) + 'translated';
 }
 
 // ── Inline preview ──────────────────────────────────────────
@@ -1797,7 +1793,7 @@ async function showInlinePreview(mode) {
   panel.style.display = 'block';
   const status = document.getElementById('inlinePreviewStatus');
   const img = document.getElementById('inlinePreviewImg');
-  status.textContent = `渲染 ${mode} 中...`;
+  status.textContent = `translated ${mode} translated...`;
 
   try {
     const start = performance.now();
@@ -1811,7 +1807,7 @@ async function showInlinePreview(mode) {
     img.src = URL.createObjectURL(blob);
     status.textContent = `${mode} · ${elapsed}ms · ${(blob.size/1024).toFixed(1)}KB`;
   } catch (e) {
-    status.textContent = '渲染失败: ' + e.message;
+    status.textContent = 'translatedfailed: ' + e.message;
   }
 }
 
@@ -1823,7 +1819,7 @@ function getWeekDates() {
   const monday = new Date(now);
   monday.setDate(now.getDate() - ((day + 6) % 7));
   const dates = [];
-  const dayLabels = ['一','二','三','四','五','六','日'];
+  const dayLabels = ['translated','translated','translated','translated','translated','translated','day'];
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
     d.setDate(monday.getDate() + i);
@@ -1840,7 +1836,7 @@ function renderHabitGrid(habits) {
   const container = document.getElementById('habitGrid');
   const week = getWeekDates();
   if (!habits || habits.length === 0) {
-    container.innerHTML = '<div style="color:var(--gy);font-size:.85rem;text-align:center;padding:16px">暂无习惯，添加一个开始打卡吧</div>';
+    container.innerHTML = '<div style="color:var(--gy);font-size:.85rem;text-align:center;padding:16px">translated，translated</div>';
     return;
   }
 
@@ -1856,7 +1852,7 @@ function renderHabitGrid(habits) {
       const checked = (h.dates || []).includes(d.date);
       html += `<div class="habit-dot${checked ? ' done' : ''}" onclick="checkHabit('${h.name}','${d.date}')" title="${d.date}">${checked ? '✓' : ''}</div>`;
     });
-    html += `</div><button class="habit-del" onclick="deleteHabit('${h.name}')">删除</button></div>`;
+    html += `</div><button class="habit-del" onclick="deleteHabit('${h.name}')">delete</button></div>`;
   });
   container.innerHTML = html;
 }
@@ -1886,14 +1882,14 @@ async function checkHabit(habitName, date) {
     });
     await loadHabits();
   } catch (e) {
-    showToast('打卡失败: ' + e.message, 'error');
+    showToast('translatedfailed: ' + e.message, 'error');
   }
 }
 
 async function addHabit() {
   const input = document.getElementById('newHabitName');
   const name = input.value.trim();
-  if (!name) { showToast('请输入习惯名称', 'error'); return; }
+  if (!name) { showToast('translated', 'error'); return; }
   const today = new Date().toISOString().split('T')[0];
   await checkHabit(name, today);
   input.value = '';
@@ -1908,9 +1904,9 @@ async function deleteHabit(habitName) {
       headers: authHeaders()
     });
     await loadHabits();
-    showToast(`习惯"${habitName}"已删除`, 'success');
+    showToast(`translated"${habitName}"translated`, 'success');
   } catch (e) {
-    showToast('删除失败: ' + e.message, 'error');
+    showToast('deletefailed: ' + e.message, 'error');
   }
 }
 
@@ -1974,7 +1970,7 @@ function wizFinish(){
   var apiKey=document.getElementById('wizApiKey').value;
   var refresh=parseInt(document.getElementById('wizRefresh').value)||60;
   var mac=new URLSearchParams(window.location.search).get('mac');
-  var city=document.getElementById('wizCity').value||'杭州';
+  var city=document.getElementById('wizCity').value||'translated';
 
   resolveLocationMeta(city).catch(function(){ return null; }).then(function(location){
     var cfg={
@@ -2003,7 +1999,7 @@ function wizFinish(){
     location.reload();
   }).catch(()=>{
     document.getElementById('setupWizard').style.display='none';
-    alert('配置保存失败，请手动配置');
+    alert('translatedfailed，translated');
   });
 }
 

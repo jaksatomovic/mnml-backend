@@ -1,9 +1,9 @@
 """
-测试新增的计费与额度管理功能：
-- 用户注册（带/不带邀请码）
-- 邀请码兑换
-- API 额度管理（初始化、查询、扣减）
-- 额度耗尽时的硬件兼容逻辑
+testtext：
+- text（text/text）
+- text
+- API text（text、text、text）
+- text
 """
 import pytest
 from unittest.mock import patch, MagicMock, AsyncMock
@@ -38,11 +38,11 @@ async def use_memory_db(tmp_path):
 
 
 class TestUserRegistration:
-    """测试用户注册功能（前端已移除邀请码输入，仅测试无邀请码场景）"""
+    """testtext（text，texttesttext）"""
 
     @pytest.mark.asyncio
     async def test_register_without_invite_code(self):
-        """测试不使用邀请码注册（初始额度为 50）"""
+        """testtext（text 50）"""
         await init_db()
         
         from api.routes.auth import auth_register
@@ -59,7 +59,7 @@ class TestUserRegistration:
         assert result["ok"] is True
         user_id = result["user_id"]
         
-        # 验证用户额度为 50
+        # text 50
         quota = await get_user_api_quota(user_id)
         assert quota is not None
         assert quota["free_quota_remaining"] == 50
@@ -67,14 +67,14 @@ class TestUserRegistration:
 
     @pytest.mark.asyncio
     async def test_register_phone_email_validation(self):
-        """测试手机号和邮箱格式验证"""
+        """testtext"""
         await init_db()
         
         from api.routes.auth import auth_register
         from fastapi import Response
         from fastapi.responses import JSONResponse
         
-        # 测试无效邮箱
+        # testinvalidtext
         body1 = {
             "username": "testuser5",
             "password": "testpass123",
@@ -84,9 +84,9 @@ class TestUserRegistration:
         result1 = await auth_register(body1, response1)
         assert isinstance(result1, JSONResponse)
         assert result1.status_code == 400
-        assert "邮箱格式不正确" in result1.body.decode()
+        assert "text" in result1.body.decode()
 
-        # 测试邮箱未提供
+        # testtext
         body2 = {
             "username": "testuser6",
             "password": "testpass123",
@@ -95,9 +95,9 @@ class TestUserRegistration:
         result2 = await auth_register(body2, response2)
         assert isinstance(result2, JSONResponse)
         assert result2.status_code == 400
-        assert "邮箱为必填项" in result2.body.decode()
+        assert "text" in result2.body.decode()
 
-        # 测试无效手机号（email 有效但 phone 无效）
+        # testinvalidtext（email text phone invalid）
         body3 = {
             "username": "testuser7",
             "password": "testpass123",
@@ -108,7 +108,7 @@ class TestUserRegistration:
         result3 = await auth_register(body3, response3)
         assert isinstance(result3, JSONResponse)
         assert result3.status_code == 400
-        assert "手机号格式不正确" in result3.body.decode()
+        assert "text" in result3.body.decode()
 
     @pytest.mark.asyncio
     async def test_register_supports_phone_region_and_normalizes(self):
@@ -244,19 +244,19 @@ class TestPasswordReset:
 
 
 class TestInviteCodeRedemption:
-    """测试邀请码兑换功能"""
+    """testtext"""
 
     @pytest.mark.asyncio
     async def test_redeem_valid_invite_code(self):
-        """测试兑换有效邀请码"""
+        """testtext"""
         await init_db()
         db = await get_main_db()
         
-        # 1. 创建用户（无邀请码，额度为 0）
+        # 1. text（text，text 0）
         user_id = await create_user("testuser", "testpass", email="test@example.com")
         assert user_id is not None
         
-        # 2. 创建邀请码
+        # 2. text
         await db.execute(
             """
             INSERT INTO invitation_codes (code, is_used, generated_at)
@@ -266,22 +266,22 @@ class TestInviteCodeRedemption:
         )
         await db.commit()
         
-        # 3. 模拟兑换请求（需要模拟 require_user 依赖）
+        # 3. text（text require_user text）
         from api.routes.auth import auth_redeem_invite_code
         from unittest.mock import patch
         
         body = {"invite_code": "REDEEM123"}
         
-        # 模拟 require_user 返回 user_id
+        # text require_user text user_id
         with patch("api.routes.auth.require_user", return_value=user_id):
             result = await auth_redeem_invite_code(body, user_id)
         
-        # 4. 验证兑换成功
+        # 4. text
         assert result["ok"] is True
-        assert "邀请码兑换成功" in result["message"]
+        assert "text" in result["message"]
         assert result["free_quota_remaining"] == 50
         
-        # 5. 验证邀请码已被标记为使用
+        # 5. text
         cursor = await db.execute(
             "SELECT is_used, used_by_user_id FROM invitation_codes WHERE code = ?",
             ("REDEEM123",),
@@ -290,13 +290,13 @@ class TestInviteCodeRedemption:
         assert row[0] == 1
         assert row[1] == user_id
         
-        # 6. 验证用户额度已增加
+        # 6. text
         quota = await get_user_api_quota(user_id)
         assert quota["free_quota_remaining"] == 50
 
     @pytest.mark.asyncio
     async def test_redeem_invalid_invite_code(self):
-        """测试兑换无效邀请码"""
+        """testtextinvalidtext"""
         await init_db()
         user_id = await create_user("testuser2", "testpass", phone="13800138000")
         
@@ -310,17 +310,17 @@ class TestInviteCodeRedemption:
         
         assert isinstance(result, JSONResponse)
         assert result.status_code == 400
-        assert "邀请码无效" in result.body.decode()
+        assert "textinvalid" in result.body.decode()
 
     @pytest.mark.asyncio
     async def test_redeem_used_invite_code(self):
-        """测试兑换已使用的邀请码"""
+        """testtext"""
         await init_db()
         db = await get_main_db()
         
         user_id = await create_user("testuser3", "testpass", email="test3@example.com")
         
-        # 创建已使用的邀请码
+        # text
         await db.execute(
             """
             INSERT INTO invitation_codes (code, is_used, used_by_user_id, generated_at)
@@ -340,19 +340,19 @@ class TestInviteCodeRedemption:
         
         assert isinstance(result, JSONResponse)
         assert result.status_code == 409
-        assert "邀请码已被使用" in result.body.decode()
+        assert "text" in result.body.decode()
 
 
 class TestQuotaManagement:
-    """测试 API 额度管理功能"""
+    """test API text"""
 
     @pytest.mark.asyncio
     async def test_init_user_api_quota(self):
-        """测试初始化用户额度"""
+        """testtext"""
         await init_db()
         user_id = await create_user("quotauser", "testpass", phone="13900139000")
         
-        # 初始化额度（默认 5 次）
+        # text（default 5 text）
         await init_user_api_quota(user_id)
         
         quota = await get_user_api_quota(user_id)
@@ -360,14 +360,14 @@ class TestQuotaManagement:
         assert quota["free_quota_remaining"] == 5
         assert quota["total_calls_made"] == 0
         
-        # 测试幂等性（再次初始化不应改变值）
+        # testtext（text）
         await init_user_api_quota(user_id)
         quota2 = await get_user_api_quota(user_id)
         assert quota2["free_quota_remaining"] == 5
 
     @pytest.mark.asyncio
     async def test_init_user_api_quota_custom_amount(self):
-        """测试初始化用户额度（自定义数量）"""
+        """testtext（text）"""
         await init_db()
         user_id = await create_user("quotauser2", "testpass", email="quota@example.com")
         
@@ -378,7 +378,7 @@ class TestQuotaManagement:
 
     @pytest.mark.asyncio
     async def test_get_user_api_quota_nonexistent(self):
-        """测试查询不存在的用户额度"""
+        """testtextnot foundtext"""
         await init_db()
         
         quota = await get_user_api_quota(99999)
@@ -386,12 +386,12 @@ class TestQuotaManagement:
 
     @pytest.mark.asyncio
     async def test_consume_user_free_quota_success(self):
-        """测试成功扣减额度"""
+        """testtext"""
         await init_db()
         user_id = await create_user("consumeuser", "testpass", phone="13700137000")
         await init_user_api_quota(user_id, free_quota=5)
         
-        # 扣减 1 次
+        # text 1 text
         success = await consume_user_free_quota(user_id, amount=1)
         assert success is True
         
@@ -399,45 +399,45 @@ class TestQuotaManagement:
         assert quota["free_quota_remaining"] == 4
         assert quota["total_calls_made"] == 1
         
-        # 再扣减 2 次
+        # text 2 text
         success2 = await consume_user_free_quota(user_id, amount=2)
         assert success2 is True
         
         quota2 = await get_user_api_quota(user_id)
         assert quota2["free_quota_remaining"] == 2
-        assert quota2["total_calls_made"] == 2  # 注意：每次扣减都会 +1
+        assert quota2["total_calls_made"] == 2  # text：text +1
 
     @pytest.mark.asyncio
     async def test_consume_user_free_quota_insufficient(self):
-        """测试额度不足时扣减失败"""
+        """testtext"""
         await init_db()
         user_id = await create_user("consumeuser2", "testpass", email="consume@example.com")
         await init_user_api_quota(user_id, free_quota=2)
         
-        # 扣减 1 次（成功）
+        # text 1 text（text）
         success1 = await consume_user_free_quota(user_id, amount=1)
         assert success1 is True
         
-        # 再扣减 1 次（成功）
+        # text 1 text（text）
         success2 = await consume_user_free_quota(user_id, amount=1)
         assert success2 is True
         
-        # 尝试再扣减 1 次（失败，额度已用完）
+        # text 1 text（text，text）
         success3 = await consume_user_free_quota(user_id, amount=1)
         assert success3 is False
         
         quota = await get_user_api_quota(user_id)
         assert quota["free_quota_remaining"] == 0
-        assert quota["total_calls_made"] == 2  # 只有前两次成功扣减
+        assert quota["total_calls_made"] == 2  # text
 
     @pytest.mark.asyncio
     async def test_consume_user_free_quota_atomic(self):
-        """测试并发场景下的原子性扣减"""
+        """testtext"""
         await init_db()
         user_id = await create_user("atomicuser", "testpass", phone="13600136000")
         await init_user_api_quota(user_id, free_quota=1)
         
-        # 尝试同时扣减 1 次（应该只有一个成功）
+        # text 1 text（text）
         import asyncio
         
         async def consume():
@@ -445,7 +445,7 @@ class TestQuotaManagement:
         
         results = await asyncio.gather(*[consume() for _ in range(5)])
         
-        # 应该只有一个成功
+        # text
         assert sum(results) == 1
         
         quota = await get_user_api_quota(user_id)
@@ -454,7 +454,7 @@ class TestQuotaManagement:
 
     @pytest.mark.asyncio
     async def test_consume_user_free_quota_zero_amount(self):
-        """测试扣减 0 次额度（应该直接返回 True，不修改数据库）"""
+        """testtext 0 text（text True，text）"""
         await init_db()
         user_id = await create_user("zerouser", "testpass", email="zero@example.com")
         await init_user_api_quota(user_id, free_quota=5)
@@ -468,18 +468,18 @@ class TestQuotaManagement:
 
 
 class TestQuotaOwnerResolution:
-    """测试额度归属用户解析"""
+    """testtext"""
 
     @pytest.mark.asyncio
     async def test_get_quota_owner_for_mac_with_owner(self):
-        """测试有设备 owner 时返回正确的 user_id"""
+        """testtext owner text user_id"""
         await init_db()
         db = await get_main_db()
         
-        # 创建用户
+        # text
         user_id = await create_user("owneruser", "testpass", phone="13500135000")
         
-        # 创建设备绑定关系（owner）
+        # text（owner）
         mac = "AA:BB:CC:DD:EE:FF"
         await db.execute(
             """
@@ -495,7 +495,7 @@ class TestQuotaOwnerResolution:
 
     @pytest.mark.asyncio
     async def test_get_quota_owner_for_mac_no_owner(self):
-        """测试没有设备 owner 时返回 None"""
+        """testtext owner text None"""
         await init_db()
         
         mac = "XX:XX:XX:XX:XX:XX"
@@ -504,14 +504,14 @@ class TestQuotaOwnerResolution:
 
     @pytest.mark.asyncio
     async def test_get_quota_owner_for_mac_member_only(self):
-        """测试只有 member 没有 owner 时返回 None"""
+        """testtext member text owner text None"""
         await init_db()
         db = await get_main_db()
         
         user_id = await create_user("memberuser", "testpass", email="member@example.com")
         mac = "BB:CC:DD:EE:FF:AA"
         
-        # 只创建 member，不创建 owner
+        # text member，text owner
         await db.execute(
             """
             INSERT INTO device_memberships (mac, user_id, role, status, created_at, updated_at)
@@ -522,55 +522,55 @@ class TestQuotaOwnerResolution:
         await db.commit()
         
         owner_id = await get_quota_owner_for_mac(mac)
-        assert owner_id is None  # 因为 get_device_owner 只返回 role='owner' 的记录
+        assert owner_id is None  # text get_device_owner text role='owner' text
 
 
 class TestQuotaExhaustionHandling:
-    """测试额度耗尽时的硬件兼容逻辑"""
+    """testtext"""
 
     @pytest.mark.asyncio
     async def test_quota_exhausted_returns_bmp_for_device(self):
-        """测试设备请求时额度耗尽返回 1-bit BMP 图像"""
+        """testtext 1-bit BMP text"""
         await init_db()
         user_id = await create_user("exhaustuser", "testpass", phone="13400134000")
-        await init_user_api_quota(user_id, free_quota=0)  # 额度为 0
+        await init_user_api_quota(user_id, free_quota=0)  # text 0
         
-        # 模拟设备请求（需要 mac 参数）
+        # text（text mac text）
         from api.shared import build_image
         from unittest.mock import patch, AsyncMock
         
-        # 模拟 get_quota_owner_for_mac 返回 user_id
+        # text get_quota_owner_for_mac text user_id
         with patch("api.shared.get_quota_owner_for_mac", return_value=user_id):
-            # 模拟一个需要 LLM 的模式（例如 DAILY）
-            # 注意：这里需要模拟完整的调用链，包括 generate_and_render
-            # 为了简化，我们直接测试 build_image 的配额检查逻辑
+            # text LLM textmode（text DAILY）
+            # text：text，text generate_and_render
+            # text，texttest build_image text
             
-            # 由于 build_image 依赖很多其他模块，这里只测试核心逻辑
-            # 实际测试应该通过集成测试来完成
-            pass  # 集成测试见 test_integration.py
+            # text build_image text，texttesttext
+            # texttesttexttesttext
+            pass  # texttesttext test_integration.py
 
     @pytest.mark.asyncio
     async def test_quota_exhausted_returns_402_for_web_preview(self):
-        """测试 Web 预览时额度耗尽返回 402 状态码"""
-        # 这个测试应该通过 API 路由测试来完成
-        # 见 test_integration.py 或专门的 API 测试文件
+        """test Web text 402 text"""
+        # texttesttext API texttesttext
+        # text test_integration.py text API testtext
         pass
 
 
 class TestLlmPrecheckBehavior:
-    """测试在额度耗尽时不会触发 LLM 调用（预先拦截）。"""
+    """testtext LLM text（text）。"""
 
     @pytest.mark.asyncio
     async def test_custom_mode_preview_quota_exhausted_blocks_llm(self, monkeypatch):
-        """当 custom preview 额度为 0 时，应在调用 LLM 之前返回 402，且不调用 generate_json_mode_content。"""
+        """text custom preview text 0 text，text LLM text 402，text generate_json_mode_content。"""
         from api.routes.modes import custom_mode_preview
 
-        # 打开计费开关
+        # text
         monkeypatch.setenv("INKSIGHT_BILLING_ENABLED", "1")
 
         user_id = 123
 
-        # 构造一个需要 LLM 的自定义模式：content.type = "llm"
+        # text LLM textmode：content.type = "llm"
         body = {
             "mode_def": {
                 "mode_id": "PREVIEW",
@@ -584,9 +584,9 @@ class TestLlmPrecheckBehavior:
             "responseType": "json",
         }
 
-        # 确保使用平台 Key（即没有用户级 API key）
+        # text Key（text API key）
         async def fake_get_user_llm_config(_user_id: int):
-            # 模拟用户级配置中只设置了文本 provider（无自定义文本/图像 model），与生产逻辑保持字段一致
+            # text provider（text/text model），text
             return {
                 "provider": "deepseek",
                 "model": "",
@@ -597,7 +597,7 @@ class TestLlmPrecheckBehavior:
                 "image_model": "qwen-image-plus",
             }
 
-        # 配额为 0
+        # text 0
         async def fake_get_quota(user_id_param: int):
             assert user_id_param == user_id
             return {
@@ -606,12 +606,12 @@ class TestLlmPrecheckBehavior:
                 "free_quota_remaining": 0,
             }
 
-        # 非 root 用户
+        # text root text
         async def fake_get_role(user_id_param: int):
             assert user_id_param == user_id
             return "user"
 
-        # LLM 生成函数，应该不会被调用
+        # LLM text，text
         called = {"generate": False}
 
         async def fake_generate_json_mode_content(*args, **kwargs):
@@ -622,42 +622,42 @@ class TestLlmPrecheckBehavior:
         from core import json_content as json_mod
         from api import routes as api_pkg
 
-        # 覆盖 config_store 内部实现，避免真实访问数据库
+        # text config_store text，text
         monkeypatch.setattr(cfg_mod, "get_user_llm_config", fake_get_user_llm_config)
         monkeypatch.setattr(cfg_mod, "get_user_api_quota", fake_get_quota)
         monkeypatch.setattr(cfg_mod, "get_user_role", fake_get_role)
         monkeypatch.setattr(json_mod, "generate_json_mode_content", fake_generate_json_mode_content)
-        # 关键：同时覆盖 api.routes.modes 中直接导入的 get_user_api_quota / get_user_role，
-        # 防止其调用真实的 DB 层导致 "no such table: api_quotas"
+        # text：text api.routes.modes text get_user_api_quota / get_user_role，
+        # text DB text "no such table: api_quotas"
         monkeypatch.setattr("api.routes.modes.get_user_api_quota", fake_get_quota)
         monkeypatch.setattr("api.routes.modes.get_user_role", fake_get_role)
 
-        # 依赖中的 admin_auth 直接传 None 即可
+        # text admin_auth text None text
         resp = await custom_mode_preview(body, user_id=user_id)
 
         assert isinstance(resp, JSONResponse)
         assert resp.status_code == 402
-        assert "您的免费额度已用完" in resp.body.decode("utf-8")
-        # 关键断言：LLM 内容生成函数没有被调用
+        assert "text" in resp.body.decode("utf-8")
+        # text：LLM text
         assert called["generate"] is False
 
     @pytest.mark.asyncio
     async def test_generate_mode_quota_exhausted_blocks_llm(self, monkeypatch):
-        """当 AI 生成模式额度为 0 时，应在调用 LLM 之前返回 402，且不调用 generate_mode_definition。"""
+        """text AI textmodetext 0 text，text LLM text 402，text generate_mode_definition。"""
         from api.routes.modes import generate_mode
 
         monkeypatch.setenv("INKSIGHT_BILLING_ENABLED", "1")
 
         user_id = 456
         body = {
-            "description": "帮我生成一个测试模式定义",
+            "description": "texttestmodetext",
             "provider": "deepseek",
             "model": "deepseek-chat",
         }
 
-        # 使用平台 Key（无用户级 key）
+        # text Key（text key）
         async def fake_get_user_llm_config(_user_id: int):
-            # 同步 user_llm_config 结构，显式包含文本 model 与图像配置字段
+            # text user_llm_config text，text model text
             return {
                 "provider": "deepseek",
                 "model": "deepseek-chat",
@@ -689,7 +689,7 @@ class TestLlmPrecheckBehavior:
         from core import config_store as cfg_mod
         from core import mode_generator as mode_gen_mod
 
-        # 覆盖底层实现与 API 层引用，避免真实访问 api_quotas 表
+        # text API text，text api_quotas text
         monkeypatch.setattr(cfg_mod, "get_user_llm_config", fake_get_user_llm_config)
         monkeypatch.setattr(cfg_mod, "get_user_api_quota", fake_get_quota)
         monkeypatch.setattr(cfg_mod, "get_user_role", fake_get_role)
@@ -701,6 +701,6 @@ class TestLlmPrecheckBehavior:
 
         assert isinstance(resp, JSONResponse)
         assert resp.status_code == 402
-        assert "您的免费额度已用完" in resp.body.decode("utf-8")
-        # 关键断言：模式生成的 LLM 调用函数没有被触发
+        assert "text" in resp.body.decode("utf-8")
+        # text：modetext LLM text
         assert called["generate_mode"] is False

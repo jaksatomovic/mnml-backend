@@ -1,5 +1,5 @@
 """
-测试 RECIPE 模式 - 早中晚三餐方案
+test RECIPE mode - text
 """
 import asyncio
 import json
@@ -18,7 +18,7 @@ CACHE_FILE = os.path.join(os.path.dirname(__file__), "fixtures", "test_recipe_ca
 
 
 async def main():
-    print("Testing RECIPE mode (早中晚三餐方案)...")
+    print("Testing RECIPE mode (text)...")
     mode_path = os.path.join(
         os.path.dirname(__file__), "..", "core", "modes", "builtin", "recipe.json"
     )
@@ -43,23 +43,23 @@ async def main():
         print(f"✓ Cached to {CACHE_FILE}")
     
     print(f"\nGenerated content:")
-    print(f"时令: {content['season']}")
-    print(f"\n早餐: {content['breakfast']}")
-    print(f"\n午餐:")
-    print(f"  荤菜: {content['lunch']['meat']}")
-    print(f"  素菜: {content['lunch']['veg']}")
-    print(f"  主食: {content['lunch']['staple']}")
-    print(f"\n晚餐:")
-    print(f"  荤菜: {content['dinner']['meat']}")
-    print(f"  素菜: {content['dinner']['veg']}")
-    print(f"  主食: {content['dinner']['staple']}")
-    print(f"\n营养: {content['nutrition']}")
+    print(f"text: {content['season']}")
+    print(f"\ntext: {content['breakfast']}")
+    print(f"\ntext:")
+    print(f"  text: {content['lunch']['meat']}")
+    print(f"  text: {content['lunch']['veg']}")
+    print(f"  text: {content['lunch']['staple']}")
+    print(f"\ntext:")
+    print(f"  text: {content['dinner']['meat']}")
+    print(f"  text: {content['dinner']['veg']}")
+    print(f"  text: {content['dinner']['staple']}")
+    print(f"\ntext: {content['nutrition']}")
     
     img = render_json_mode(
         mode_def,
         content,
-        date_str="2月14日 周六",
-        weather_str="晴 15°C",
+        date_str="2/14 Sat",
+        weather_str="sunny 15°C",
         battery_pct=85,
         weather_code=0,
         time_str="14:30",

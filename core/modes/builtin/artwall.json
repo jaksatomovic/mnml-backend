@@ -1,42 +1,42 @@
 {
   "mode_id": "ARTWALL",
-  "display_name": "AI 艺术",
+  "display_name": "AI translated",
   "icon": "art",
   "cacheable": false,
-  "description": "黑白版画风格 AI 作品",
+  "description": "translated AI translated",
   "content": {
     "type": "image_gen",
     "provider": "text2image",
     "fallback": {
-      "artwork_title": "墨韵天成",
+      "artwork_title": "translated",
       "image_url": "/webconfig/assets/art/moyun.png",
-      "description": "今日艺术作品"
+      "description": "translated"
     },
     "fallback_pool": [
       {
-        "artwork_title": "墨韵天成",
+        "artwork_title": "translated",
         "image_url": "/webconfig/assets/art/moyun.png",
-        "description": "今日艺术作品"
+        "description": "translated"
       },
       {
-        "artwork_title": "山居秋暝",
+        "artwork_title": "translated",
         "image_url": "/webconfig/assets/art/shanjuqiuming.png",
-        "description": "水墨山水意境"
+        "description": "translated"
       },
       {
-        "artwork_title": "竹林七贤",
+        "artwork_title": "translated",
         "image_url": "/webconfig/assets/art/zhulinqixian.png",
-        "description": "古典人物版画"
+        "description": "translated"
       },
       {
-        "artwork_title": "禅意莲花",
+        "artwork_title": "translated",
         "image_url": "/webconfig/assets/art/chanyilianhua.png",
-        "description": "极简禅宗美学"
+        "description": "translated"
       },
       {
-        "artwork_title": "云卷云舒",
+        "artwork_title": "Clouds gather and drift",
         "image_url": "/webconfig/assets/art/yunjuanyunshu.png",
-        "description": "黑白云海写意"
+        "description": "translated"
       }
     ]
   },

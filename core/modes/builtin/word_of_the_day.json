@@ -1,23 +1,23 @@
 {
   "mode_id": "WORD_OF_THE_DAY",
-  "display_name": "每日一词",
+  "display_name": "translated",
   "icon": "word",
   "cacheable": true,
-  "description": "每日精选一个英语单词，展示其拼写与释义",
+  "description": "translated，translated",
   "content": {
     "type": "llm_json",
-    "prompt_template": "你是一位英语语言专家。根据当前情境，精选一个值得学习的英语单词，并提供其简明释义。\n用 JSON 输出：{{\"word\": \"单词拼写\", \"phonetic\": \"音标（可选）\", \"definition\": \"简明中文释义（15字以内）\", \"example\": \"简短英文例句（可选，20词以内）\"}}\n确保单词适合日常学习。\n环境：{context}",
+    "prompt_template": "translated。Get by translated，translated，translated。\ntranslated JSON translated：{{\"word\": \"translated\", \"phonetic\": \"translated（translated）\", \"definition\": \"translated（15translated）\", \"example\": \"translated（translated，20translated）\"}}\ntranslated。\ntranslated：{context}",
     "output_schema": {
       "word": { "type": "string", "default": "Serendipity" },
       "phonetic": { "type": "string", "default": "/ˌser.ənˈdɪp.ə.ti/" },
-      "definition": { "type": "string", "default": "意外发现美好事物的能力" },
+      "definition": { "type": "string", "default": "translated" },
       "example": { "type": "string", "default": "Traveling is full of serendipity." }
     },
     "temperature": 0.8,
     "fallback": {
       "word": "Serendipity",
       "phonetic": "/ˌser.ənˈdɪp.ə.ti/",
-      "definition": "意外发现美好事物的能力",
+      "definition": "translated",
       "example": "Traveling is full of serendipity."
     }
   },

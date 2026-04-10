@@ -1,4 +1,4 @@
-"""API 鉴权依赖的单元测试。"""
+"""Unit tests for API auth dependencies."""
 import os
 import pytest
 
@@ -64,7 +64,7 @@ class TestRequireAdmin:
 class TestRequireDeviceToken:
     @pytest.mark.asyncio
     async def test_no_token_stored_rejects_access(self, monkeypatch):
-        """新设备无 Token 时应拒绝访问。"""
+        """A new device without token should be rejected."""
         from core import auth as _auth_mod
         async def _fake_validate(mac, token):
             return False
@@ -107,7 +107,7 @@ class TestRequireDeviceToken:
 class TestTokenProvisioning:
     @pytest.mark.asyncio
     async def test_provision_new_device(self, monkeypatch):
-        """新设备首次请求时获得 Token。"""
+        """First request from a new device gets a token."""
         from api.routes import device as device_routes
 
         generated_token = "test-token-abc"
@@ -123,7 +123,7 @@ class TestTokenProvisioning:
 
     @pytest.mark.asyncio
     async def test_provision_existing_device_returns_existing(self, monkeypatch):
-        """已有 Token 的设备返回已有 Token。"""
+        """Device with existing token gets same token back."""
         from api.routes import device as device_routes
 
         async def _fake_get_state(mac):

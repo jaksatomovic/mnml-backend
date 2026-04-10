@@ -1,9 +1,9 @@
 {
   "mode_id": "DAILY",
-  "display_name": "每日推荐",
+  "display_name": "translated",
   "icon": "sunny",
   "cacheable": true,
-  "description": "语录、书籍推荐和小知识",
+  "description": "translated、translated",
   "content": {
     "type": "composite",
     "steps": [
@@ -13,40 +13,40 @@
         "fallback": {
           "year": 2026,
           "day": 1,
-          "month_cn": "一月",
-          "weekday_cn": "周一",
+          "month_cn": "January",
+          "weekday_cn": "Mon",
           "day_of_year": 1,
           "days_in_year": 365
         }
       },
       {
         "type": "llm_json",
-        "prompt_template": "你是一位博学的每日推荐助手。根据以下环境信息，生成一份每日推荐内容，用 JSON 格式输出，包含：\n1. quote: 一句语录（中文，20字以内）\n2. author: 语录作者\n3. book_title: 推荐一本书（书名号）\n4. book_author: 书的作者 + \" 著\"\n5. book_desc: 一句话描述这本书（25字以内）\n6. tip: 一条冷知识或实用小贴士（30字以内）\n7. season_text: 当前节气或季节的一句话描述（10字以内）\n只输出 JSON。\n环境：{context}",
+        "prompt_template": "translated。Get by translated，translated，translated JSON translated，translated：\n1. quote: translated（translated，20translated）\n2. author: translated\n3. book_title: translated（translated）\n4. book_author: translated + \" translated\"\n5. book_desc: translated（25translated）\n6. tip: translated（30translated）\n7. season_text: translated（10translated）\ntranslated JSON。\ntranslated：{context}",
         "output_schema": {
-          "quote": { "type": "string", "default": "阻碍行动的障碍，本身就是行动的路。" },
-          "author": { "type": "string", "default": "马可·奥勒留" },
-          "book_title": { "type": "string", "default": "《沉思录》" },
-          "book_author": { "type": "string", "default": "马可·奥勒留 著" },
-          "book_desc": { "type": "string", "default": "罗马帝王的自省笔记。" },
-          "tip": { "type": "string", "default": "冬季干燥，记得多喝水。" },
-          "season_text": { "type": "string", "default": "立春已过，万物生长。" }
+          "quote": { "type": "string", "default": "translated，translated。" },
+          "author": { "type": "string", "default": "translated·translated" },
+          "book_title": { "type": "string", "default": "《translated》" },
+          "book_author": { "type": "string", "default": "translated·translated translated" },
+          "book_desc": { "type": "string", "default": "translated。" },
+          "tip": { "type": "string", "default": "translated，translated。" },
+          "season_text": { "type": "string", "default": "Start of Springtranslated，translated。" }
         },
         "fallback": {
-          "quote": "阻碍行动的障碍，本身就是行动的路。",
-          "author": "马可·奥勒留",
-          "book_title": "《沉思录》",
-          "book_author": "马可·奥勒留 著",
-          "book_desc": "罗马帝王的自省笔记。",
-          "tip": "冬季干燥，记得多喝水。",
-          "season_text": "立春已过，万物生长。"
+          "quote": "translated，translated。",
+          "author": "translated·translated",
+          "book_title": "《translated》",
+          "book_author": "translated·translated translated",
+          "book_desc": "translated。",
+          "tip": "translated，translated。",
+          "season_text": "Start of Springtranslated，translated。"
         }
       }
     ],
     "fallback": {},
     "fallback_pool": [
-      {"quote": "阻碍行动的障碍，本身就是行动的路。", "author": "马可·奥勒留", "book_title": "《沉思录》", "book_author": "马可·奥勒留 著", "book_desc": "罗马帝王的自省笔记。", "tip": "冬季干燥，记得多喝水。", "season_text": "立春已过，万物生长。"},
-      {"quote": "知止而后有定，定而后能静。", "author": "《大学》", "book_title": "《人间值得》", "book_author": "中村恒子 著", "book_desc": "九十岁心理医生的生活智慧。", "tip": "午睡20分钟最佳，过长易头痛。", "season_text": "春寒料峭，宜早睡早起。"},
-      {"quote": "活在当下，珍惜眼前人。", "author": "佚名", "book_title": "《小王子》", "book_author": "圣埃克苏佩里 著", "book_desc": "献给所有的大人和小孩。", "tip": "蓝光影响睡眠，睡前少看手机。", "season_text": "万物复苏，适合户外走走。"}
+      {"quote": "translated，translated。", "author": "translated·translated", "book_title": "《translated》", "book_author": "translated·translated translated", "book_desc": "translated。", "tip": "translated，translated。", "season_text": "Start of Springtranslated，translated。"},
+      {"quote": "translated，translated。", "author": "《translated》", "book_title": "《translated》", "book_author": "translated translated", "book_desc": "translated。", "tip": "translated20translated，translated。", "season_text": "translated，translated。"},
+      {"quote": "translated，translated。", "author": "translated", "book_title": "《translated》", "book_author": "translated translated", "book_desc": "translated。", "tip": "translated，translated。", "season_text": "translated，translated。"}
     ]
   },
   "layout": {

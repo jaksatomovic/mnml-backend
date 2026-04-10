@@ -59,13 +59,13 @@ async def trigger_ota(
     if not is_online:
         raise HTTPException(
             status_code=403,
-            detail="设备不在线，请确保设备已连接 Wi-Fi 后重试",
+            detail="translated，translated Wi-Fi translated",
         )
 
     if runtime_mode != "active":
         raise HTTPException(
             status_code=403,
-            detail="设备未处于活跃模式，请在设备旁按一次按钮唤醒设备后重试",
+            detail="translatedmode，translated",
         )
 
     # 3. Validate the GitHub CDN URL so we can confirm it's reachable before
@@ -76,11 +76,11 @@ async def trigger_ota(
         try:
             url_check = await validate_firmware_url(req.download_url)
             if not url_check.get("reachable"):
-                raise HTTPException(status_code=400, detail="固件 URL 不可达")
+                raise HTTPException(status_code=400, detail="translated URL translated")
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))
         except (RuntimeError, Exception) as exc:
-            raise HTTPException(status_code=503, detail=f"固件 URL 校验失败: {exc}")
+            raise HTTPException(status_code=503, detail=f"translated URL translatedfailed: {exc}")
 
     # 4. Write OTA task
     await update_device_state(
@@ -94,7 +94,7 @@ async def trigger_ota(
 
     return {
         "ok": True,
-        "message": "已下发刷机指令，设备即将开始升级",
+        "message": "translated，translated",
     }
 
 
@@ -129,7 +129,7 @@ async def cancel_ota(
     state = await _get_device_state_row(mac)
     ota_result = state.get("ota_result", "")
     if ota_result in ("downloading", "flashing"):
-        raise HTTPException(status_code=403, detail="刷机已开始，无法取消")
+        raise HTTPException(status_code=403, detail="translated，translated")
     await update_device_state(
         mac,
         pending_ota=0,

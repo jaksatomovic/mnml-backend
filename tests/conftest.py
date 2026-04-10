@@ -26,7 +26,7 @@ def sample_config():
         "character_tones": [],
         "language": "zh",
         "content_tone": "neutral",
-        "city": "杭州",
+        "city": "Hangzhou",
         "llm_provider": "deepseek",
         "llm_model": "deepseek-chat",
     }
@@ -36,24 +36,24 @@ def sample_config():
 def sample_date_ctx():
     """A typical date context dict."""
     return {
-        "date_str": "2月16日 周一",
+        "date_str": "2/16 Mon",
         "time_str": "09:30:00",
         "weekday": 0,
         "hour": 9,
         "is_weekend": False,
         "year": 2026,
         "day": 16,
-        "month_cn": "二月",
-        "weekday_cn": "周一",
+        "month_cn": "February",
+        "weekday_cn": "Mon",
         "day_of_year": 47,
         "days_in_year": 365,
         "festival": "",
         "is_holiday": False,
         "is_workday": True,
-        "upcoming_holiday": "清明节",
+        "upcoming_holiday": "Qingming Festival",
         "days_until_holiday": 48,
-        "holiday_date": "04月05日",
-        "daily_word": "春风化雨",
+        "holiday_date": "04/05",
+        "daily_word": "spring breeze",
     }
 
 

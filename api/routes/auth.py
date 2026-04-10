@@ -70,33 +70,33 @@ async def auth_register(body: dict, response: Response):
     email = (body.get("email") or "").strip()
 
     if not username or len(username) < 2 or len(username) > 30:
-        return JSONResponse({"error": "用户名长度须为 2-30 字符"}, status_code=400)
+        return JSONResponse({"error": "translated 2-30 translated"}, status_code=400)
     if len(password) < 4:
-        return JSONResponse({"error": "密码至少 4 位"}, status_code=400)
+        return JSONResponse({"error": "translated 4 translated"}, status_code=400)
 
     if not email:
-        return JSONResponse({"error": "邮箱为必填项"}, status_code=400)
+        return JSONResponse({"error": "translated"}, status_code=400)
     if not _EMAIL_RE.match(email):
-        return JSONResponse({"error": "邮箱格式不正确"}, status_code=400)
+        return JSONResponse({"error": "translated"}, status_code=400)
     normalized_phone = ""
     if phone:
         try:
             normalized_phone = _normalize_phone(phone, phone_region)
         except ValueError:
-            return JSONResponse({"error": "手机号格式不正确"}, status_code=400)
+            return JSONResponse({"error": "translated"}, status_code=400)
 
     db = await get_main_db()
     now = datetime.now().isoformat()
     pw_hash, _ = _hash_password(password)
 
     try:
-        # 显式开启事务，确保「创建用户 -> 初始化额度」原子完成
+        # translated，translated「translated -> translated」translated
         await db.execute("BEGIN")
         if normalized_phone and await _phone_exists(db, normalized_phone):
             await db.rollback()
-            return JSONResponse({"error": "用户名或手机号/邮箱已存在"}, status_code=409)
+            return JSONResponse({"error": "translated/translatedalready exists"}, status_code=409)
 
-        # 1) 创建用户记录（用户名 + 手机/邮箱）
+        # 1) translated（translated + translated/translated）
         user_id = await execute_insert_returning_id(
             db,
             """
@@ -112,7 +112,7 @@ async def auth_register(body: dict, response: Response):
             ),
         )
 
-        # 2) 初始化 API 调用额度（统一给 50 次）
+        # 2) translated API translated（translated 50 translated）
         initial_quota = 50
         await db.execute(
             """
@@ -124,9 +124,9 @@ async def auth_register(body: dict, response: Response):
 
         await db.commit()
     except aiosqlite.IntegrityError:
-        # 用户名 / 手机号 / 邮箱任一唯一字段冲突
+        # translated / translated / translatedconflict
         await db.rollback()
-        return JSONResponse({"error": "用户名或手机号/邮箱已存在"}, status_code=409)
+        return JSONResponse({"error": "translated/translatedalready exists"}, status_code=409)
     except Exception:
         await db.rollback()
         raise
@@ -142,7 +142,7 @@ async def auth_login(body: dict, response: Response):
     password = body.get("password") or ""
     user = await authenticate_user(username, password)
     if not user:
-        return JSONResponse({"error": "用户名或密码错误"}, status_code=401)
+        return JSONResponse({"error": "translated"}, status_code=401)
     token = create_session_token(user["id"], user["username"])
     set_session_cookie(response, token)
     return {"ok": True, "user_id": user["id"], "username": user["username"], "token": token}
@@ -153,12 +153,12 @@ async def auth_reset_send_code(body: dict):
     """Step 1: send a verification code to the user's registered email."""
     email = (body.get("email") or "").strip().lower()
     if not email or not _EMAIL_RE.match(email):
-        return JSONResponse({"error": "邮箱格式不正确"}, status_code=400)
+        return JSONResponse({"error": "translated"}, status_code=400)
 
     db = await get_main_db()
     cursor = await db.execute("SELECT id FROM users WHERE email = ? LIMIT 1", (email,))
     if not await cursor.fetchone():
-        return JSONResponse({"error": "该邮箱未注册"}, status_code=404)
+        return JSONResponse({"error": "translated"}, status_code=404)
 
     ok, message = await send_verification_code(email)
     if not ok:
@@ -174,25 +174,25 @@ async def auth_reset_password(body: dict):
     password = body.get("password") or ""
 
     if not email or not _EMAIL_RE.match(email):
-        return JSONResponse({"error": "邮箱格式不正确"}, status_code=400)
+        return JSONResponse({"error": "translated"}, status_code=400)
     if not code:
-        return JSONResponse({"error": "验证码不能为空"}, status_code=400)
+        return JSONResponse({"error": "translatedcannot be empty"}, status_code=400)
     if len(password) < 4:
-        return JSONResponse({"error": "密码至少 4 位"}, status_code=400)
+        return JSONResponse({"error": "translated 4 translated"}, status_code=400)
 
     if not verify_code(email, code):
-        return JSONResponse({"error": "验证码无效或已过期"}, status_code=400)
+        return JSONResponse({"error": "translatedinvalidtranslated"}, status_code=400)
 
     db = await get_main_db()
     cursor = await db.execute("SELECT id FROM users WHERE email = ? LIMIT 1", (email,))
     row = await cursor.fetchone()
     if not row:
-        return JSONResponse({"error": "该邮箱未注册"}, status_code=404)
+        return JSONResponse({"error": "translated"}, status_code=404)
 
     pw_hash, _ = _hash_password(password)
     await db.execute("UPDATE users SET password_hash = ? WHERE id = ?", (pw_hash, row[0]))
     await db.commit()
-    return {"ok": True, "message": "密码已重置，请重新登录"}
+    return {"ok": True, "message": "translated，translated"}
 
 
 @router.get("/auth/me")
@@ -203,7 +203,7 @@ async def auth_me(user_id: int = Depends(require_user)):
     cursor = await db.execute("SELECT id, username, created_at FROM users WHERE id = ?", (user_id,))
     row = await cursor.fetchone()
     if not row:
-        return JSONResponse({"error": "用户不存在"}, status_code=404)
+        return JSONResponse({"error": "userdoes not exist"}, status_code=404)
     return {"user_id": row[0], "username": row[1], "created_at": row[2]}
 
 
@@ -215,19 +215,19 @@ async def auth_logout(response: Response):
 
 @router.post("/auth/redeem-invite-code")
 async def auth_redeem_invite_code(body: dict, user_id: int = Depends(require_user)):
-    """兑换邀请码，为当前用户增加 50 次免费 LLM 调用额度"""
+    """translated，translated 50 translated LLM translated"""
     invite_code = (body.get("invite_code") or "").strip()
     
     if not invite_code:
-        return JSONResponse({"error": "邀请码不能为空"}, status_code=400)
+        return JSONResponse({"error": "translatedcannot be empty"}, status_code=400)
     
     db = await get_main_db()
     
     try:
-        # 显式开启事务，确保「校验邀请码 -> 标记邀请码 -> 增加额度」原子完成
+        # translated，translated「translated -> translated -> translated」translated
         await db.execute("BEGIN")
         
-        # 1) 校验邀请码是否存在且未使用
+        # 1) translated
         cursor = await db.execute(
             "SELECT id, code, is_used FROM invitation_codes WHERE code = ? LIMIT 1",
             (invite_code,),
@@ -235,12 +235,12 @@ async def auth_redeem_invite_code(body: dict, user_id: int = Depends(require_use
         row = await cursor.fetchone()
         if not row:
             await db.rollback()
-            return JSONResponse({"error": "邀请码无效"}, status_code=400)
+            return JSONResponse({"error": "translatedinvalid"}, status_code=400)
         if row[2]:  # is_used
             await db.rollback()
-            return JSONResponse({"error": "邀请码已被使用"}, status_code=409)
+            return JSONResponse({"error": "translated"}, status_code=409)
         
-        # 2) 标记邀请码已被当前用户使用
+        # 2) translated
         await db.execute(
             """
             UPDATE invitation_codes
@@ -250,8 +250,8 @@ async def auth_redeem_invite_code(body: dict, user_id: int = Depends(require_use
             (user_id, invite_code),
         )
         
-        # 3) 增加用户的免费额度（+50 次）
-        # 先确保 api_quotas 记录存在
+        # 3) translated（+50 translated）
+        # translated api_quotas translated
         await db.execute(
             """
             INSERT OR IGNORE INTO api_quotas (user_id, total_calls_made, free_quota_remaining)
@@ -259,7 +259,7 @@ async def auth_redeem_invite_code(body: dict, user_id: int = Depends(require_use
             """,
             (user_id,),
         )
-        # 增加额度（使用原子更新，避免并发问题）
+        # translated（translated，translated）
         await db.execute(
             """
             UPDATE api_quotas
@@ -271,18 +271,18 @@ async def auth_redeem_invite_code(body: dict, user_id: int = Depends(require_use
         
         await db.commit()
         
-        # 获取更新后的额度信息
+        # Get translated
         quota = await get_user_api_quota(user_id)
         return {
             "ok": True,
-            "message": "邀请码兑换成功，已获得 50 次免费 LLM 调用额度",
+            "message": "translatedsuccess，translated 50 translated LLM translated",
             "free_quota_remaining": quota.get("free_quota_remaining", 0) if quota else 0,
         }
     except aiosqlite.IntegrityError:
         await db.rollback()
-        return JSONResponse({"error": "邀请码已被使用"}, status_code=409)
+        return JSONResponse({"error": "translated"}, status_code=409)
     except Exception as e:
         await db.rollback()
         logger = __import__("logging").getLogger(__name__)
         logger.error(f"[REDEEM_INVITE] Failed to redeem invite code: {e}", exc_info=True)
-        return JSONResponse({"error": "兑换失败，请稍后重试"}, status_code=500)
+        return JSONResponse({"error": "translatedfailed，please try again later"}, status_code=500)

@@ -1,6 +1,6 @@
 """
-统一的内容生成 + 渲染管道
-支持内置 Python 模式和 JSON 定义模式的统一分发
+translated + translated
+translated Python modetranslated JSON translatedmodetranslated
 """
 from __future__ import annotations
 
@@ -294,7 +294,7 @@ def _render_for_persona(
     # JSON-defined mode
     if registry.is_json_mode(persona):
         jm = registry.get_json_mode(persona, mac or None, language=language)
-        # Weather 模式下不在状态栏中间重复显示简略天气（只保留日期、电量等）
+        # Weather modetranslated（translated、translated）
         if persona.upper() == "WEATHER":
             weather_str_for_bar = ""
             weather_code_for_bar = -1

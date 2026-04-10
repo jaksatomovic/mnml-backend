@@ -1,20 +1,20 @@
 {
   "mode_id": "ZEN",
-  "display_name": "禅意",
+  "display_name": "translated",
   "icon": "zen",
   "cacheable": true,
-  "description": "极简汉字与意境注释",
+  "description": "translated",
   "content": {
     "type": "llm_json",
-    "prompt_template": "你是一位禅宗大师。选择一个最适合当下环境的汉字，并说明为什么选这个字。\n用 JSON 输出：{{\"word\": \"一个汉字\", \"source\": \"出处或意境说明（10字以内）\"}}\n如：{{\"word\": \"渡\", \"source\": \"苦海无边，回头是岸\"}}\n只输出一个字和一句意境说明，不要其他内容。\n环境：{context}",
+    "prompt_template": "translated。translated，translated。\ntranslated JSON translated：{{\"word\": \"translated\", \"source\": \"translated（10translated）\"}}\ntranslated：{{\"word\": \"translated\", \"source\": \"translated，translated\"}}\ntranslated，translated。\ntranslated：{context}",
     "output_schema": {
       "word": {
         "type": "string",
-        "default": "静"
+        "default": "translated"
       },
       "source": {
         "type": "string",
-        "default": "万物归寂"
+        "default": "translated"
       }
     },
     "post_process": {
@@ -22,23 +22,23 @@
     },
     "temperature": 0.8,
     "fallback": {
-      "word": "静"
+      "word": "translated"
     },
     "fallback_pool": [
       {
-        "word": "静"
+        "word": "translated"
       },
       {
-        "word": "空"
+        "word": "translated"
       },
       {
-        "word": "悟"
+        "word": "translated"
       },
       {
-        "word": "定"
+        "word": "translated"
       },
       {
-        "word": "舍"
+        "word": "translated"
       }
     ]
   },

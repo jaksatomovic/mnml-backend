@@ -1,9 +1,9 @@
 """
-渲染器模块
-负责将内容渲染为墨水屏图像，并提供统一的模式分发接口
+translated
+translated，translatedmodetranslated
 
-STOIC, ROAST, ZEN, FITNESS, POETRY 已迁移至 JSON 渲染引擎 (json_renderer.py)。
-此处仅分发尚未迁移的 Python 内置模式。
+STOIC, ROAST, ZEN, FITNESS, POETRY translated JSON translated (json_renderer.py)。
+translated Python translatedmode。
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ def render_mode(
 
 
 def image_to_bmp_bytes(img: Image.Image) -> bytes:
-    """将图像转换为 BMP 字节流"""
+    """translated BMP translated"""
     buf = io.BytesIO()
     img.save(buf, format="BMP")
     return buf.getvalue()
@@ -96,7 +96,7 @@ def image_to_raw_2bpp(img: Image.Image) -> bytes:
 
 
 def image_to_png_bytes(img: Image.Image) -> bytes:
-    """将图像转换为 PNG 字节流"""
+    """translated PNG translated"""
     if img.mode == "1":
         img = img.convert("L")
     buf = io.BytesIO()

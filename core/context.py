@@ -47,7 +47,7 @@ _NOMINATIM_SEARCH_URL = "https://nominatim.openstreetmap.org/search"
 _NOMINATIM_USER_AGENT = "InkSight/1.0 (weather location search)"
 _CN_TIMEZONE = "Asia/Shanghai"
 _CN_SEARCH_COUNTRY_CODE = "cn"
-_NOMINATIM_QUERY_SUFFIXES = ("市", "县", "区")
+_NOMINATIM_QUERY_SUFFIXES = ("translated", "translated", "translated")
 _NOMINATIM_ADMIN_TYPES = {
     "administrative",
     "city",
@@ -86,16 +86,16 @@ _NOMINATIM_POI_TYPES = {
 LocationSearchScope = Literal["auto", "cn", "global"]
 
 _LOCATION_SUFFIXES = (
-    "特别行政区",
-    "自治区",
-    "自治州",
-    "自治县",
-    "地区",
-    "盟",
-    "省",
-    "市",
-    "区",
-    "县",
+    "translated",
+    "translated",
+    "translated",
+    "translated",
+    "translated",
+    "translated",
+    "translated",
+    "translated",
+    "translated",
+    "translated",
 )
 
 # Reusable retry decorator for external API calls
@@ -128,7 +128,7 @@ def _normalize_place_name(name: str | None) -> str:
     if not isinstance(name, str):
         return ""
     normalized = name.strip().replace(" ", "")
-    for token in ("中国", "中华人民共和国"):
+    for token in ("translated", "translated"):
         if normalized.startswith(token):
             normalized = normalized[len(token):]
     normalized = normalized.strip("·,-_/，、 ")
@@ -226,7 +226,7 @@ def _contains_latin_letters(text: str) -> bool:
 
 def _looks_like_china_country(country: str) -> bool:
     normalized = _clean_location_text(country, max_length=80)
-    return "中国" in normalized or "中國" in normalized or normalized.lower() in {"china", "cn"}
+    return "translated" in normalized or "translated" in normalized or normalized.lower() in {"china", "cn"}
 
 
 def _search_country_code_sequence(query: str, scope: LocationSearchScope) -> list[str | None]:
@@ -432,7 +432,7 @@ def _is_poi_like(item: dict) -> bool:
         return True
     if addresstype in _NOMINATIM_POI_TYPES or item_type in _NOMINATIM_POI_TYPES:
         return True
-    return any(token in city for token in ("机场", "大桥", "公司", "配餐部", "食品有限公司"))
+    return any(token in city for token in ("translated", "translated", "translated", "translated", "translated"))
 
 
 def _is_admin_like(item: dict) -> bool:
@@ -445,7 +445,7 @@ def _is_admin_like(item: dict) -> bool:
         return True
     if addresstype in _NOMINATIM_ADMIN_TYPES or item_type in _NOMINATIM_ADMIN_TYPES:
         return True
-    return city.endswith(("市", "区", "县", "镇", "州", "省"))
+    return city.endswith(("translated", "translated", "translated", "translated", "translated", "translated"))
 
 
 def _location_starts_with_query(item: dict, query: str) -> bool:
@@ -841,7 +841,7 @@ async def get_upcoming_holiday(now: datetime) -> dict:
                 return {
                     "days_until": days_until if days_until > 0 else 0,
                     "holiday_name": data.get("name", ""),
-                    "date": holiday_date.strftime("%m月%d日"),
+                    "date": holiday_date.strftime("%mmonth%dday"),
                     "holiday_duration": data.get("days", 0),
                 }
     except (httpx.HTTPError, JSONDecodeError, TypeError, ValueError):
@@ -887,7 +887,7 @@ async def get_date_context(timezone_name: str = "") -> dict:
     daily_word = random.choice(IDIOMS + POEMS)
     
     return {
-        "date_str": f"{now.month}月{now.day}日 {WEEKDAY_CN[now.weekday()]}",
+        "date_str": f"{now.month}month{now.day}day {WEEKDAY_CN[now.weekday()]}",
         "time_str": f"{now.hour:02d}:{now.minute:02d}:{now.second:02d}",
         "weekday": now.weekday(),
         "hour": now.hour,
@@ -978,15 +978,15 @@ def _weather_code_to_desc(code: int, language: str = "zh") -> str:
         }
         return mapping.get(code, "Unknown")
     mapping = {
-        0: "晴", 1: "多云", 2: "多云", 3: "阴",
-        45: "雾", 48: "雾凇",
-        51: "小雨", 53: "中雨", 55: "大雨",
-        61: "小雨", 63: "中雨", 65: "大雨",
-        71: "小雪", 73: "中雪", 75: "大雪",
-        80: "阵雨", 81: "阵雨", 82: "暴雨",
-        95: "雷阵雨", 96: "冰雹", 99: "冰雹",
+        0: "translated", 1: "translated", 2: "translated", 3: "translated",
+        45: "translated", 48: "translated",
+        51: "translated", 53: "translated", 55: "translated",
+        61: "translated", 63: "translated", 65: "translated",
+        71: "Minor Snow", 73: "translated", 75: "Major Snow",
+        80: "translated", 81: "translated", 82: "translated",
+        95: "translated", 96: "translated", 99: "translated",
     }
-    return mapping.get(code, "未知")
+    return mapping.get(code, "translated")
 
 
 def _safe_int(value: Any) -> int | None:
@@ -1047,27 +1047,27 @@ def _generate_weather_advice(
             return "Warm weather. Light, breathable clothing works best."
         return "Comfortable weather for a light outfit."
 
-    if "雷" in desc:
-        return "有雷雨，尽量减少外出"
-    if "雪" in desc:
-        return "有雪天冷，注意保暖防滑"
-    if "雨" in desc:
-        return "有雨记得带伞，注意路滑"
-    if "雾" in desc:
-        return "有雾能见度低，出行留意"
+    if "translated" in desc:
+        return "translated，translated"
+    if "translated" in desc:
+        return "translated，translated"
+    if "translated" in desc:
+        return "translated，translated"
+    if "translated" in desc:
+        return "translated，translated"
     if high is not None and high >= 32:
-        return "天气炎热，注意防晒补水"
+        return "translated，translated"
     if low is not None and low <= 5:
-        return "气温较低，外出注意保暖"
+        return "translated，translated"
     if low is not None and high is not None and high - low >= 8:
-        return "早晚温差大，记得带外套"
+        return "translated，translated"
     if wind_level_num is not None and wind_level_num >= 5:
-        return "风力较大，出门注意防风"
+        return "translated，translated"
     if humidity is not None and humidity >= 85:
-        return "空气潮湿，注意防潮添衣"
+        return "translated，translated"
     if high is not None and high >= 26:
-        return "气温偏高，穿着轻薄透气"
-    return "气温适宜，轻装出行"
+        return "translated，translated"
+    return "translated，translated"
 
 
 async def get_weather_forecast(
@@ -1078,7 +1078,7 @@ async def get_weather_forecast(
     language: str = "zh",
 ) -> dict:
     """Get multi-day weather forecast from Open-Meteo."""
-    # city 为空时，既要使用默认经纬度，也要在返回数据里给出一个可展示的城市名
+    # city translated，translateddefaulttranslatedlatitude，translated
     display_city = city or DEFAULT_CITY
     if language == "en" and display_city:
         try:
@@ -1095,7 +1095,7 @@ async def get_weather_forecast(
     params = {
         "latitude": lat,
         "longitude": lon,
-        # 预报字段：温度、天气代码、湿度、主导风向、风速、日出日落时间
+        # translated：translated、translated、translated、translated、translated、translated
         "daily": ",".join(
             [
                 "temperature_2m_max",
@@ -1132,26 +1132,26 @@ async def get_weather_forecast(
         weekday_short = (
             ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
             if language == "en"
-            else ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+            else ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
         )
         now = datetime.now()
         today_date = now.date()
         
-        # 构建完整的预报列表，包括昨天、今天、明天、后天等
+        # translated，translated、translated、translated、translated
         full_forecast = []
         for i in range(min(len(dates), days + 1)):
             d = datetime.strptime(dates[i], "%Y-%m-%d")
             date_obj = d.date()
             date_str = d.strftime("%m/%d")
             
-            # 判断是昨天、今天、明天还是其他
+            # translated、translated、translated
             delta = (date_obj - today_date).days
             if delta == -1:
-                day_label = "Yesterday" if language == "en" else "昨天"
+                day_label = "Yesterday" if language == "en" else "translated"
             elif delta == 0:
-                day_label = "Today" if language == "en" else "今天"
+                day_label = "Today" if language == "en" else "translated"
             elif delta == 1:
-                day_label = "Tomorrow" if language == "en" else "明天"
+                day_label = "Tomorrow" if language == "en" else "translated"
             else:
                 day_label = weekday_short[d.weekday()]
             
@@ -1178,11 +1178,11 @@ async def get_weather_forecast(
                 }
             )
 
-        # 今天的天气信息
+        # translated
         today = full_forecast[0] if full_forecast else {}
         today_high = today.get("temp_max", "--")
         today_low = today.get("temp_min", "--")
-        today_temp = today_high  # 大号数字使用最高温
+        today_temp = today_high  # translated
         today_desc = today.get("desc", "")
         today_code = today.get("code", -1)
 
@@ -1191,7 +1191,7 @@ async def get_weather_forecast(
         else:
             today_range = "-- / --"
 
-        # 今天的湿度
+        # translated
         today_humidity = "--"
         if humidities:
             try:
@@ -1199,12 +1199,12 @@ async def get_weather_forecast(
             except (TypeError, ValueError):
                 today_humidity = "--"
 
-        # 今天的风向和风力（等级粗略按风速估计）
+        # translated（translated）
         def _deg_to_wind_dir(deg: float) -> str:
             dirs = (
                 ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
                 if language == "en"
-                else ["北风", "东北风", "东风", "东南风", "南风", "西南风", "西风", "西北风"]
+                else ["translated", "translated", "translated", "translated", "translated", "translated", "translated", "translated"]
             )
             try:
                 idx = int((deg % 360) / 45 + 0.5) % 8
@@ -1223,9 +1223,9 @@ async def get_weather_forecast(
         today_wind_level = ""
         if wind_speeds:
             try:
-                # 这里使用风速近似为等级（粗略）：m/s 四舍五入作为“几级”
-                level = max(1, min(12, int(round(float(wind_speeds[0]) / 2))))  # 简单映射
-                today_wind_level = f"Lv {level}" if language == "en" else f"{level}级"
+                # translated（translated）：m/s translated“translated”
+                level = max(1, min(12, int(round(float(wind_speeds[0]) / 2))))  # translated
+                today_wind_level = f"Lv {level}" if language == "en" else f"{level}translated"
             except (TypeError, ValueError):
                 today_wind_level = ""
 
@@ -1238,7 +1238,7 @@ async def get_weather_forecast(
             language=language,
         )
 
-        # 日出日落时间（取今天）
+        # translated（translated）
         sunrise_str = ""
         sunset_str = ""
         if sunrises:
@@ -1270,7 +1270,7 @@ async def get_weather_forecast(
             "sunrise": sunrise_str,
             "sunset": sunset_str,
             "advice": advice,
-            # 仅返回“未来 4 天”的预报（不含今天）
+            # translated“translated 4 translated”translated（translated）
             "forecast": full_forecast[1 : days + 1] if len(full_forecast) > 1 else [],
         }
     except (httpx.HTTPError, KeyError, TypeError, ValueError, JSONDecodeError) as e:
@@ -1278,12 +1278,12 @@ async def get_weather_forecast(
         return {
             "city": city or DEFAULT_CITY,
             "today_temp": "--",
-            "today_desc": "No data" if language == "en" else "暂无数据",
+            "today_desc": "No data" if language == "en" else "translated",
             "today_code": -1,
             "today_low": "--",
             "today_high": "--",
             "today_range": "-- / --",
-            "advice": "Dress for the weather." if language == "en" else "注意根据天气添减衣物",
+            "advice": "Dress for the weather." if language == "en" else "translatedGet by translated",
             "forecast": [],
         }
 

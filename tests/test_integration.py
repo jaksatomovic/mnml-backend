@@ -536,7 +536,7 @@ async def test_focus_alert_bmp_renders_and_consumes_alert(client):
 
     push = await client.post(
         f"/api/device/{mac}/alert",
-        json={"sender": "老板", "message": "服务器宕机，速看！", "level": "critical"},
+        json={"sender": "Boss", "message": "Server is down, check now!", "level": "critical"},
         headers={"X-Agent-Token": token},
     )
     assert push.status_code == 200
@@ -954,7 +954,7 @@ async def test_mobile_content_today_and_widget_data(client):
             "refreshInterval": 60,
             "llmProvider": "deepseek",
             "llmModel": "deepseek-chat",
-            "city": "杭州",
+            "city": "Hangzhou",
         },
         headers=headers,
     )
@@ -1040,10 +1040,10 @@ async def test_modes_v1_alias_returns_mode_list(client):
 @pytest.mark.asyncio
 async def test_custom_modes_end_to_end(client, monkeypatch):
     """
-    自定义模式从生成 -> 保存到数据库(按 user_id + mac) -> 获取 -> 删除 的完整流程。
+    textmodetext -> text(text user_id + mac) -> text -> text text。
 
-    注意：当前实现中自定义模式完全存储在数据库中，并且通过 (user_id, mac) 做设备隔离，
-    所以这里显式地为测试用户绑定一台设备，并在所有接口调用中传递 mac。
+    text：textmodetext，text (user_id, mac) text，
+    texttesttext，text mac。
     """
 
     monkeypatch.setenv("ADMIN_TOKEN", "admin-secret")
@@ -1051,7 +1051,7 @@ async def test_custom_modes_end_to_end(client, monkeypatch):
 
     mac = "AA:BB:CC:DD:EE:01"
 
-    # 1. 注册一个普通用户，并为其绑定一台设备（owner, active）
+    # 1. text，text（owner, active）
     owner = await register_user(client, "custom_mode_owner")
     user_id = owner["user_id"]
 
@@ -1066,7 +1066,7 @@ async def test_custom_modes_end_to_end(client, monkeypatch):
     )
     assert membership["status"] == "active"
 
-    # 2. 准备一个最小可用的自定义模式定义
+    # 2. textmodetext
     mode_def = {
         "mode_id": "E2E_CUSTOM",
         "display_name": "E2E Custom",
@@ -1089,7 +1089,7 @@ async def test_custom_modes_end_to_end(client, monkeypatch):
         },
     }
 
-    # 3. 预览接口仍然由 admin_token 控制，只验证能返回 PNG
+    # 3. text admin_token text，text PNG
     preview_resp = await client.post(
         "/api/v1/modes/custom/preview",
         json={"mode_def": mode_def, "w": 400, "h": 300},
@@ -1098,7 +1098,7 @@ async def test_custom_modes_end_to_end(client, monkeypatch):
     assert preview_resp.status_code == 200
     assert preview_resp.headers["content-type"].startswith("image/png")
 
-    # 4. 生成接口使用 admin_token + mock，验证返回的 mode_id
+    # 4. text admin_token + mock，text mode_id
     with patch("core.mode_generator.generate_mode_definition", new_callable=AsyncMock, return_value=mode_def):
         generate_resp = await client.post(
             "/api/modes/generate",
@@ -1108,32 +1108,32 @@ async def test_custom_modes_end_to_end(client, monkeypatch):
     assert generate_resp.status_code == 200
     assert generate_resp.json()["mode_id"] == "E2E_CUSTOM"
 
-    # 5. 以普通用户身份创建自定义模式（必须带 mac，写入数据库）
+    # 5. textmode（text mac，text）
     create_body = dict(mode_def)
     create_body["mac"] = mac
     create_resp = await client.post(
         "/api/modes/custom",
         json=create_body,
-        # 使用 register_user 建立的会话 cookie 作为用户身份，无需 admin token
+        # text register_user text cookie text，text admin token
     )
     assert create_resp.status_code == 200
     body = create_resp.json()
     assert body.get("ok") is True
     assert body.get("mode_id") == "E2E_CUSTOM"
 
-    # 6. 按 user_id + mac 获取自定义模式
+    # 6. text user_id + mac textmode
     get_resp = await client.get(f"/api/modes/custom/E2E_CUSTOM?mac={mac}")
     assert get_resp.status_code == 200
     get_payload = get_resp.json()
     assert get_payload["display_name"] == "E2E Custom"
     assert get_payload["content"]["static_data"]["text"] == "hello custom"
 
-    # 7. 删除该设备上的自定义模式（必须带 mac，不能影响其他设备）
+    # 7. textmode（text mac，text）
     delete_resp = await client.delete(f"/api/v1/modes/custom/E2E_CUSTOM?mac={mac}")
     assert delete_resp.status_code == 200
     assert delete_resp.json()["ok"] is True
 
-    # 8. 再次获取应返回 404
+    # 8. text 404
     missing_resp = await client.get(f"/api/modes/custom/E2E_CUSTOM?mac={mac}")
     assert missing_resp.status_code == 404
 

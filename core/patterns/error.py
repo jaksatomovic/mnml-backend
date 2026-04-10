@@ -1,6 +1,6 @@
 """
-ERROR 模式 - 错误显示
-当服务不可用时显示错误信息
+ERROR mode - translated
+translated
 """
 
 from PIL import Image, ImageDraw
@@ -31,7 +31,7 @@ def render_error(
     screen_w: int = SCREEN_W,
     screen_h: int = SCREEN_H,
 ) -> Image.Image:
-    """渲染错误页面"""
+    """translated"""
     img = Image.new("1", (screen_w, screen_h), EINK_BG)
     draw = ImageDraw.Draw(img)
     apply_text_fontmode(draw)

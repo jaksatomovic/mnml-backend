@@ -1,19 +1,19 @@
 """
-InkSight 配置文件
-包含所有常量、映射表和配置项
+InkSight configuration file
+Contains constants, mappings, and configuration items
 """
 
 import logging
 
 logger = logging.getLogger(__name__)
 
-# ==================== 屏幕配置 ====================
+# ==================== Screen configuration ====================
 SCREEN_WIDTH = 400   # Default; overridable per-request via w/h query params
 SCREEN_HEIGHT = 300  # Default; overridable per-request via w/h query params
 
-# 墨水屏颜色（1-bit 黑白）
-EINK_BACKGROUND = 1  # 白色
-EINK_FOREGROUND = 0  # 黑色
+# translated（1-bit translated）
+EINK_BACKGROUND = 1  # white
+EINK_FOREGROUND = 0  # black
 
 EINK_4COLOR_PALETTE = [
     0, 0, 0,        # 0: black
@@ -36,9 +36,9 @@ EINK_COLOR_AVAILABILITY = {
 }
 
 
-# ==================== 天气配置 ====================
-# WMO (世界气象组织) 天气代码 → 图标名称映射
-# 参考: https://open-meteo.com/en/docs
+# ==================== Weather configuration ====================
+# WMO (translated) translated → translated
+# translated: https://open-meteo.com/en/docs
 WEATHER_ICON_MAP = {
     0: "sunny",
     1: "sunny",
@@ -71,120 +71,120 @@ WEATHER_ICON_MAP = {
 }
 
 
-# ==================== 字体配置 ====================
+# ==================== Font configuration ====================
 FONTS = {
-    # 中文字体
+    # translated
     "noto_serif_extralight": "NotoSerifSC-ExtraLight.ttf",
     "noto_serif_light": "NotoSerifSC-Light.ttf",
     "noto_serif_regular": "NotoSerifSC-Regular.ttf",
     "noto_serif_bold": "NotoSerifSC-Bold.ttf",
-    # 英文字体
+    # translated
     "lora_regular": "Lora-Regular.ttf",
     "lora_bold": "Lora-Bold.ttf",
     "inter_medium": "Inter_24pt-Medium.ttf",
 }
 
 
-# ==================== 日期时间配置 ====================
-WEEKDAY_CN = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+# ==================== Date and time configuration ====================
+WEEKDAY_CN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
 MONTH_CN = [
-    "一月",
-    "二月",
-    "三月",
-    "四月",
-    "五月",
-    "六月",
-    "七月",
-    "八月",
-    "九月",
-    "十月",
-    "十一月",
-    "十二月",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "translatedJanuary",
+    "translatedFebruary",
 ]
 
-# 公历节日（月, 日）
+# solarfestival（month, day）
 SOLAR_FESTIVALS = {
-    (1, 1): "元旦",
-    (2, 14): "情人节",
-    (3, 8): "妇女节",
-    (4, 1): "愚人节",
-    (5, 1): "劳动节",
-    (6, 1): "儿童节",
-    (10, 1): "国庆节",
-    (12, 25): "圣诞节",
+    (1, 1): "New Year's Day",
+    (2, 14): "Valentine's Day",
+    (3, 8): "Women's Day",
+    (4, 1): "April Fools' Day",
+    (5, 1): "Labor Day",
+    (6, 1): "Children's Day",
+    (10, 1): "National Day",
+    (12, 25): "Christmas",
 }
 
-# 农历节日（月, 日）
+# lunarfestival（month, day）
 LUNAR_FESTIVALS = {
-    (1, 1): "春节",
-    (1, 15): "元宵节",
-    (5, 5): "端午节",
-    (7, 7): "七夕节",
-    (8, 15): "中秋节",
-    (9, 9): "重阳节",
-    (12, 8): "腊八节",
+    (1, 1): "Spring Festival",
+    (1, 15): "Lantern Festival",
+    (5, 5): "Dragon Boat Festival",
+    (7, 7): "Qixi Festival",
+    (8, 15): "Mid-Autumn Festival",
+    (9, 9): "Double Ninth Festival",
+    (12, 8): "Laba Festival",
 }
 
-# 二十四节气 (year, month, day) -> name
+# translated (year, month, day) -> name
 # Pre-computed for 2024-2030; solar terms drift by <=1 day across years.
 SOLAR_TERMS: dict[tuple[int, int, int], str] = {}
 _SOLAR_TERMS_RAW: dict[int, list[tuple[int, int, str]]] = {
     2024: [
-        (1,6,"小寒"),(1,20,"大寒"),(2,4,"立春"),(2,19,"雨水"),
-        (3,5,"惊蛰"),(3,20,"春分"),(4,4,"清明"),(4,19,"谷雨"),
-        (5,5,"立夏"),(5,20,"小满"),(6,5,"芒种"),(6,21,"夏至"),
-        (7,6,"小暑"),(7,22,"大暑"),(8,7,"立秋"),(8,22,"处暑"),
-        (9,7,"白露"),(9,22,"秋分"),(10,8,"寒露"),(10,23,"霜降"),
-        (11,7,"立冬"),(11,22,"小雪"),(12,6,"大雪"),(12,21,"冬至"),
+        (1,6,"Minor Cold"),(1,20,"Major Cold"),(2,4,"Start of Spring"),(2,19,"Rain Water"),
+        (3,5,"Awakening of Insects"),(3,20,"Spring Equinox"),(4,4,"Clear and Bright"),(4,19,"Grain Rain"),
+        (5,5,"Start of Summer"),(5,20,"Grain Full"),(6,5,"Grain in Ear"),(6,21,"Summer Solstice"),
+        (7,6,"Minor Heat"),(7,22,"Major Heat"),(8,7,"Start of Autumn"),(8,22,"End of Heat"),
+        (9,7,"White Dew"),(9,22,"Autumn Equinox"),(10,8,"Cold Dew"),(10,23,"Frost Descent"),
+        (11,7,"Start of Winter"),(11,22,"Minor Snow"),(12,6,"Major Snow"),(12,21,"Winter Solstice"),
     ],
     2025: [
-        (1,5,"小寒"),(1,20,"大寒"),(2,3,"立春"),(2,18,"雨水"),
-        (3,5,"惊蛰"),(3,20,"春分"),(4,4,"清明"),(4,20,"谷雨"),
-        (5,5,"立夏"),(5,21,"小满"),(6,5,"芒种"),(6,21,"夏至"),
-        (7,7,"小暑"),(7,22,"大暑"),(8,7,"立秋"),(8,23,"处暑"),
-        (9,7,"白露"),(9,22,"秋分"),(10,8,"寒露"),(10,23,"霜降"),
-        (11,7,"立冬"),(11,22,"小雪"),(12,7,"大雪"),(12,21,"冬至"),
+        (1,5,"Minor Cold"),(1,20,"Major Cold"),(2,3,"Start of Spring"),(2,18,"Rain Water"),
+        (3,5,"Awakening of Insects"),(3,20,"Spring Equinox"),(4,4,"Clear and Bright"),(4,20,"Grain Rain"),
+        (5,5,"Start of Summer"),(5,21,"Grain Full"),(6,5,"Grain in Ear"),(6,21,"Summer Solstice"),
+        (7,7,"Minor Heat"),(7,22,"Major Heat"),(8,7,"Start of Autumn"),(8,23,"End of Heat"),
+        (9,7,"White Dew"),(9,22,"Autumn Equinox"),(10,8,"Cold Dew"),(10,23,"Frost Descent"),
+        (11,7,"Start of Winter"),(11,22,"Minor Snow"),(12,7,"Major Snow"),(12,21,"Winter Solstice"),
     ],
     2026: [
-        (1,5,"小寒"),(1,20,"大寒"),(2,4,"立春"),(2,18,"雨水"),
-        (3,5,"惊蛰"),(3,20,"春分"),(4,5,"清明"),(4,20,"谷雨"),
-        (5,5,"立夏"),(5,21,"小满"),(6,5,"芒种"),(6,21,"夏至"),
-        (7,7,"小暑"),(7,23,"大暑"),(8,7,"立秋"),(8,23,"处暑"),
-        (9,7,"白露"),(9,23,"秋分"),(10,8,"寒露"),(10,23,"霜降"),
-        (11,7,"立冬"),(11,22,"小雪"),(12,7,"大雪"),(12,22,"冬至"),
+        (1,5,"Minor Cold"),(1,20,"Major Cold"),(2,4,"Start of Spring"),(2,18,"Rain Water"),
+        (3,5,"Awakening of Insects"),(3,20,"Spring Equinox"),(4,5,"Clear and Bright"),(4,20,"Grain Rain"),
+        (5,5,"Start of Summer"),(5,21,"Grain Full"),(6,5,"Grain in Ear"),(6,21,"Summer Solstice"),
+        (7,7,"Minor Heat"),(7,23,"Major Heat"),(8,7,"Start of Autumn"),(8,23,"End of Heat"),
+        (9,7,"White Dew"),(9,23,"Autumn Equinox"),(10,8,"Cold Dew"),(10,23,"Frost Descent"),
+        (11,7,"Start of Winter"),(11,22,"Minor Snow"),(12,7,"Major Snow"),(12,22,"Winter Solstice"),
     ],
     2027: [
-        (1,5,"小寒"),(1,20,"大寒"),(2,4,"立春"),(2,19,"雨水"),
-        (3,6,"惊蛰"),(3,21,"春分"),(4,5,"清明"),(4,20,"谷雨"),
-        (5,6,"立夏"),(5,21,"小满"),(6,6,"芒种"),(6,21,"夏至"),
-        (7,7,"小暑"),(7,23,"大暑"),(8,7,"立秋"),(8,23,"处暑"),
-        (9,8,"白露"),(9,23,"秋分"),(10,8,"寒露"),(10,23,"霜降"),
-        (11,7,"立冬"),(11,22,"小雪"),(12,7,"大雪"),(12,22,"冬至"),
+        (1,5,"Minor Cold"),(1,20,"Major Cold"),(2,4,"Start of Spring"),(2,19,"Rain Water"),
+        (3,6,"Awakening of Insects"),(3,21,"Spring Equinox"),(4,5,"Clear and Bright"),(4,20,"Grain Rain"),
+        (5,6,"Start of Summer"),(5,21,"Grain Full"),(6,6,"Grain in Ear"),(6,21,"Summer Solstice"),
+        (7,7,"Minor Heat"),(7,23,"Major Heat"),(8,7,"Start of Autumn"),(8,23,"End of Heat"),
+        (9,8,"White Dew"),(9,23,"Autumn Equinox"),(10,8,"Cold Dew"),(10,23,"Frost Descent"),
+        (11,7,"Start of Winter"),(11,22,"Minor Snow"),(12,7,"Major Snow"),(12,22,"Winter Solstice"),
     ],
     2028: [
-        (1,6,"小寒"),(1,21,"大寒"),(2,4,"立春"),(2,19,"雨水"),
-        (3,5,"惊蛰"),(3,20,"春分"),(4,4,"清明"),(4,19,"谷雨"),
-        (5,5,"立夏"),(5,20,"小满"),(6,5,"芒种"),(6,21,"夏至"),
-        (7,6,"小暑"),(7,22,"大暑"),(8,7,"立秋"),(8,22,"处暑"),
-        (9,7,"白露"),(9,22,"秋分"),(10,8,"寒露"),(10,23,"霜降"),
-        (11,7,"立冬"),(11,22,"小雪"),(12,6,"大雪"),(12,21,"冬至"),
+        (1,6,"Minor Cold"),(1,21,"Major Cold"),(2,4,"Start of Spring"),(2,19,"Rain Water"),
+        (3,5,"Awakening of Insects"),(3,20,"Spring Equinox"),(4,4,"Clear and Bright"),(4,19,"Grain Rain"),
+        (5,5,"Start of Summer"),(5,20,"Grain Full"),(6,5,"Grain in Ear"),(6,21,"Summer Solstice"),
+        (7,6,"Minor Heat"),(7,22,"Major Heat"),(8,7,"Start of Autumn"),(8,22,"End of Heat"),
+        (9,7,"White Dew"),(9,22,"Autumn Equinox"),(10,8,"Cold Dew"),(10,23,"Frost Descent"),
+        (11,7,"Start of Winter"),(11,22,"Minor Snow"),(12,6,"Major Snow"),(12,21,"Winter Solstice"),
     ],
     2029: [
-        (1,5,"小寒"),(1,20,"大寒"),(2,3,"立春"),(2,18,"雨水"),
-        (3,5,"惊蛰"),(3,20,"春分"),(4,4,"清明"),(4,20,"谷雨"),
-        (5,5,"立夏"),(5,21,"小满"),(6,5,"芒种"),(6,21,"夏至"),
-        (7,7,"小暑"),(7,22,"大暑"),(8,7,"立秋"),(8,23,"处暑"),
-        (9,7,"白露"),(9,22,"秋分"),(10,8,"寒露"),(10,23,"霜降"),
-        (11,7,"立冬"),(11,22,"小雪"),(12,7,"大雪"),(12,21,"冬至"),
+        (1,5,"Minor Cold"),(1,20,"Major Cold"),(2,3,"Start of Spring"),(2,18,"Rain Water"),
+        (3,5,"Awakening of Insects"),(3,20,"Spring Equinox"),(4,4,"Clear and Bright"),(4,20,"Grain Rain"),
+        (5,5,"Start of Summer"),(5,21,"Grain Full"),(6,5,"Grain in Ear"),(6,21,"Summer Solstice"),
+        (7,7,"Minor Heat"),(7,22,"Major Heat"),(8,7,"Start of Autumn"),(8,23,"End of Heat"),
+        (9,7,"White Dew"),(9,22,"Autumn Equinox"),(10,8,"Cold Dew"),(10,23,"Frost Descent"),
+        (11,7,"Start of Winter"),(11,22,"Minor Snow"),(12,7,"Major Snow"),(12,21,"Winter Solstice"),
     ],
     2030: [
-        (1,5,"小寒"),(1,20,"大寒"),(2,4,"立春"),(2,18,"雨水"),
-        (3,5,"惊蛰"),(3,20,"春分"),(4,5,"清明"),(4,20,"谷雨"),
-        (5,5,"立夏"),(5,21,"小满"),(6,5,"芒种"),(6,21,"夏至"),
-        (7,7,"小暑"),(7,22,"大暑"),(8,7,"立秋"),(8,23,"处暑"),
-        (9,7,"白露"),(9,23,"秋分"),(10,8,"寒露"),(10,23,"霜降"),
-        (11,7,"立冬"),(11,22,"小雪"),(12,7,"大雪"),(12,22,"冬至"),
+        (1,5,"Minor Cold"),(1,20,"Major Cold"),(2,4,"Start of Spring"),(2,18,"Rain Water"),
+        (3,5,"Awakening of Insects"),(3,20,"Spring Equinox"),(4,5,"Clear and Bright"),(4,20,"Grain Rain"),
+        (5,5,"Start of Summer"),(5,21,"Grain Full"),(6,5,"Grain in Ear"),(6,21,"Summer Solstice"),
+        (7,7,"Minor Heat"),(7,22,"Major Heat"),(8,7,"Start of Autumn"),(8,23,"End of Heat"),
+        (9,7,"White Dew"),(9,23,"Autumn Equinox"),(10,8,"Cold Dew"),(10,23,"Frost Descent"),
+        (11,7,"Start of Winter"),(11,22,"Minor Snow"),(12,7,"Major Snow"),(12,22,"Winter Solstice"),
     ],
 }
 for _yr, _terms in _SOLAR_TERMS_RAW.items():
@@ -192,109 +192,110 @@ for _yr, _terms in _SOLAR_TERMS_RAW.items():
         SOLAR_TERMS[(_yr, _m, _d)] = _name
 
 
-# ==================== 文学素材 ====================
+# ==================== Literary phrases ====================
 IDIOMS = [
-    "一日三秋",
-    "春风化雨",
-    "秋高气爽",
-    "冬日暖阳",
-    "夏日炎炎",
-    "朝花夕拾",
-    "岁月如梭",
-    "时光荏苒",
-    "白驹过隙",
-    "光阴似箭",
-    "晨钟暮鼓",
-    "日新月异",
-    "星移斗转",
-    "寒来暑往",
-    "花开花落",
-    "云卷云舒",
-    "潮起潮落",
-    "月圆月缺",
-    "风起云涌",
-    "雨过天晴",
+    "Time flies in a day",
+    "Gentle spring rain",
+    "Crisp autumn air",
+    "Warm winter sun",
+    "Scorching summer",
+    "Morning flowers at dusk",
+    "Years pass quickly",
+    "Time slips by",
+    "Like a fleeting horse",
+    "Time flies like an arrow",
+    "Morning bells, evening drums",
+    "Changing every day",
+    "Stars shift with time",
+    "Seasons come and go",
+    "Flowers bloom and fade",
+    "Clouds gather and drift",
+    "Tides rise and fall",
+    "Moon waxes and wanes",
+    "Winds and clouds surge",
+    "Clear sky after rain",
 ]
 
 POEMS = [
-    "春眠不觉晓，处处闻啼鸟",
-    "举头望明月，低头思故乡",
-    "海上生明月，天涯共此时",
-    "明月几时有，把酒问青天",
-    "人生若只如初见，何事秋风悲画扇",
-    "山重水复疑无路，柳暗花明又一村",
-    "采菊东篱下，悠然见南山",
-    "行到水穷处，坐看云起时",
-    "落霞与孤鹜齐飞，秋水共长天一色",
-    "大江东去，浪淘尽，千古风流人物",
+    "translated，translated",
+    "translated，translated",
+    "translated，translated",
+    "translated，translated",
+    "translated，translated",
+    "translated，translated",
+    "translated，translated",
+    "translated，translated",
+    "translated，translated",
+    "translated，translated，translated",
 ]
 
 
-# ==================== 地理位置配置 ====================
-DEFAULT_LATITUDE = 31.23
-DEFAULT_LONGITUDE = 121.47
+# ==================== translated ====================
+DEFAULT_LATITUDE = 45.81
+DEFAULT_LONGITUDE = 15.98
 
 CITY_COORDINATES = {
-    "北京": (39.90, 116.40),
-    "上海": (31.23, 121.47),
-    "广州": (23.13, 113.26),
-    "深圳": (22.54, 114.06),
-    "杭州": (30.27, 120.15),
-    "南京": (32.06, 118.80),
-    "成都": (30.57, 104.07),
-    "重庆": (29.56, 106.55),
-    "武汉": (30.59, 114.31),
-    "西安": (34.26, 108.94),
-    "苏州": (31.30, 120.62),
-    "天津": (39.13, 117.20),
-    "长沙": (28.23, 112.94),
-    "郑州": (34.75, 113.65),
-    "青岛": (36.07, 120.38),
-    "大连": (38.91, 121.60),
-    "厦门": (24.48, 118.09),
-    "昆明": (25.04, 102.68),
-    "合肥": (31.82, 117.23),
-    "福州": (26.07, 119.30),
-    "哈尔滨": (45.75, 126.65),
-    "沈阳": (41.80, 123.43),
-    "济南": (36.65, 116.99),
-    "石家庄": (38.04, 114.51),
-    "长春": (43.88, 125.32),
-    "南昌": (28.68, 115.86),
-    "贵阳": (26.65, 106.63),
-    "南宁": (22.82, 108.32),
-    "太原": (37.87, 112.55),
-    "兰州": (36.06, 103.83),
-    "海口": (20.04, 110.35),
-    "银川": (38.49, 106.23),
-    "西宁": (36.62, 101.78),
-    "呼和浩特": (40.84, 111.75),
-    "乌鲁木齐": (43.83, 87.62),
-    "拉萨": (29.65, 91.13),
-    "香港": (22.32, 114.17),
-    "澳门": (22.20, 113.55),
-    "台北": (25.03, 121.57),
-    "东京": (35.68, 139.69),
-    "首尔": (37.57, 126.98),
-    "新加坡": (1.35, 103.82),
-    "纽约": (40.71, -74.01),
-    "伦敦": (51.51, -0.13),
-    "巴黎": (48.86, 2.35),
-    "悉尼": (-33.87, 151.21),
-    "温哥华": (49.28, -123.12),
-    "旧金山": (37.77, -122.42),
+    "Beijing": (39.90, 116.40),
+    "Shanghai": (31.23, 121.47),
+    "Guangzhou": (23.13, 113.26),
+    "Shenzhen": (22.54, 114.06),
+    "Hangzhou": (30.27, 120.15),
+    "Nanjing": (32.06, 118.80),
+    "Chengdu": (30.57, 104.07),
+    "Chongqing": (29.56, 106.55),
+    "Wuhan": (30.59, 114.31),
+    "Xi'an": (34.26, 108.94),
+    "Suzhou": (31.30, 120.62),
+    "Tianjin": (39.13, 117.20),
+    "Changsha": (28.23, 112.94),
+    "Zhengzhou": (34.75, 113.65),
+    "Qingdao": (36.07, 120.38),
+    "Dalian": (38.91, 121.60),
+    "Xiamen": (24.48, 118.09),
+    "Kunming": (25.04, 102.68),
+    "Hefei": (31.82, 117.23),
+    "Fuzhou": (26.07, 119.30),
+    "Harbin": (45.75, 126.65),
+    "Shenyang": (41.80, 123.43),
+    "Jinan": (36.65, 116.99),
+    "Shijiazhuang": (38.04, 114.51),
+    "Changchun": (43.88, 125.32),
+    "Nanchang": (28.68, 115.86),
+    "Guiyang": (26.65, 106.63),
+    "Nanning": (22.82, 108.32),
+    "Taiyuan": (37.87, 112.55),
+    "Lanzhou": (36.06, 103.83),
+    "Haikou": (20.04, 110.35),
+    "Yinchuan": (38.49, 106.23),
+    "Xining": (36.62, 101.78),
+    "Hohhot": (40.84, 111.75),
+    "Urumqi": (43.83, 87.62),
+    "Lhasa": (29.65, 91.13),
+    "Hong Kong": (22.32, 114.17),
+    "Macau": (22.20, 113.55),
+    "Taipei": (25.03, 121.57),
+    "Tokyo": (35.68, 139.69),
+    "Seoul": (37.57, 126.98),
+    "Singapore": (1.35, 103.82),
+    "New York": (40.71, -74.01),
+    "London": (51.51, -0.13),
+    "Paris": (48.86, 2.35),
+    "Sydney": (-33.87, 151.21),
+    "Vancouver": (49.28, -123.12),
+    "San Francisco": (37.77, -122.42),
+    "Zagreb": (45.81, 15.98),
 }
 
 
-# ==================== API 配置 ====================
+# ==================== API config ====================
 OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast"
 OPEN_METEO_GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search"
 HOLIDAY_WORK_API_URL = "https://date.appworlds.cn/work"
 HOLIDAY_NEXT_API_URL = "https://date.appworlds.cn/next"
 
 
-# ==================== 渲染配置 ====================
-# DAILY 模式布局配置
+# ==================== translated ====================
+# DAILY modetranslated
 DAILY_LAYOUT = {
     "left_column_width": 116,
     "gaps": {
@@ -308,8 +309,8 @@ DAILY_LAYOUT = {
     "right_column_padding": 14,
 }
 
-# 字体大小配置 (共用组件 + 仍为 Python 模式的布局)
-# STOIC/ROAST/ZEN/FITNESS/POETRY 已迁移到 JSON，字体配置在 modes/builtin/*.json 中
+# translated (translated + translated Python modetranslated)
+# STOIC/ROAST/ZEN/FITNESS/POETRY translated JSON，Font configurationtranslated modes/builtin/*.json translated
 FONT_SIZES = {
     "status_bar": {"cn": 11, "en": 11},
     "footer": {"label": 10, "attribution": 12},
@@ -328,19 +329,19 @@ FONT_SIZES = {
     },
 }
 
-# 图标大小配置
+# translated
 ICON_SIZES = {
     "weather": (16, 16),
     "mode": (12, 12),
 }
 
 
-# ==================== 业务默认值 ====================
-DEFAULT_CITY = "杭州"
-DEFAULT_LLM_PROVIDER = "aliyun"
-DEFAULT_LLM_MODEL = "deepseek-v3.2"
-DEFAULT_IMAGE_PROVIDER = "aliyun"
-DEFAULT_IMAGE_MODEL = "qwen-image-max"
+# ==================== translateddefaulttranslated ====================
+DEFAULT_CITY = "Zagreb"
+DEFAULT_LLM_PROVIDER = "deepseek"
+DEFAULT_LLM_MODEL = "deepseek-chat"
+DEFAULT_IMAGE_PROVIDER = "deepseek"
+DEFAULT_IMAGE_MODEL = ""
 DEFAULT_LANGUAGE = "en"
 DEFAULT_MODE_LANGUAGE = ""  # empty = follow webapp language setting
 DEFAULT_CONTENT_TONE = "neutral"
@@ -348,7 +349,7 @@ DEFAULT_MODES = ["STOIC"]
 DEFAULT_REFRESH_STRATEGY = "random"
 DEFAULT_REFRESH_INTERVAL = 60  # minutes
 
-# 硬编码模式列表仅作为 fallback，运行时应通过 mode_registry 获取
+# translatedmodetranslated fallback，translated mode_registry Get 
 _BUILTIN_MODE_IDS = {
     "STOIC", "ROAST", "ZEN", "DAILY",
     "BRIEFING", "ARTWALL", "RECIPE", "FITNESS",
@@ -382,18 +383,15 @@ from typing import Optional
 
 
 def get_default_llm_model_for_provider(provider: Optional[str]) -> str:
-    """根据服务商返回默认模型名。
+    """Get by translateddefaulttranslated。
 
-    - 百炼(aliyun)：默认 deepseek-v3.2（兼容模式）
-    - DeepSeek：默认 deepseek-chat
-    - Moonshot：默认 moonshot-v1-8k
-    - 其他/未知：回退到 DEFAULT_LLM_MODEL
+    - DeepSeek：default deepseek-chat
+    - OpenAI：default gpt-4o-mini
+    - translated/translated：translated DEFAULT_LLM_MODEL
     """
     p = (provider or "").strip().lower() or DEFAULT_LLM_PROVIDER
-    if p == "aliyun":
-        return "deepseek-v3.2"
     if p == "deepseek":
         return "deepseek-chat"
-    if p == "moonshot":
-        return "moonshot-v1-8k"
+    if p == "openai":
+        return "gpt-4o-mini"
     return DEFAULT_LLM_MODEL

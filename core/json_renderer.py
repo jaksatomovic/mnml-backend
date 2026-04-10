@@ -1,6 +1,6 @@
 """
-通用 JSON 模式渲染引擎
-根据 JSON layout 定义将内容渲染为墨水屏图像
+translated JSON modetranslated
+Get by  JSON layout translated
 """
 from __future__ import annotations
 
@@ -67,24 +67,24 @@ _LABEL_EMOJI_TO_ICON = {
 
 _BUILTIN_STATIC_ATTRIBUTIONS = {
     "zh": {
-        "ARTWALL": "— 墨上观形",
-        "BIAS": "— 见自己",
-        "BRIEFING": "— 今日速览",
-        "CALENDAR": "— 日有其序",
-        "CHALLENGE": "— 试试看",
-        "COUNTDOWN": "— 静待那天",
-        "DAILY": "— 活在当下",
-        "FITNESS": "— 动起来",
-        "LIFEBAR": "— 此刻即刻度",
-        "QUESTION": "— 想一想",
-        "RECIPE": "— 好好吃饭",
-        "RIDDLE": "— 且猜且想",
-        "ROAST": "— 一笑了之",
-        "STORY": "— 微光成篇",
-        "THISDAY": "— 以史为镜",
-        "TIMETABLE": "— 按表前行",
-        "WEATHER": "— 阴晴有时",
-        "WORD_OF_THE_DAY": "— 每日精进",
+        "ARTWALL": "— translated",
+        "BIAS": "— translated",
+        "BRIEFING": "— translated",
+        "CALENDAR": "— translated",
+        "CHALLENGE": "— translated",
+        "COUNTDOWN": "— translated",
+        "DAILY": "— translated",
+        "FITNESS": "— translated",
+        "LIFEBAR": "— translated",
+        "QUESTION": "— translated",
+        "RECIPE": "— translated",
+        "RIDDLE": "— translated",
+        "ROAST": "— translated",
+        "STORY": "— translated",
+        "THISDAY": "— translated",
+        "TIMETABLE": "— translated",
+        "WEATHER": "— translated",
+        "WORD_OF_THE_DAY": "— translated",
     },
     "en": {
         "ARTWALL": "— Ink Art",
@@ -756,7 +756,7 @@ def _render_big_number(ctx: RenderContext, block: dict) -> None:
     if not text or text == "--":
         return
     
-    # 支持单位后缀
+    # translated
     unit = block.get("unit", "")
     if unit:
         text = f"{text}{unit}"
@@ -812,7 +812,7 @@ def _render_temp_chart(ctx: RenderContext, block: dict) -> None:
         return
 
     max_points = int(block.get("max_points", 4))
-    # 默认使用 temp_max / temp_min 作为高低温字段
+    # defaulttranslated temp_max / temp_min translated
     high_field = block.get("high_field", block.get("temp_field", "temp_max"))
     low_field = block.get("low_field", "temp_min")
     label_field = block.get("label_field", "day")
@@ -837,7 +837,7 @@ def _render_temp_chart(ctx: RenderContext, block: dict) -> None:
     if not highs:
         return
 
-    # 全局取 min / max，保证两条折线在同一坐标系内
+    # translated min / max，translated
     all_temps = highs + lows
     min_t = min(all_temps)
     max_t = max(all_temps)
@@ -851,7 +851,7 @@ def _render_temp_chart(ctx: RenderContext, block: dict) -> None:
         margin_x = int(ctx.screen_w * 0.08)
 
     chart_height = int(block.get("height", 40) * ctx.scale)
-    # 在右侧预留一点空白，避免折线紧贴屏幕边缘被“截断”的视觉效果
+    # translated，translated“translated”translated
     extra_right_margin = int(block.get("right_margin", 8) * ctx.scale)
     width = ctx.available_width - margin_x * 2 - extra_right_margin
     if width <= 0:
@@ -859,7 +859,7 @@ def _render_temp_chart(ctx: RenderContext, block: dict) -> None:
 
     x0 = ctx.x_offset + margin_x
 
-    # 通过 bottom_pad 将整个折线图（含数字和标签）整体上移一段距离
+    # translated bottom_pad translated（translated）translated
     bottom_pad = int(block.get("bottom_pad", 0) * ctx.scale)
     y_bottom = ctx.y + chart_height - bottom_pad
     y_top = y_bottom - chart_height
@@ -887,19 +887,19 @@ def _render_temp_chart(ctx: RenderContext, block: dict) -> None:
     for i in range(1, len(low_coords)):
         ctx.draw.line([low_coords[i - 1], low_coords[i]], fill=EINK_FG, width=1)
 
-    # Draw points and labels（只标注最高温数字，最低温仅用空心点表示）
+    # Draw points and labels（translated，translated）
     font = load_font("noto_serif_light", int(10 * ctx.scale))
     for (xh, yh), (xl, yl), h_temp, l_temp, label in zip(
         high_coords, low_coords, highs, lows, labels
     ):
         r = int(2 * ctx.scale) or 1
-        # 最高温：实心圆点
+        # translated：translated
         ctx.draw.ellipse([xh - r, yh - r, xh + r, yh + r], fill=EINK_FG)
-        # 最低温：空心圆点
+        # translated：translated
         ctx.draw.ellipse([xl - r, yl - r, xl + r, yl + r], fill=EINK_BG)
         ctx.draw.ellipse([xl - r, yl - r, xl + r, yl + r], outline=EINK_FG, width=1)
 
-        # 最高温数字（在图顶上方）
+        # translated（translated）
         temp_text_high = str(int(round(h_temp)))
         hbbox = font.getbbox(temp_text_high)
         htw = hbbox[2] - hbbox[0]
@@ -971,7 +971,7 @@ def _render_forecast_cards(ctx: RenderContext, block: dict) -> None:
         day = str(item.get("day", ""))
         date = str(item.get("date", ""))
         desc = str(item.get("desc", ""))
-        # 为卡片单独构造更短的温度文案，避免跨卡片重叠
+        # translated，translated
         temp_min_raw = item.get("temp_min")
         temp_max_raw = item.get("temp_max")
         temp_label = ""
@@ -986,7 +986,7 @@ def _render_forecast_cards(ctx: RenderContext, block: dict) -> None:
             temp_label = str(item.get("temp_range", ""))
         code = item.get("code", -1)
 
-        # Day (e.g. 今天)
+        # Day (e.g. translated)
         if day:
             bbox = font_day.getbbox(day)
             dw = bbox[2] - bbox[0]
@@ -1001,7 +1001,7 @@ def _render_forecast_cards(ctx: RenderContext, block: dict) -> None:
             ctx.draw.text((x_center - tw / 2, y), date, fill=EINK_FG, font=font_date)
             y += th + int(5 * scale)
 
-        # Weather icon（增大图标）
+        # Weather icon（translated）
         icon_size = int(block.get("icon_size", 32) * scale)
         try:
             if isinstance(code, str):
@@ -1017,7 +1017,7 @@ def _render_forecast_cards(ctx: RenderContext, block: dict) -> None:
             ctx.paste_icon(wx_icon, (int(x_center - icon_size / 2), int(y)))
             y += icon_size + int(4 * scale)
 
-        # Desc (e.g. 多云)
+        # Desc (e.g. translated)
         if desc:
             bbox = font_desc.getbbox(desc)
             tw = bbox[2] - bbox[0]
@@ -1122,7 +1122,7 @@ def _render_weather_icon(ctx: RenderContext, block: dict) -> None:
     field_name = block.get("field", "code")
     weather_code = ctx.get_field(field_name)
     
-    # 支持从数字字符串转换
+    # translated
     try:
         if isinstance(weather_code, str):
             weather_code = int(weather_code)
@@ -1144,7 +1144,7 @@ def _render_weather_icon(ctx: RenderContext, block: dict) -> None:
     
     weather_icon = get_weather_icon(weather_code)
     if weather_icon:
-        # 调整图标大小
+        # translated
         if weather_icon.size[0] != icon_size:
             weather_icon = weather_icon.resize((icon_size, icon_size), Image.LANCZOS)
         
@@ -1521,7 +1521,7 @@ def _draw_single_line_cell(
 def _render_timetable_weekly(ctx: RenderContext, block: dict) -> None:
     periods = ctx.get_field("periods")
     grid = ctx.get_field("grid")
-    weekdays = ctx.get_field("weekdays") or ["一", "二", "三", "四", "五"]
+    weekdays = ctx.get_field("weekdays") or ["translated", "translated", "translated", "translated", "translated"]
     current_day = ctx.get_field("current_day")
     current_period = ctx.get_field("current_period")
     if not isinstance(periods, list) or not isinstance(grid, list):

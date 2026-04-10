@@ -18,21 +18,21 @@ async def test_location_search_api_returns_candidates():
     with patch("api.routes.locations.search_locations", new_callable=AsyncMock) as mock_search:
         mock_search.return_value = [
             {
-                "city": "平阳县",
-                "display_name": "平阳县 · 浙江省 · 中国",
-                "admin1": "浙江省",
-                "country": "中国",
+                "city": "Pingyang",
+                "display_name": "Pingyang · Zhejiang · China",
+                "admin1": "Zhejiang",
+                "country": "China",
                 "latitude": 27.66,
                 "longitude": 120.56,
                 "timezone": "Asia/Shanghai",
             }
         ]
         async with make_client() as client:
-            resp = await client.get("/api/locations/search", params={"q": "平阳", "scope": "global"})
+            resp = await client.get("/api/locations/search", params={"q": "Pingyang", "scope": "global"})
 
     assert resp.status_code == 200
     data = resp.json()
-    assert data["query"] == "平阳"
+    assert data["query"] == "Pingyang"
     assert data["scope"] == "global"
-    assert data["items"][0]["city"] == "平阳县"
-    mock_search.assert_awaited_once_with("平阳", limit=8, scope="global", locale="zh")
+    assert data["items"][0]["city"] == "Pingyang"
+    mock_search.assert_awaited_once_with("Pingyang", limit=8, scope="global", locale="zh")

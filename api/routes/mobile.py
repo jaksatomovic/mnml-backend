@@ -87,8 +87,8 @@ def _pick_summary(content: dict) -> str:
 def _fallback_content(mode_id: str, city: str) -> dict:
     return {
         "title": f"{mode_id} fallback",
-        "text": "InkSight 正在等待可用的 LLM 配置。",
-        "summary": f"当前未配置 API key，先返回 {mode_id} 的占位内容。",
+        "text": "InkSight translated LLM config。",
+        "summary": f"translated API key，translated {mode_id} translated。",
         "city": city,
     }
 
@@ -143,7 +143,7 @@ async def get_today_content(
     weather = await get_weather_cached(city=city)
     registry = get_registry()
 
-    # 查询用户 LLM 配置并注入到 config 中
+    # translated LLM translated config translated
     base_cfg = _base_mobile_config(city=city, locale=resolved_locale, widget_mode=selected_modes[0] if selected_modes else "STOIC")
     if user_id is not None:
         try:

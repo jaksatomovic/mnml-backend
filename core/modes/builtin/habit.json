@@ -1,17 +1,17 @@
 {
   "mode_id": "HABIT",
-  "display_name": "习惯打卡",
+  "display_name": "translated",
   "icon": "habit",
   "cacheable": false,
-  "description": "追踪每日习惯完成情况",
+  "description": "translated",
   "content": {
     "type": "computed",
     "provider": "habit",
-    "fallback": {"habits": [], "summary": "在配置中设置你要追踪的习惯", "week_progress": 0, "week_total": 7},
+    "fallback": {"habits": [], "summary": "translated", "week_progress": 0, "week_total": 7},
     "fallback_pool": [
-      {"habits": [], "summary": "在配置中设置你要追踪的习惯", "week_progress": 0, "week_total": 7},
-      {"habits": [], "summary": "坚持就是胜利", "week_progress": 0, "week_total": 7},
-      {"habits": [], "summary": "每一天都是新的开始", "week_progress": 0, "week_total": 7}
+      {"habits": [], "summary": "translated", "week_progress": 0, "week_total": 7},
+      {"habits": [], "summary": "translated", "week_progress": 0, "week_total": 7},
+      {"habits": [], "summary": "translated", "week_progress": 0, "week_total": 7}
     ]
   },
   "layout": {

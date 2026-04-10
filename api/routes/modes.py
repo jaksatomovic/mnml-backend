@@ -30,7 +30,7 @@ router = APIRouter(tags=["modes"])
 
 
 def _billing_enabled() -> bool:
-    """全局计费开关：INKSIGHT_BILLING_ENABLED=0 时关闭额度检查与扣费。"""
+    """translated：INKSIGHT_BILLING_ENABLED=0 translated。"""
     value = os.getenv("INKSIGHT_BILLING_ENABLED", "1").strip().lower()
     return value not in ("0", "false", "no", "off")
 
@@ -82,7 +82,7 @@ async def list_modes(
         await registry.load_user_custom_modes(user_id, mac)
 
         # Return only this user's custom modes from database (filtered by device if mac provided)
-        # 这里打印一下用于排查设备隔离：实际传入的 user_id 和 mac 是什么
+        # translated：translated user_id translated mac translated
         logger.info(
             "[MODES] list_modes DB query get_user_custom_modes(user_id=%s, mac=%s)",
             user_id,
@@ -305,13 +305,12 @@ async def custom_mode_preview(
     colors = int(body.get("colors", 2))
     response_type = str(body.get("responseType", body.get("response_type", "image"))).strip().lower()
 
-    # 解析 API key：优先使用用户级别配置，其次使用设备配置中的加密 key
+    # translated API key：translated，translated key
     user_api_key = None
     user_image_api_key = None
     user_llm_provider = None
     user_llm_model = None
     user_llm_base_url = None
-    user_llm_access_mode = "preset"
     if user_id is not None:
         try:
             from core.config_store import get_user_llm_config
@@ -321,15 +320,14 @@ async def custom_mode_preview(
             user_cfg = None
             logger.warning("[CUSTOM_PREVIEW] Failed to load user_llm_config for user_id=%s", user_id, exc_info=True)
         if user_cfg:
-            user_llm_access_mode = (user_cfg.get("llm_access_mode") or "preset").strip().lower()
             user_api_key = (user_cfg.get("api_key") or "").strip() or None
             user_image_api_key = (user_cfg.get("image_api_key") or "").strip() or None
-            user_llm_provider = (user_cfg.get("provider") or "").strip() or None
+            candidate_provider = (user_cfg.get("provider") or "").strip().lower()
+            user_llm_provider = candidate_provider if candidate_provider in {"deepseek", "openai"} else "deepseek"
             user_llm_model = (user_cfg.get("model") or "").strip() or None
-            if user_llm_access_mode == "custom_openai":
-                user_llm_base_url = (user_cfg.get("base_url") or "").strip() or None
+            user_llm_base_url = None
 
-    # 注意：不再从设备配置读取 API key，只使用用户级别的配置（user_llm_config 表）
+    # translated：translated API key，translated（user_llm_config translated）
     device_api_key = None
     device_image_api_key = None
 
@@ -337,19 +335,19 @@ async def custom_mode_preview(
         from core.json_content import generate_json_mode_content
         from core.json_renderer import render_json_mode
 
-        # ── 额度检查（按照 BILLING.md，custom preview 也算一次计费调用） ──────────────
-        # 按“登录用户”计费：优先用 user_id，其次 mac owner，缺省则不计费
+        # ── translated（translated BILLING.md，custom preview translated） ──────────────
+        # translated“translated”translated：translated user_id，translated mac owner，translated
         quota_user_id: int | None = None
         if user_id is not None:
             quota_user_id = user_id
 
-        # 是否使用用户自带 API Key（profile / 设备配置），为 True 时不扣费不拦截额度
-        # effective_api_key 为 None 表示将会走环境变量中的“平台 Key”，此时需要按照免费额度计费
+        # translated API Key（profile / deviceconfig），translated True translated
+        # effective_api_key translated None translated“translated Key”，translated
         effective_api_key = user_api_key if user_api_key is not None else device_api_key
         effective_image_api_key = user_image_api_key if user_image_api_key is not None else device_image_api_key
         using_user_key = effective_api_key is not None
 
-        # 解析当前自定义模式是否“需要 LLM”（与 shared.build_image 中的判定保持一致）
+        # translatedmodetranslated“translated LLM”（translated shared.build_image translated）
         llm_mode_requires_quota = False
         try:
             content_def = (mode_def.get("content") or {}) if isinstance(mode_def, dict) else {}
@@ -384,7 +382,7 @@ async def custom_mode_preview(
         except Exception:
             logger.warning("[CUSTOM_PREVIEW] Failed to detect llm requirements for custom mode", exc_info=True)
 
-        # 额度不足拦截：只有在使用平台 Key 且存在 quota_user_id 时才检查
+        # translated：translated Key translated quota_user_id translated
         if (
             _billing_enabled()
             and quota_user_id is not None
@@ -400,7 +398,7 @@ async def custom_mode_preview(
                 remaining = int(quota.get("free_quota_remaining") or 0) if quota else 0
                 if remaining <= 0:
                     return JSONResponse(
-                        {"error": "您的免费额度已用完，请输入邀请码获取更多额度"},
+                        {"error": "translated，translatedGet translated"},
                         status_code=402,
                     )
 
@@ -413,7 +411,7 @@ async def custom_mode_preview(
             weather_str=weather["weather_str"],
             screen_w=screen_w,
             screen_h=screen_h,
-            # 自定义模式预览中的 LLM 调用也优先使用用户配置的 provider + API key
+            # translatedmodetranslated LLM translated provider + API key
             llm_provider=user_llm_provider,
             llm_model=user_llm_model,
             llm_base_url=user_llm_base_url,
@@ -421,7 +419,7 @@ async def custom_mode_preview(
             image_api_key=effective_image_api_key,
         )
 
-        # 额度扣减：仅在使用平台 Key、模式需要 LLM 且本次确实成功调用 LLM 时扣费，root 用户豁免
+        # translated：translated Key、modetranslated LLM translatedsuccesstranslated LLM translated，root translated
         if (
             _billing_enabled()
             and quota_user_id is not None
@@ -502,7 +500,7 @@ async def create_custom_mode(body: dict, user_id: int = Depends(require_user)):
     from core.config_store import has_active_membership
     if not await has_active_membership(mac, user_id):
         return JSONResponse(
-            {"error": "设备不存在或无权访问"},
+            {"error": "device not found or access denied"},
             status_code=403
         )
 
@@ -531,9 +529,9 @@ async def get_custom_mode_endpoint(
 ):
     """Get a custom mode for the current user and device.
 
-    为了保证设备隔离：
-    - 必须同时提供 mac；
-    - 不再从全局注册表或本地文件中回退加载“同名模式”。
+    translated：
+    - musttranslated mac；
+    - translated“translatedmode”。
     """
     # Legacy path: no mac -> file-based custom mode.
     if not mac:
@@ -610,12 +608,11 @@ async def generate_mode(
     if image_base64 and len(image_base64) > 5 * 1024 * 1024:
         return JSONResponse({"error": "image too large (max 4MB)"}, status_code=400)
 
-    # 解析 API key & provider：优先使用用户级别配置，其次使用 body 中的显式指定
+    # translated API key & provider：translated，translated body translated
     user_api_key = None
     user_llm_provider = None
     user_llm_model = None
     user_llm_base_url = None
-    user_llm_access_mode = "preset"
     if user_id is not None:
         try:
             from core.config_store import get_user_llm_config
@@ -625,20 +622,19 @@ async def generate_mode(
             user_cfg = None
             logger.warning("[MODE_GEN] Failed to load user_llm_config for user_id=%s", user_id, exc_info=True)
         if user_cfg:
-            user_llm_access_mode = (user_cfg.get("llm_access_mode") or "preset").strip().lower()
             user_api_key = (user_cfg.get("api_key") or "").strip() or None
-            user_llm_provider = (user_cfg.get("provider") or "").strip() or None
-            # 这里不再根据 provider 推默认模型，而是尊重用户在 profile 中配置的 model；
-            # 如果用户没有配置 model，则在后面通过 base_model 统一回退到默认。
+            candidate_provider = (user_cfg.get("provider") or "").strip().lower()
+            user_llm_provider = candidate_provider if candidate_provider in {"deepseek", "openai"} else "deepseek"
+            # translatedGet by  provider translateddefaulttranslated，translated profile translated model；
+            # translated model，translated base_model translateddefault。
             user_llm_model = (user_cfg.get("model") or "").strip() or None
-            if user_llm_access_mode == "custom_openai":
-                user_llm_base_url = (user_cfg.get("base_url") or "").strip() or None
+            user_llm_base_url = None
 
-    # 注意：不再从设备配置读取 API key，只使用用户级别的配置（user_llm_config 表）
+    # translated：translated API key，translated（user_llm_config translated）
     effective_api_key = user_api_key
     using_user_key = effective_api_key is not None
 
-    # ── 额度检查（AI 生成模式同样按照 BILLING.md 计费） ──────────────────────────
+    # ── translated（AI generatemodetranslated BILLING.md translated） ──────────────────────────
     quota_user_id: int | None = None
     if user_id is not None:
         quota_user_id = user_id
@@ -653,33 +649,28 @@ async def generate_mode(
             remaining = int(quota.get("free_quota_remaining") or 0) if quota else 0
             if remaining <= 0:
                 return JSONResponse(
-                    {"error": "您的免费额度已用完，请输入邀请码获取更多额度"},
+                    {"error": "translated，translatedGet translated"},
                     status_code=402,
                 )
 
     from core.mode_generator import generate_mode_definition
 
     try:
-        # 生成模式定义时，LLM provider/model **必须用户优先**：
-        # 1. 优先使用用户级配置（profile 中的 provider / model）
-        # 2. 其次 body 中显式指定的 provider / model
-        # 3. 最后根据最终 provider 选择默认模型
+        # generatemodetranslated，LLM provider/model **musttranslated**：
+        # 1. translated（profile translated provider / model）
+        # 2. translated body translated provider / model
+        # 3. translatedGet by translated provider translateddefaulttranslated
         provider_from_body = (body.get("provider") or "").strip() or None
         model_from_body = (body.get("model") or "").strip() or None
 
-        # provider：custom_openai 固定走 openai_compat；否则 用户配置 > body > 默认 "deepseek"
-        if user_llm_access_mode == "custom_openai":
-            effective_provider = "openai_compat"
-        else:
-            effective_provider = user_llm_provider or provider_from_body or "deepseek"
+        # DeepSeek/OpenAI-only backend.
+        candidate_provider = (user_llm_provider or provider_from_body or "deepseek").strip().lower()
+        effective_provider = candidate_provider if candidate_provider in {"deepseek", "openai"} else "deepseek"
 
-        # model：用户配置 > body > 根据最终 provider 选择默认模型
+        # model：userconfig > body > Get by translated provider translateddefaulttranslated
         base_model = get_default_llm_model_for_provider(effective_provider)
         effective_model = user_llm_model or model_from_body or base_model
-        if effective_provider == "openai_compat" and not (effective_model or "").strip():
-            return JSONResponse({"error": "自定义 OpenAI 模式下 model 必填"}, status_code=400)
-
-        # 临时调试日志：查看实际使用的 provider/model 以及 user_cfg
+        # translated：translated provider/model translated user_cfg
         logger.info(
             "[GENERATE_MODE_DEBUG] user_id=%s user_cfg=%s body_provider=%s body_model=%s "
             "effective_provider=%s effective_model=%s using_user_key=%s",
@@ -698,9 +689,9 @@ async def generate_mode(
             provider=effective_provider,
             model=effective_model,
             api_key=effective_api_key,
-            base_url=(user_llm_base_url if user_llm_access_mode == "custom_openai" else None),
+            base_url=None,
         )
-        # 成功后扣费（仅平台 Key，root 用户豁免）
+        # successtranslated（translated Key，root translated）
         if _billing_enabled() and quota_user_id is not None and not using_user_key:
             try:
                 user_role = await get_user_role(quota_user_id)
@@ -714,6 +705,6 @@ async def generate_mode(
     except (jsonlib.JSONDecodeError, OSError, OpenAIError, RuntimeError, TypeError) as exc:
         logger.exception("[MODE_GEN] Failed to generate mode")
         return JSONResponse(
-            {"error": f"生成失败: {type(exc).__name__}: {str(exc)[:200]}"},
+            {"error": f"generatefailed: {type(exc).__name__}: {str(exc)[:200]}"},
             status_code=500,
         )

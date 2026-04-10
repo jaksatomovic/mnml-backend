@@ -4,7 +4,10 @@ import datetime
 import json
 import os
 import re
+import base64
+import uuid
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 import logging
 import httpx
@@ -39,8 +42,6 @@ def _chat_completion_extra_body(provider: str, model: str) -> dict | None:
     Keep qwen3.5-flash on non-thinking mode unless the caller explicitly
     implements a separate switch later.
     """
-    if provider == "aliyun" and model == "qwen3.5-flash":
-        return {"enable_thinking": False}
     return None
 
 
@@ -53,50 +54,49 @@ def _extract_llm_base_url(ctx) -> str | None:
         return v or None
     return getattr(ctx, "llm_base_url", None)
 
+
+def _save_generated_image_bytes(image_bytes: bytes, content_type: str = "image/png") -> str:
+    """Persist generated image bytes under runtime_uploads and return URL."""
+    backend_root = Path(__file__).resolve().parent.parent
+    upload_dir = backend_root / "runtime_uploads"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+
+    upload_id = str(uuid.uuid4())
+    (upload_dir / f"{upload_id}.bin").write_bytes(image_bytes)
+    (upload_dir / f"{upload_id}.json").write_text(
+        json.dumps({"content_type": content_type}, ensure_ascii=True),
+        encoding="utf-8",
+    )
+    origin = (os.getenv("INKSIGHT_BACKEND_PUBLIC_BASE") or "http://127.0.0.1:8080").rstrip("/")
+    return f"{origin}/api/uploads/{upload_id}"
+
 # LLM Provider configurations
 LLM_CONFIGS = {
     "deepseek": {
         "base_url": "https://api.deepseek.com/v1",
         "models": {"deepseek-chat": {"name": "DeepSeek Chat", "max_tokens": 1024}},
     },
-    "aliyun": {
-        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "openai": {
+        "base_url": "https://api.openai.com/v1",
         "models": {
-            "qwen-max": {"name": "通义千问 Max", "max_tokens": 1024},
-            "qwen-plus": {"name": "通义千问 Plus", "max_tokens": 1024},
-            "qwen-turbo": {"name": "通义千问 Turbo", "max_tokens": 1024},
-            "deepseek-v3": {"name": "DeepSeek V3", "max_tokens": 1024},
-            "kimi-2.5": {"name": "Kimi 2.5", "max_tokens": 1024},
-            "glm-4-plus": {"name": "智谱 GLM-4 Plus", "max_tokens": 1024},
+            "gpt-4o-mini": {"name": "GPT-4o mini", "max_tokens": 1024},
+            "gpt-4.1-mini": {"name": "GPT-4.1 mini", "max_tokens": 1024},
         },
-    },
-    "moonshot": {
-        "base_url": "https://api.moonshot.cn/v1",
-        "models": {
-            "moonshot-v1-8k": {"name": "Kimi K1.5", "max_tokens": 1024},
-            "moonshot-v1-32k": {"name": "Kimi K1.5 32K", "max_tokens": 1024},
-            "kimi-k2-turbo-preview": {"name": "Kimi K2 Turbo", "max_tokens": 1024},
-        },
-    },
-    # Custom OpenAI-compatible provider: base_url must be provided at call-time.
-    "openai_compat": {
-        "base_url": "",
-        "models": {},
     },
 }
 
 PROMPTS = {
     "DAILY": (
-        "你是一位博学的每日推荐助手。根据以下环境信息，生成一份每日推荐内容，用 JSON 格式输出，包含：\n"
-        "1. quote: 一句语录（中文，20字以内，来源不限：哲学、文学、科学、历史、电影等均可）\n"
-        "2. author: 语录作者\n"
-        "3. book_title: 推荐一本书（书名用书名号，领域不限，每次推荐不同的书）\n"
-        '4. book_author: 书的作者 + " 著"\n'
-        "5. book_desc: 一句话描述这本书（25字以内）\n"
-        "6. tip: 一条有趣的冷知识或实用小贴士（30字以内，话题不限）\n"
-        "7. season_text: 当前节气或季节的一句话描述（10字以内）\n"
-        "要求：内容丰富多样，每次推荐不同的内容，避免重复。只输出 JSON，不要其他内容。\n"
-        "环境：{context}"
+        "translated。Get by translated，translated，translated JSON translated，translated：\n"
+        "1. quote: translated（translated，20translated，translated：translated、translated、translated、translated、translated）\n"
+        "2. author: translated\n"
+        "3. book_title: translated（translated，translated，translated）\n"
+        '4. book_author: translated + " translated"\n'
+        "5. book_desc: translated（25translated）\n"
+        "6. tip: translated（30translated，translated）\n"
+        "7. season_text: translated（10translated）\n"
+        "translated：translated，translated，translated。translated JSON，translated。\n"
+        "translated：{context}"
     ),
 }
 
@@ -141,13 +141,13 @@ def _build_context_str(
         if daily_word and not _has_cjk(daily_word):
             parts.append(f"Word of the day: {daily_word}")
     else:
-        parts = [f"日期: {date_str}", f"天气: {weather_str}"]
+        parts = [f"translated: {date_str}", f"weather: {weather_str}"]
         if festival:
-            parts.append(f"节日: {festival}")
+            parts.append(f"festival: {festival}")
         if upcoming_holiday and days_until > 0:
-            parts.append(f"{days_until}天后是{upcoming_holiday}")
+            parts.append(f"{days_until}translated{upcoming_holiday}")
         if daily_word:
-            parts.append(f"每日一词: {daily_word}")
+            parts.append(f"translated: {daily_word}")
     return ", ".join(parts)
 
 
@@ -164,7 +164,7 @@ def _build_style_instructions(
             if is_en:
                 parts.append(f"Mimic the speaking style of {names}")
             else:
-                parts.append(f"请模仿「{names}」的说话风格和语气来表达")
+                parts.append(f"translated「{names}」translated")
 
     if is_en:
         tone_map = {
@@ -177,20 +177,20 @@ def _build_style_instructions(
             parts.append(f"Overall tone should be {tone_map.get(content_tone, 'balanced')}")
     else:
         tone_map_zh = {
-            "positive": "积极鼓励、温暖向上",
-            "neutral": "中性克制、理性平和",
-            "deep": "深沉内省、富有哲理",
-            "humor": "轻松幽默、诙谐有趣",
+            "positive": "translated、translated",
+            "neutral": "translated、translated",
+            "deep": "translated、translated",
+            "humor": "translated、translated",
         }
         if content_tone and content_tone != "neutral":
-            parts.append(f"整体调性要{tone_map_zh.get(content_tone, '中性克制')}")
+            parts.append(f"translatedtonetranslated{tone_map_zh.get(content_tone, 'translated')}")
 
     if is_en:
         parts.append("All output MUST be in English")
         return "\nAdditional style: " + "; ".join(parts) + "."
     if not parts:
         return ""
-    return "\n额外风格要求：" + "；".join(parts) + "。"
+    return "\ntranslated：" + "；".join(parts) + "。"
 
 
 def _get_client(
@@ -199,28 +199,26 @@ def _get_client(
     base_url: str | None = None,
 ) -> tuple[AsyncOpenAI, int]:
     """Get OpenAI client for specified provider and return max_tokens"""
-    user_provided_key = api_key is not None  # 记录用户是否提供了 api_key（即使是空字符串）
+    # DeepSeek/OpenAI-only backend: fallback to deepseek for unsupported providers.
+    provider = (provider or "").strip().lower()
+    if provider not in {"deepseek", "openai"}:
+        provider = "deepseek"
+    user_provided_key = api_key is not None  # translated api_key（translated）
     
-    # openai_compat 必须显式提供 api_key/base_url，严禁回退到环境变量（防止越权使用平台 Key）
-    if provider == "openai_compat" and api_key is None:
-        user_provided_key = True
-        api_key = ""
-
     if api_key is None:
-        # 用户没有传递 api_key，从环境变量获取
+        # translated api_key，translatedGet 
         api_key_map = {
             "deepseek": "DEEPSEEK_API_KEY",
-            "aliyun": "DASHSCOPE_API_KEY",
-            "moonshot": "MOONSHOT_API_KEY",
+            "openai": "OPENAI_API_KEY",
         }
         env_key = api_key_map.get(provider, "DEEPSEEK_API_KEY")
         api_key = os.getenv(env_key, "")
 
     if not api_key or api_key.startswith("sk-your-"):
-        # 如果用户提供了 api_key 但为空或无效，给出明确提示
+        # translated api_key translatedinvalid，translated
         if user_provided_key:
             raise LLMKeyMissingError(
-                f"您配置的 API key 为空或无效（provider: {provider}）。请在个人信息页面检查并更新您的 API key 配置。"
+                f"translated API key translatedinvalid（provider: {provider}）。translated API key config。"
             )
         else:
             raise LLMKeyMissingError(
@@ -229,11 +227,6 @@ def _get_client(
 
     config = LLM_CONFIGS.get(provider, LLM_CONFIGS["deepseek"])
     resolved_base_url = config["base_url"]
-    # Custom OpenAI-compatible gateway: base_url must come from user config.
-    if provider == "openai_compat":
-        resolved_base_url = (base_url or "").strip()
-        if not resolved_base_url:
-            raise LLMKeyMissingError("Missing base_url for openai_compat provider.")
     model_config = config["models"].get(model, {"max_tokens": 120})
     max_tokens = model_config["max_tokens"]
 
@@ -418,24 +411,24 @@ def _fallback_content(persona: str) -> dict:
     """
     if persona == "DAILY":
         return {
-            "quote": "阻碍行动的障碍，本身就是行动的路。",
-            "author": "马可·奥勒留",
-            "book_title": "《沉思录》",
-            "book_author": "马可·奥勒留 著",
-            "book_desc": "罗马帝王的自省笔记，斯多葛哲学的经典之作。",
-            "tip": "冬季干燥，记得多喝水，保持室内适当湿度。",
-            "season_text": "立春已过，万物生长。",
+            "quote": "translated，translated。",
+            "author": "translated·translated",
+            "book_title": "《translated》",
+            "book_author": "translated·translated translated",
+            "book_desc": "translated，translated。",
+            "tip": "translated，translated，translated。",
+            "season_text": "Start of Springtranslated，translated。",
         }
     if persona == "BRIEFING":
         return {
             "hn_items": [
-                {"title": "Hacker News API 暂时不可用", "score": 0},
-                {"title": "请稍后重试", "score": 0},
-                {"title": "或检查网络连接", "score": 0},
+                {"title": "Hacker News API translated", "score": 0},
+                {"title": "please try again later", "score": 0},
+                {"title": "translated", "score": 0},
             ],
-            "ph_item": {"name": "Product Hunt", "tagline": "数据获取失败"},
+            "ph_item": {"name": "Product Hunt", "tagline": "translatedGet failed"},
             "v2ex_items": [],
-            "insight": "今日科技动态暂时无法获取，请稍后刷新。",
+            "insight": "translatedGet ，translated。",
         }
     if persona == "COUNTDOWN":
         return {"events": []}
@@ -446,7 +439,7 @@ def _fallback_content(persona: str) -> dict:
 
 
 async def fetch_hn_top_stories(limit: int = 3) -> list[dict]:
-    """获取 Hacker News 热榜 Top N（并发请求各 story）"""
+    """Get  Hacker News translated Top N（translated story）"""
     import asyncio as _asyncio
 
     try:
@@ -485,7 +478,7 @@ async def fetch_hn_top_stories(limit: int = 3) -> list[dict]:
 
 
 async def fetch_ph_top_product() -> dict:
-    """获取 Product Hunt 今日 #1 产品（通过 RSS）"""
+    """Get  Product Hunt translated #1 translated（translated RSS）"""
     try:
         async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
             resp = await client.get("https://www.producthunt.com/feed")
@@ -545,7 +538,7 @@ async def fetch_ph_top_product() -> dict:
 
 
 async def fetch_v2ex_hot(limit: int = 3) -> list[dict]:
-    """获取 V2EX 热门话题"""
+    """Get  V2EX translated"""
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             resp = await client.get("https://www.v2ex.com/api/topics/hot.json")
@@ -576,7 +569,7 @@ async def generate_briefing_insight(
     llm_base_url: str | None = None,
     language: str = "zh",
 ) -> str:
-    """使用 LLM 生成行业洞察"""
+    """translated LLM translated"""
     hn_summary = "\n".join(
         [f"- {s['title']} ({s['score']} points)" for s in hn_stories[:3]]
     )
@@ -596,17 +589,17 @@ Requirements:
 3. Keep it concise, sharp, and suitable for a morning briefing
 4. All output must be in English"""
     else:
-        prompt = f"""你是一位科技行业分析师。根据今日 Hacker News 热榜和 Product Hunt 新品，生成一句简短的行业洞察（30字以内）。
+        prompt = f"""translated。Get by translated Hacker News translated Product Hunt translated，translated（30translated）。
 
 Hacker News Top 3:
 {hn_summary}
 
 {ph_summary}
 
-要求：
-1. 只输出洞察本身，不要前缀或引号
-2. 聚焦技术趋势或行业动态
-3. 语言简洁有力，适合晨间阅读"""
+translated：
+1. translated，translated
+2. translated
+3. translated，translated"""
 
     try:
         insight = await _call_llm(llm_provider, llm_model, prompt, temperature=0.7, api_key=api_key, base_url=llm_base_url)
@@ -614,7 +607,7 @@ Hacker News Top 3:
         return insight
     except _LLM_RECOVERABLE_ERRORS as e:
         logger.error(f"[BRIEFING] Failed to generate insight: {e}")
-        return None  # 返回 None 表示失败
+        return None  # translated None translatedfailed
 
 
 async def summarize_briefing_content(
@@ -626,7 +619,7 @@ async def summarize_briefing_content(
     llm_base_url: str | None = None,
     language: str = "zh",
 ) -> tuple[list[dict], dict]:
-    """使用单次 LLM 调用批量总结 HN stories 和 PH tagline（原先需 3-4 次调用）"""
+    """translated LLM translated HN stories translated PH tagline（translated 3-4 translated）"""
     try:
         titles_to_summarize = []
         for i, story in enumerate(stories):
@@ -656,48 +649,48 @@ async def summarize_briefing_content(
         else:
             prompt_parts = [
                 "# Role",
-                "你是一个科技内容编辑，擅长用精练中文总结技术新闻。",
+                "translated，translated。",
                 "",
                 "# Tasks",
-                "请按顺序完成以下总结任务，用 JSON 格式输出结果。",
+                "translated，translated JSON translated。",
                 "",
             ]
 
         if titles_to_summarize:
-            prompt_parts.append("## HN Stories Summary" if language == "en" else "## HN Stories 总结")
+            prompt_parts.append("## HN Stories Summary" if language == "en" else "## HN Stories translated")
             prompt_parts.append(
                 "Write an English summary under 20 words for each title:"
                 if language == "en"
-                else "为每条标题生成 30 字以内的中文简介："
+                else "translated 30 translated："
             )
             for idx, (_, title) in enumerate(titles_to_summarize):
                 prompt_parts.append(f"  {idx + 1}. {title}")
             prompt_parts.append("")
 
         if ph_tagline:
-            prompt_parts.append("## Product Hunt Summary" if language == "en" else "## Product Hunt 产品总结")
-            prompt_parts.append(f"Product name: {ph_name}" if language == "en" else f"产品名称：{ph_name}")
-            prompt_parts.append(f"Original tagline: {ph_tagline}" if language == "en" else f"英文Slogan：{ph_tagline}")
+            prompt_parts.append("## Product Hunt Summary" if language == "en" else "## Product Hunt translated")
+            prompt_parts.append(f"Product name: {ph_name}" if language == "en" else f"translated：{ph_name}")
+            prompt_parts.append(f"Original tagline: {ph_tagline}" if language == "en" else f"translatedSlogan：{ph_tagline}")
             prompt_parts.append(
                 "Rewrite it as an English introduction under 20 words."
                 if language == "en"
-                else "重写为 30 字以内的中文介绍。"
+                else "translated 30 translated。"
             )
             prompt_parts.append("")
 
-        prompt_parts.append("# Output (JSON only)" if language == "en" else "# Output (仅输出 JSON)")
+        prompt_parts.append("# Output (JSON only)" if language == "en" else "# Output (translated JSON)")
         prompt_parts.append('{')
         if titles_to_summarize:
             prompt_parts.append(
                 '  "hn_summaries": ["summary 1", "summary 2", ...],'
                 if language == "en"
-                else '  "hn_summaries": ["简介1", "简介2", ...],'
+                else '  "hn_summaries": ["translated1", "translated2", ...],'
             )
         if ph_tagline:
             prompt_parts.append(
                 '  "ph_summary": "English introduction"'
                 if language == "en"
-                else '  "ph_summary": "中文介绍"'
+                else '  "ph_summary": "translated"'
             )
         prompt_parts.append('}')
 
@@ -742,7 +735,7 @@ async def generate_briefing_content(
     summarize: bool = True,
     api_key: str | None = None,
 ) -> dict:
-    """生成 BRIEFING 模式的完整内容"""
+    """generate BRIEFING modetranslated"""
     if ctx is not None:
         llm_provider = ctx.llm_provider
         llm_model = ctx.llm_model
@@ -791,10 +784,10 @@ async def generate_briefing_content(
         )
 
     result = {
-        "hn_items": hn_stories if hn_stories else [{"title": "Failed to fetch data", "score": 0}] if language == "en" else [{"title": "数据获取失败", "score": 0}],
+        "hn_items": hn_stories if hn_stories else [{"title": "Failed to fetch data", "score": 0}] if language == "en" else [{"title": "translatedGet failed", "score": 0}],
         "ph_item": ph_product if ph_product else {"name": "N/A", "tagline": ""},
         "v2ex_items": v2ex_topics if v2ex_topics else [],
-        "insight": insight or ("Unable to fetch today's tech briefing. Please refresh later." if language == "en" else "今日科技动态暂时无法获取，请稍后刷新。"),
+        "insight": insight or ("Unable to fetch today's tech briefing. Please refresh later." if language == "en" else "translatedGet ，translated。"),
     }
 
     logger.info("[BRIEFING] Content generation complete")
@@ -809,7 +802,7 @@ async def generate_countdown_content(
     config: dict | None = None,
     **kwargs,
 ) -> dict:
-    """生成 COUNTDOWN 模式的内容 — 纯日期计算，无需 LLM"""
+    """generate COUNTDOWN modetranslated — translated，translated LLM"""
     if ctx is not None:
         config = ctx.config
     logger.info("[COUNTDOWN] Computing countdown events...")
@@ -857,7 +850,7 @@ async def generate_countdown_content(
         new_year = datetime.date(today.year + 1, 1, 1)
         days_to_ny = (new_year - today).days
         computed_events = [
-            {"name": "元旦", "date": str(new_year), "type": "countdown", "days": days_to_ny},
+            {"name": "New Year's Day", "date": str(new_year), "type": "countdown", "days": days_to_ny},
         ]
 
     logger.info(f"[COUNTDOWN] Computed {len(computed_events)} events")
@@ -879,7 +872,7 @@ def _build_countdown_message(
     language: str,
     content_tone: str,
 ) -> str:
-    safe_name = str(name or "").strip() or ("the day" if language == "en" else "这一天")
+    safe_name = str(name or "").strip() or ("the day" if language == "en" else "translated")
     tone = content_tone if content_tone in {"positive", "neutral", "deep", "humor"} else "neutral"
 
     if language == "en":
@@ -907,24 +900,24 @@ def _build_countdown_message(
     else:
         if evt_type == "countup":
             templates = {
-                "positive": "{name}已经开始，把状态保持住。",
-                "neutral": "{name}之后的每一天，都算数。",
-                "deep": "{name}已成过往，它留下的意义仍在延长。",
-                "humor": "{name}都过去了，你居然还挺能打。",
+                "positive": "{name}translated，translated。",
+                "neutral": "{name}translated，translated。",
+                "deep": "{name}translated，translated。",
+                "humor": "{name}translated，translated。",
             }
         elif days == 0:
             templates = {
-                "positive": "就是{name}，去把这一天过得漂亮点。",
-                "neutral": "{name}就在今天，按计划来。",
-                "deep": "{name}已至，平静地迎接它。",
-                "humor": "{name}就是今天，先别演，稳住。",
+                "positive": "translated{name}，translated。",
+                "neutral": "{name}translated，translated。",
+                "deep": "{name}translated，translated。",
+                "humor": "{name}translated，translated，translated。",
             }
         else:
             templates = {
-                "positive": "{name}越来越近了，继续加油。",
-                "neutral": "朝着{name}，稳稳推进。",
-                "deep": "{name}未至，日子已在塑造你。",
-                "humor": "{name}在前面等你，先别慌，按计划来。",
+                "positive": "{name}translated，translated。",
+                "neutral": "translated{name}，translated。",
+                "deep": "{name}translated，translated。",
+                "humor": "{name}translated，translated，translated。",
             }
 
     return templates.get(tone, templates["neutral"]).format(name=safe_name)
@@ -941,8 +934,8 @@ async def generate_artwall_content(
     colors: int = 2,
     llm_provider: str = DEFAULT_LLM_PROVIDER,
     llm_model: str = DEFAULT_LLM_MODEL,
-    image_provider: str = "aliyun",
-    image_model: str = "qwen-image-max",
+    image_provider: str = "deepseek",
+    image_model: str = "",
     mode_display_name: str = "",
     mode_description: str = "",
     prompt_hint: str = "",
@@ -966,22 +959,22 @@ async def generate_artwall_content(
     is_en = language == "en"
     supports_color = colors >= 3
     supports_yellow = colors >= 4
-    art_description = "彩色极简插画" if supports_color else "黑白线描作品"
+    art_description = "translated" if supports_color else "translated"
 
     context_parts = []
     if weather_str:
-        context_parts.append(f"Weather: {weather_str}" if is_en else f"天气：{weather_str}")
+        context_parts.append(f"Weather: {weather_str}" if is_en else f"weather：{weather_str}")
     if festival:
-        context_parts.append(f"Festival: {festival}" if is_en else f"节日：{festival}")
+        context_parts.append(f"Festival: {festival}" if is_en else f"festival：{festival}")
     if date_str:
-        context_parts.append(f"Date: {date_str}" if is_en else f"日期：{date_str}")
+        context_parts.append(f"Date: {date_str}" if is_en else f"translated：{date_str}")
 
     context = ", ".join(context_parts) if is_en else "，".join(context_parts)
     if not context:
-        context = "Today" if is_en else "今日"
+        context = "Today" if is_en else "translated"
     intent_parts = [p.strip() for p in (mode_display_name, mode_description, prompt_hint, prompt_template) if isinstance(p, str) and p.strip()]
     intent = "; ".join(intent_parts[:4]) if is_en else "；".join(intent_parts[:4])
-    title_seed = (fallback_title or mode_display_name or ("Ink Muse" if is_en else "墨韵天成")).strip()
+    title_seed = (fallback_title or mode_display_name or ("Ink Muse" if is_en else "translated")).strip()
 
     if is_en:
         title_prompt = f"""Generate a poetic and evocative artwork title (max 5 words) based on the following:
@@ -995,16 +988,16 @@ Requirements:
 3. Atmospheric, leaving room for imagination
 4. Output only the title, nothing else"""
     else:
-        title_prompt = f"""根据以下信息，生成一个富有诗意和意境的艺术作品标题（8字以内）：
+        title_prompt = f"""Get by translated，translated（8translated）：
 
 {context}
-主题要求：{intent or title_seed}
+translated：{intent or title_seed}
 
-要求：
-1. 富有诗意和意境，如山水画的题名
-2. 8字以内
-3. 意境深远，留有想象空间
-4. 只输出标题，不要其他内容"""
+translated：
+1. translated，translated
+2. 8translated
+3. translated，translated
+4. translated，translated"""
 
     artwork_title = title_seed
     try:
@@ -1023,33 +1016,34 @@ Requirements:
 
     try:
         if supports_color:
-            palette_text = "黑、白、红、黄" if supports_yellow else "黑、白、红"
+            palette_text = "translated、translated、translated、translated" if supports_yellow else "translated、translated、translated"
             image_prompt = f"""
-绘画风格：适配彩色墨水屏的极简几何插画，现代海报感，清晰块面与克制线条。
-核心要求：只能使用{palette_text}，不得出现渐变、半透明、照片质感、复杂纹理。
-颜色约束：黑色用于主体轮廓和结构；红色用于主视觉强调；{"黄色用于次级高亮和温暖点缀；" if supports_yellow else ""}白色作为主要留白背景。
-强制约束：画面中绝对禁止出现任何汉字、英文、印章或签名，纯图像表达。
-构图：远距离也清晰，主体明确，色块边界利落，适合400x300彩色墨水屏显示。
-意境：宁静、克制、现代东方感。
-主题约束：{intent or artwork_title}。
-画面内容：围绕{artwork_title}创作彩色极简构图。环境：{context}（高度概括，只保留少量意象）。
+translated：translated，translated，translated。
+translated：translated{palette_text}，translated、translated、translated、translated。
+translated：blacktranslated；translated；{"translated；" if supports_yellow else ""}whitetranslated。
+translated：translated、translated、translated，translated。
+translated：translated，translated，translated，translated400x300translated。
+translated：translated、translated、translated。
+translated：{intent or artwork_title}。
+translated：translated{artwork_title}translated。translated：{context}（translated，translated）。
 """
         else:
             image_prompt = f"""
-绘画风格：极简黑白线条艺术，现代矢量简笔画，墨水屏二值化风格。
-核心要求：线条干净流畅肯定，禁止任何水墨晕染、毛笔笔触、焦墨枯笔。
-强制约束：画面中绝对禁止出现任何汉字、英文、印章或签名，纯图像表达。
-构图：极度空灵，大量留白(Negative Space)，用最少的线条表达最多的含义，马一角构图。
-背景：纯净绝对白色(#FFFFFF)，无纸张纹理。
-意境：宁静、孤独、禅意(Zen minimalism)。
-主题约束：{intent or artwork_title}。
-画面内容：用几根简单的黑色线条勾勒出{artwork_title}的神韵。环境：{context}（极简暗示或留白）。
+translated：translated，translated，translated。
+translated：translated，translated、translated、translated。
+translated：translated、translated、translated，translated。
+translated：translated，translated(Negative Space)，translated，translated。
+translated：translatedwhite(#FFFFFF)，translated。
+translated：translated、translated、translated(Zen minimalism)。
+translated：{intent or artwork_title}。
+translated：translatedblacktranslated{artwork_title}translated。translated：{context}（translated）。
 """
 
         logger.info(f"[ARTWALL] Image prompt: {image_prompt[:100]}...")
 
-        if image_provider != "aliyun":
-            logger.warning(f"[ARTWALL] Unsupported image provider: {image_provider}")
+        provider = (llm_provider or "").strip().lower()
+        if provider != "openai":
+            logger.warning("[ARTWALL] Image generation requires OpenAI provider; using fallback")
             return {
                 "artwork_title": artwork_title,
                 "image_url": "",
@@ -1057,29 +1051,37 @@ Requirements:
                 "prompt": image_prompt,
             }
 
-        # Prefer a user-provided image API key; otherwise fall back to the environment value.
-        user_provided_image_key = image_api_key is not None
-        if image_api_key is None:
-            image_api_key = os.getenv("DASHSCOPE_API_KEY", "")
-        
-        if not image_api_key or image_api_key.startswith("sk-your-"):
-            if user_provided_image_key:
-                logger.warning("[ARTWALL] Configured image API key is empty or invalid; using fallback")
-            else:
-                logger.warning("[ARTWALL] No valid DASHSCOPE_API_KEY, using fallback")
+        image_model_resolved = (image_model or "").strip() or "gpt-image-1"
+        client, _ = _get_client(provider, llm_model, api_key=api_key, base_url=llm_base_url)
+        img_resp = await client.images.generate(
+            model=image_model_resolved,
+            prompt=image_prompt,
+            size="1024x1024",
+        )
+        image_url = ""
+        data = getattr(img_resp, "data", None) or []
+        if data:
+            first = data[0]
+            url = getattr(first, "url", None)
+            b64_json = getattr(first, "b64_json", None)
+            if isinstance(url, str) and url.strip():
+                image_url = url.strip()
+            elif isinstance(b64_json, str) and b64_json.strip():
+                image_bytes = base64.b64decode(b64_json)
+                image_url = _save_generated_image_bytes(image_bytes, "image/png")
+
+        if not image_url:
+            logger.warning("[ARTWALL] OpenAI image generation returned no image")
             return {
                 "artwork_title": artwork_title,
                 "image_url": "",
                 "description": art_description,
                 "prompt": image_prompt,
             }
-        
-        logger.warning(
-            "[ARTWALL] DashScope SDK integration was removed; using fallback until a replacement image backend is added"
-        )
+
         return {
             "artwork_title": artwork_title,
-            "image_url": "",
+            "image_url": image_url,
             "description": art_description,
             "prompt": image_prompt,
         }
@@ -1096,7 +1098,7 @@ Requirements:
         return {
             "artwork_title": artwork_title,
             "image_url": "",
-            "description": "今日艺术作品",
+            "description": "translated",
             "prompt": "",
         }
 
@@ -1110,7 +1112,7 @@ async def generate_recipe_content(
     llm_model: str = "deepseek-chat",
     api_key: str | None = None,
 ) -> dict:
-    """生成 RECIPE 模式的内容 - 早中晚三餐方案"""
+    """generate RECIPE modetranslated - translated"""
     if ctx is not None:
         llm_provider = ctx.llm_provider
         llm_model = ctx.llm_model
@@ -1120,45 +1122,45 @@ async def generate_recipe_content(
     month = datetime.datetime.now().month
 
     season_map = {
-        1: "大寒·一月",
-        2: "立春·二月",
-        3: "惊蛰·三月",
-        4: "清明·四月",
-        5: "立夏·五月",
-        6: "芒种·六月",
-        7: "小暑·七月",
-        8: "立秋·八月",
-        9: "白露·九月",
-        10: "寒露·十月",
-        11: "立冬·十一月",
-        12: "大雪·十二月",
+        1: "Major Cold·January",
+        2: "Start of Spring·February",
+        3: "Awakening of Insects·March",
+        4: "Clear and Bright·April",
+        5: "Start of Summer·May",
+        6: "Grain in Ear·June",
+        7: "Minor Heat·July",
+        8: "Start of Autumn·August",
+        9: "White Dew·September",
+        10: "Cold Dew·October",
+        11: "Start of Winter·translatedJanuary",
+        12: "Major Snow·translatedFebruary",
     }
 
-    prompt = f"""你是一位营养师。根据当前月份（{month}月），推荐一套荤素搭配的早中晚三餐方案。
+    prompt = f"""translated。Get by translated（{month}month），translated。
 
-要求：
-1. 早餐：简单清淡，如粥+蛋+小菜
-2. 午餐：1荤+1素+主食
-3. 晚餐：1荤+1素+汤/主食
-4. 营养均衡标注（如：蛋白质✓ 膳食纤维✓ 维生素C✓）
+translated：
+1. translated：translated，translated+translated+translated
+2. translated：1translated+1translated+translated
+3. translated：1translated+1translated+translated/translated
+4. translated（translated：translated✓ translated✓ translatedC✓）
 
-用 JSON 格式输出：
+translated JSON translated：
 {{
-  "breakfast": "早餐内容（如：小米南瓜粥·水煮蛋·凉拌菠菜）",
+  "breakfast": "translated（translated：translated·translated·translated）",
   "lunch": {{
-    "meat": "荤菜名",
-    "veg": "素菜名",
-    "staple": "主食名"
+    "meat": "translated",
+    "veg": "translated",
+    "staple": "translated"
   }},
   "dinner": {{
-    "meat": "荤菜名",
-    "veg": "素菜名",
-    "staple": "汤/主食名"
+    "meat": "translated",
+    "veg": "translated",
+    "staple": "translated/translated"
   }},
-  "nutrition": "营养标注（如：蛋白质✓ 膳食纤维✓ 维生素C✓ 铁✓）"
+  "nutrition": "translated（translated：translated✓ translated✓ translatedC✓ translated✓）"
 }}
 
-只输出 JSON，不要其他内容。"""
+translated JSON，translated。"""
 
     try:
         text = await _call_llm(llm_provider, llm_model, prompt, api_key=api_key, base_url=_extract_llm_base_url(ctx))
@@ -1167,25 +1169,25 @@ async def generate_recipe_content(
         logger.info("[RECIPE] Generated meal plan")
 
         return {
-            "season": season_map.get(month, f"{month}月"),
-            "breakfast": data.get("breakfast", "燕麦牛奶粥·茶叶蛋·凉拌黑木耳"),
+            "season": season_map.get(month, f"{month}month"),
+            "breakfast": data.get("breakfast", "translated·translated·translated"),
             "lunch": data.get(
                 "lunch",
-                {"meat": "番茄炖牛腩", "veg": "清炒芥兰", "staple": "白米饭"},
+                {"meat": "translated", "veg": "translated", "staple": "translated"},
             ),
             "dinner": data.get(
                 "dinner",
-                {"meat": "清蒸鲈鱼", "veg": "蒜蓉西兰花", "staple": "紫菜蛋花汤"},
+                {"meat": "translated", "veg": "translated", "staple": "translated"},
             ),
-            "nutrition": data.get("nutrition", "蛋白质✓ 膳食纤维✓ 维生素C✓ 铁✓"),
+            "nutrition": data.get("nutrition", "translated✓ translated✓ translatedC✓ translated✓"),
         }
 
     except _LLM_RECOVERABLE_ERRORS + (json.JSONDecodeError, TypeError) as e:
         logger.exception("[RECIPE] Failed to generate recipe content")
         return {
-            "season": season_map.get(month, f"{month}月"),
-            "breakfast": "燕麦牛奶粥·茶叶蛋·凉拌黑木耳",
-            "lunch": {"meat": "番茄炖牛腩", "veg": "清炒芥兰", "staple": "白米饭"},
-            "dinner": {"meat": "清蒸鲈鱼", "veg": "蒜蓉西兰花", "staple": "紫菜蛋花汤"},
-            "nutrition": "蛋白质✓ 膳食纤维✓ 维生素C✓ 铁✓",
+            "season": season_map.get(month, f"{month}month"),
+            "breakfast": "translated·translated·translated",
+            "lunch": {"meat": "translated", "veg": "translated", "staple": "translated"},
+            "dinner": {"meat": "translated", "veg": "translated", "staple": "translated"},
+            "nutrition": "translated✓ translated✓ translatedC✓ translated✓",
         }

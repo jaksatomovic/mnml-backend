@@ -1,9 +1,9 @@
 {
   "mode_id": "TIMETABLE",
-  "display_name": "课程表",
+  "display_name": "translated",
   "icon": "school",
   "cacheable": false,
-  "description": "今日课程安排，四色屏高亮当前课程",
+  "description": "translated，translated",
   "content": {
     "type": "composite",
     "steps": [
@@ -13,8 +13,8 @@
         "fallback": {
           "year": 2026,
           "day": 23,
-          "month_cn": "三月",
-          "weekday_cn": "周一",
+          "month_cn": "March",
+          "weekday_cn": "Mon",
           "day_of_year": 82,
           "days_in_year": 365
         }
@@ -24,12 +24,12 @@
         "provider": "timetable",
         "fallback": {
           "style": "daily",
-          "timetable_title": "周一 · 今日课程",
+          "timetable_title": "Mon · translated",
           "slots": [
-            { "time": "08:00", "name": "高等数学", "location": "A201", "current": false },
-            { "time": "10:00", "name": "大学英语", "location": "B305", "current": true },
-            { "time": "14:00", "name": "数据结构", "location": "C102", "current": false },
-            { "time": "16:00", "name": "体育", "location": "操场", "current": false }
+            { "time": "08:00", "name": "translated", "location": "A201", "current": false },
+            { "time": "10:00", "name": "translated", "location": "B305", "current": true },
+            { "time": "14:00", "name": "translated", "location": "C102", "current": false },
+            { "time": "16:00", "name": "translated", "location": "translated", "current": false }
           ],
           "slot_count": 4,
           "current_day": 0,
@@ -41,12 +41,12 @@
     "fallback_pool": [
       {
         "style": "daily",
-        "timetable_title": "周一 · 今日课程",
+        "timetable_title": "Mon · translated",
         "slots": [
-          { "time": "08:00", "name": "高等数学", "location": "A201", "current": false },
-          { "time": "10:00", "name": "大学英语", "location": "B305", "current": true },
-          { "time": "14:00", "name": "数据结构", "location": "C102", "current": false },
-          { "time": "16:00", "name": "体育", "location": "操场", "current": false }
+          { "time": "08:00", "name": "translated", "location": "A201", "current": false },
+          { "time": "10:00", "name": "translated", "location": "B305", "current": true },
+          { "time": "14:00", "name": "translated", "location": "C102", "current": false },
+          { "time": "16:00", "name": "translated", "location": "translated", "current": false }
         ],
         "slot_count": 4,
         "current_day": 0,

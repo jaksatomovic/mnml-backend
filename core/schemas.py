@@ -1,6 +1,6 @@
 """
-Pydantic 输入验证模型
-为 API 端点提供请求体的类型和范围校验
+Pydantic Pydantic input validation models
+Provide request type and range validation for API endpoints
 """
 from __future__ import annotations
 
@@ -10,23 +10,23 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .config import get_supported_modes
 
-# MAC 地址格式：AA:BB:CC:DD:EE:FF
+# MAC translated：AA:BB:CC:DD:EE:FF
 _MAC_RE = re.compile(r"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$")
 
-# 允许的 LLM 提供商
-_VALID_PROVIDERS = {"deepseek", "aliyun", "moonshot"}
-_VALID_IMAGE_PROVIDERS = {"aliyun"}
+# allowed  LLM translated
+_VALID_PROVIDERS = {"deepseek", "openai"}
+_VALID_IMAGE_PROVIDERS = {"deepseek"}
 
-# 允许的语言选项
+# allowed translated
 _VALID_LANGUAGES = {"zh", "en", "hr", "mixed"}
 
-# 允许的内容调性
+# allowed translatedtone
 _VALID_TONES = {"positive", "neutral", "deep", "humor"}
 
-# 允许的刷新策略
+# allowed refresh strategy
 _VALID_STRATEGIES = {"random", "cycle", "time_slot", "smart"}
 
-# 角色调性白名单：只允许中英文、数字、空格和基本标点
+# translatedtonetranslated：translated、translated、translated
 _SAFE_TONE_RE = re.compile(
     r"^[\u4e00-\u9fff\u3400-\u4dbf"   # CJK Unified Ideographs
     r"a-zA-Z0-9"
@@ -36,70 +36,70 @@ _SAFE_TONE_RE = re.compile(
 
 
 class ConfigRequest(BaseModel):
-    """设备配置请求体"""
+    """translated"""
 
-    mac: str = Field(..., description="设备 MAC 地址 (AA:BB:CC:DD:EE:FF)")
-    nickname: str = Field(default="", max_length=32, description="设备昵称")
+    mac: str = Field(..., description="device MAC translated (AA:BB:CC:DD:EE:FF)")
+    nickname: str = Field(default="", max_length=32, description="translated")
     modes: list[str] = Field(
         default=["STOIC"],
         min_length=1,
         max_length=10,
-        description="启用的内容模式列表",
+        description="translatedmodelist",
     )
     refreshStrategy: str = Field(
-        default="random", description="刷新策略: random / cycle"
+        default="random", description="refresh strategy: random / cycle"
     )
     refreshInterval: int = Field(
-        default=60, ge=10, le=1440, description="刷新间隔(分钟), 10~1440"
+        default=60, ge=10, le=1440, description="translated(translated), 10~1440"
     )
-    language: str = Field(default="en", description="(deprecated) 语言偏好，已被 modeLanguage 取代")
-    modeLanguage: str = Field(default="en", description="模式内容语言: zh / en / hr")
-    contentTone: str = Field(default="neutral", description="调性: positive / neutral / deep / humor")
-    city: str = Field(default="London", max_length=40, description="城市名称")
-    latitude: Optional[float] = Field(default=None, ge=-90, le=90, description="地点纬度")
-    longitude: Optional[float] = Field(default=None, ge=-180, le=180, description="地点经度")
-    timezone: str = Field(default="", max_length=64, description="地点时区")
-    admin1: str = Field(default="", max_length=64, description="地点所属省级行政区")
-    country: str = Field(default="", max_length=64, description="地点所属国家")
+    language: str = Field(default="en", description="(deprecated) translated，translated modeLanguage translated")
+    modeLanguage: str = Field(default="en", description="modetranslated: zh / en / hr")
+    contentTone: str = Field(default="neutral", description="tone: positive / neutral / deep / humor")
+    city: str = Field(default="Zagreb", max_length=40, description="City name")
+    latitude: Optional[float] = Field(default=None, ge=-90, le=90, description="locationlatitude")
+    longitude: Optional[float] = Field(default=None, ge=-180, le=180, description="locationlongitude")
+    timezone: str = Field(default="", max_length=64, description="locationtimezone")
+    admin1: str = Field(default="", max_length=64, description="locationtranslatedadministrative region")
+    country: str = Field(default="", max_length=64, description="locationtranslatedcountry")
     characterTones: list[str] = Field(
-        default_factory=list, max_length=5, description="角色调性列表"
+        default_factory=list, max_length=5, description="translatedtonelist"
     )
-    llmProvider: str = Field(default="deepseek", description="LLM 提供商")
-    llmModel: str = Field(default="deepseek-chat", max_length=50, description="LLM 模型名")
-    imageProvider: str = Field(default="aliyun", description="图像模型提供商")
-    imageModel: str = Field(default="qwen-image-max", max_length=50, description="图像模型名")
+    llmProvider: str = Field(default="deepseek", description="LLM translated")
+    llmModel: str = Field(default="deepseek-chat", max_length=50, description="LLM translated")
+    imageProvider: str = Field(default="deepseek", description="translated")
+    imageModel: str = Field(default="", max_length=50, description="translated")
     countdownEvents: list[dict] = Field(
         default_factory=list,
         max_length=10,
-        description="倒计时事件列表 [{name, date, type}]",
+        description="translated [{name, date, type}]",
     )
     timeSlotRules: list[dict] = Field(
         default_factory=list,
         max_length=24,
-        description="时段绑定规则 [{startHour, endHour, modes}]",
+        description="translated [{startHour, endHour, modes}]",
     )
-    memoText: str = Field(default="", description="MEMO 模式下的备忘录文本")
+    memoText: str = Field(default="", description="MEMO modetranslated")
     llmApiKey: str = Field(default="", max_length=200, description="LLM API Key (encrypted at rest)")
     imageApiKey: str = Field(default="", max_length=200, description="Image API Key (encrypted at rest)")
-    screenSize: str = Field(default="400x300", description="屏幕尺寸: 400x300 / 296x128 / 800x480")
+    screenSize: str = Field(default="400x300", description="translated: 400x300 / 296x128 / 800x480")
     modeOverrides: dict[str, dict] = Field(
         default_factory=dict,
-        description="按模式覆盖配置，key 为 mode_id，value 可包含 city/llm_provider/llm_model 及其他模式设置项",
+        description="translatedmodetranslated，key translated mode_id，value translated city/llm_provider/llm_model translatedmodetranslated",
     )
     is_focus_listening: bool = Field(
         default=False,
-        description="是否开启专注监听（Focus Mode）",
+        description="translated（Focus Mode）",
     )
     always_active: bool = Field(
         default=False,
-        description="是否始终保持设备活跃状态",
+        description="translated",
     )
 
     @field_validator("mac")
     @classmethod
     def validate_mac(cls, v: str) -> str:
         if not _MAC_RE.match(v):
-            raise ValueError("MAC 地址格式无效，应为 AA:BB:CC:DD:EE:FF")
+            raise ValueError("MAC translatedinvalid，translated AA:BB:CC:DD:EE:FF")
         return v
 
     @field_validator("modes")
@@ -109,9 +109,9 @@ class ConfigRequest(BaseModel):
         cleaned = []
         for mode in v:
             m = mode.upper().strip()
-            # 允许 CUSTOM_* / MY_* 透传，避免误判导致 422/500
+            # translated CUSTOM_* / MY_* translated，translated 422/500
             if not (m.startswith("CUSTOM_") or m.startswith("MY_") or m in supported):
-                raise ValueError(f"不支持的模式: {mode}，可选: {supported}")
+                raise ValueError(f"unsupported mode: {mode}，translated: {supported}")
             cleaned.append(m)
         return cleaned
 
@@ -119,35 +119,35 @@ class ConfigRequest(BaseModel):
     @classmethod
     def validate_strategy(cls, v: str) -> str:
         if v not in _VALID_STRATEGIES:
-            raise ValueError(f"无效刷新策略: {v}，可选: {_VALID_STRATEGIES}")
+            raise ValueError(f"invalidrefresh strategy: {v}，translated: {_VALID_STRATEGIES}")
         return v
 
     @field_validator("language")
     @classmethod
     def validate_language(cls, v: str) -> str:
         if v not in _VALID_LANGUAGES:
-            raise ValueError(f"无效语言: {v}，可选: {_VALID_LANGUAGES}")
+            raise ValueError(f"invalidtranslated: {v}，translated: {_VALID_LANGUAGES}")
         return v
 
     @field_validator("contentTone")
     @classmethod
     def validate_tone(cls, v: str) -> str:
         if v not in _VALID_TONES:
-            raise ValueError(f"无效调性: {v}，可选: {_VALID_TONES}")
+            raise ValueError(f"invalidtone: {v}，translated: {_VALID_TONES}")
         return v
 
     @field_validator("llmProvider")
     @classmethod
     def validate_provider(cls, v: str) -> str:
         if v not in _VALID_PROVIDERS:
-            raise ValueError(f"无效 LLM 提供商: {v}，可选: {_VALID_PROVIDERS}")
+            raise ValueError(f"invalid LLM translated: {v}，translated: {_VALID_PROVIDERS}")
         return v
 
     @field_validator("imageProvider")
     @classmethod
     def validate_image_provider(cls, v: str) -> str:
         if v not in _VALID_IMAGE_PROVIDERS:
-            raise ValueError(f"无效图像提供商: {v}，可选: {_VALID_IMAGE_PROVIDERS}")
+            raise ValueError(f"invalidtranslated: {v}，translated: {_VALID_IMAGE_PROVIDERS}")
         return v
 
     @field_validator("characterTones")
@@ -160,7 +160,7 @@ class ConfigRequest(BaseModel):
                 continue
             if not _SAFE_TONE_RE.match(t):
                 raise ValueError(
-                    f"角色调性包含非法字符: {t!r}，只允许中英文、数字和基本标点"
+                    f"translatedtonetranslated: {t!r}，translated、translated"
                 )
             cleaned.append(t)
         return cleaned
@@ -188,14 +188,14 @@ class ConfigRequest(BaseModel):
                 try:
                     item["latitude"] = float(latitude)
                 except (TypeError, ValueError):
-                    raise ValueError(f"无效地点纬度: {latitude}")
+                    raise ValueError(f"invalidlocationlatitude: {latitude}")
 
             longitude = raw.get("longitude")
             if longitude not in ("", None):
                 try:
                     item["longitude"] = float(longitude)
                 except (TypeError, ValueError):
-                    raise ValueError(f"无效地点经度: {longitude}")
+                    raise ValueError(f"invalidlocationlongitude: {longitude}")
 
             timezone = raw.get("timezone")
             if isinstance(timezone, str) and timezone.strip():
@@ -212,7 +212,7 @@ class ConfigRequest(BaseModel):
             provider = raw.get("llm_provider", raw.get("llmProvider"))
             if isinstance(provider, str) and provider.strip():
                 if provider not in _VALID_PROVIDERS:
-                    raise ValueError(f"无效 LLM 提供商: {provider}，可选: {_VALID_PROVIDERS}")
+                    raise ValueError(f"invalid LLM translated: {provider}，translated: {_VALID_PROVIDERS}")
                 item["llm_provider"] = provider
 
             model = raw.get("llm_model", raw.get("llmModel"))
@@ -242,7 +242,7 @@ class ConfigRequest(BaseModel):
 
 
 class RenderQuery(BaseModel):
-    """渲染端点 Query 参数模型。"""
+    """translated Query translated。"""
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -265,7 +265,7 @@ class RenderQuery(BaseModel):
 
 
 class DeviceHeartbeatRequest(BaseModel):
-    """设备心跳请求体。"""
+    """translated。"""
 
     battery_voltage: Optional[float] = Field(default=3.3, ge=0.0, le=10.0)
     wifi_rssi: Optional[int] = Field(default=None, ge=-150, le=0)
@@ -291,7 +291,7 @@ class UserPreferencesRequest(BaseModel):
     @classmethod
     def validate_push_time(cls, v: str) -> str:
         if not re.match(r"^\d{2}:\d{2}$", v):
-            raise ValueError("push_time 必须为 HH:MM 格式")
+            raise ValueError("push_time musttranslated HH:MM translated")
         return v
 
     @field_validator("push_modes")
@@ -304,7 +304,7 @@ class UserPreferencesRequest(BaseModel):
             if not mid:
                 continue
             if mid not in supported:
-                raise ValueError(f"不支持的模式: {mode}")
+                raise ValueError(f"unsupported mode: {mode}")
             cleaned.append(mid)
         return cleaned
 
@@ -313,7 +313,7 @@ class UserPreferencesRequest(BaseModel):
     def validate_widget_mode(cls, v: str) -> str:
         mode = str(v).strip().upper()
         if mode not in get_supported_modes():
-            raise ValueError(f"不支持的 widget_mode: {mode}")
+            raise ValueError(f"unsupported  widget_mode: {mode}")
         return mode
 
 
@@ -328,12 +328,12 @@ class PushRegistrationRequest(BaseModel):
     def validate_platform(cls, v: str) -> str:
         platform = str(v).strip().lower()
         if platform not in {"ios", "android", "expo"}:
-            raise ValueError("platform 必须为 ios / android / expo")
+            raise ValueError("platform musttranslated ios / android / expo")
         return platform
 
     @field_validator("push_time")
     @classmethod
     def validate_push_registration_time(cls, v: str) -> str:
         if not re.match(r"^\d{2}:\d{2}$", v):
-            raise ValueError("push_time 必须为 HH:MM 格式")
+            raise ValueError("push_time musttranslated HH:MM translated")
         return v

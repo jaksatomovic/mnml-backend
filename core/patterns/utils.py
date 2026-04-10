@@ -1,6 +1,6 @@
 """
-渲染工具函数
-提供所有模式共用的基础渲染功能
+translated
+translatedmodetranslated
 """
 from __future__ import annotations
 
@@ -114,7 +114,7 @@ def _load_bitmap_font(font_name: str, size: int) -> ImageFont.ImageFont | None:
 
 
 def load_font(font_key: str, size: int) -> ImageFont.ImageFont:
-    """从配置加载字体"""
+    """translated"""
     font_name = FONTS.get(font_key)
     if not font_name:
         # Fallback to CJK font if default font key not found
@@ -150,7 +150,7 @@ def load_font(font_key: str, size: int) -> ImageFont.ImageFont:
 
 
 def load_font_by_name(name: str, size: int) -> ImageFont.ImageFont:
-    """直接通过文件名加载字体（兼容旧代码）"""
+    """translated（translated）"""
     if _force_bitmap:
         bitmap_font = _load_bitmap_font(name, size)
         if bitmap_font is not None:
@@ -259,7 +259,15 @@ def draw_status_bar(
     colors: int = 2,
     language: str = "zh",
 ):
-    """绘制顶部状态栏"""
+    """translated"""
+    def _strip_time_tokens(text: str) -> str:
+        """Remove any clock fragment like HH:MM / HH:MM:SS."""
+        if not text:
+            return ""
+        cleaned = re.sub(r"\b([01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?\b", "", text)
+        cleaned = re.sub(r"\s{2,}", " ", cleaned).strip(" -|,")
+        return cleaned.strip()
+
     def _fit_single_line(text: str, font, max_w: int) -> str:
         if not text or max_w <= 0:
             return ""
@@ -288,7 +296,8 @@ def draw_status_bar(
 
     wx = screen_w // 2 - int(28 * scale)
     left_max_w = max(40, wx - pad_x - int(10 * scale))
-    fitted_date = _fit_single_line((date_str or "").strip(), font_date, left_max_w)
+    safe_date_text = _strip_time_tokens((date_str or "").strip())
+    fitted_date = _fit_single_line(safe_date_text, font_date, left_max_w)
     date_bbox = draw.textbbox((0, 0), fitted_date or "", font=font_date)
     date_h = date_bbox[3] - date_bbox[1]
     text_mid_y = y + int(5 * scale)
@@ -355,7 +364,7 @@ def draw_footer(
     colors: int = 2,
     time_str: str = "",
 ):
-    """绘制底部页脚"""
+    """translated"""
     scale = screen_w / 400.0
     if attr_font_size is None:
         attr_font_size = int(FONT_SIZES["footer"]["attribution"] * scale)
@@ -397,20 +406,6 @@ def draw_footer(
         label_x = icon_x
     draw.text((label_x, y_line + int(9 * scale)), mode.upper(), fill=EINK_FG, font=font_label)
 
-    display_time = (time_str or "").strip()
-    if len(display_time) >= 5:
-        display_time = display_time[:5]
-    if display_time:
-        font_time = load_font("inter_medium", int(FONT_SIZES["footer"]["label"] * scale))
-        time_bbox = draw.textbbox((0, 0), display_time, font=font_time)
-        time_w = time_bbox[2] - time_bbox[0]
-        draw.text(
-            ((screen_w - time_w) // 2, y_line + int(9 * scale)),
-            display_time,
-            fill=EINK_FG,
-            font=font_time,
-        )
-
     if attribution:
         bbox = draw.textbbox((0, 0), attribution, font=font_attr)
         draw.text(
@@ -422,7 +417,7 @@ def draw_footer(
 
 
 def wrap_text(text: str, font: ImageFont.ImageFont, max_width: int) -> list[str]:
-    """文本换行"""
+    """translated"""
     lines = []
     for paragraph in text.split("\n"):
         words = list(paragraph)
@@ -449,7 +444,7 @@ def render_quote_body(
     screen_w: int = SCREEN_WIDTH,
     screen_h: int = SCREEN_HEIGHT,
 ):
-    """渲染居中的引用文本"""
+    """translated"""
     if has_cjk(text) and "Noto" not in font_name:
         font_name = "NotoSerifSC-Light.ttf"
     font = load_font_by_name(font_name, font_size)

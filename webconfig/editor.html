@@ -35,10 +35,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <h1>Mode Editor</h1>
   <select id="templateSelect" onchange="loadTemplate()">
     <option value="">Select template...</option>
-    <option value="quote">语录模板 (Quote)</option>
-    <option value="list">列表模板 (List)</option>
-    <option value="zen">禅意模板 (Zen)</option>
-    <option value="sections">综合模板 (Sections)</option>
+    <option value="quote">translated (Quote)</option>
+    <option value="list">translated (List)</option>
+    <option value="zen">translated (Zen)</option>
+    <option value="sections">translated (Sections)</option>
   </select>
   <select id="screenSizeSelect" style="padding:6px 10px;border-radius:6px;border:1px solid #d1d5db;font-size:.82rem">
     <option value="400x300">4.2" 400×300</option>
@@ -69,42 +69,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <script>
 var TEMPLATES={
 quote:{
-  mode_id:"MY_QUOTE",display_name:"自定义语录",icon:"book",cacheable:true,
-  description:"自定义语录模式",
-  content:{type:"llm_json",prompt_template:"请生成一条有深度的语录，用 JSON 返回 {quote, author}。{context}",
+  mode_id:"MY_QUOTE",display_name:"translated",icon:"book",cacheable:true,
+  description:"translatedmode",
+  content:{type:"llm_json",prompt_template:"translated，translated JSON translated {quote, author}。{context}",
     output_schema:{quote:{type:"string"},author:{type:"string"}},temperature:0.8,
-    fallback:{quote:"路漫漫其修远兮",author:"屈原"},
-    fallback_pool:[{quote:"路漫漫其修远兮",author:"屈原"},{quote:"知者不惑，仁者不忧",author:"孔子"},{quote:"天行健，君子以自强不息",author:"易经"}]
+    fallback:{quote:"translated",author:"translated"},
+    fallback_pool:[{quote:"translated",author:"translated"},{quote:"translated，translated",author:"translated"},{quote:"translated，translated",author:"translated"}]
   },
   layout:{status_bar:{line_width:1},body:[{type:"centered_text",field:"quote",font:"NotoSerifSC-Light.ttf",font_size:18,vertical_center:true}],footer:{label:"MY_QUOTE",attribution_template:"— {author}"}}
 },
 list:{
-  mode_id:"MY_LIST",display_name:"自定义列表",icon:"list",cacheable:true,
-  description:"列表展示模式",
-  content:{type:"llm_json",prompt_template:"请生成3条科技快讯，JSON 格式 {title, items: [{text}]}。{context}",
+  mode_id:"MY_LIST",display_name:"translated",icon:"list",cacheable:true,
+  description:"translatedmode",
+  content:{type:"llm_json",prompt_template:"translated3translated，JSON translated {title, items: [{text}]}。{context}",
     output_schema:{title:{type:"string"},items:{type:"array",items:{type:"object",properties:{text:{type:"string"}}}}},
     temperature:0.7,
-    fallback:{title:"今日快讯",items:[{text:"暂无内容"}]}
+    fallback:{title:"translated",items:[{text:"translated"}]}
   },
   layout:{status_bar:{line_width:1},body:[{type:"text",field:"title",font_size:16,align:"center",bold:true},{type:"spacer",height:8},{type:"list",field:"items",item_template:"{text}",max_items:5,font_size:12}],footer:{label:"MY_LIST"}}
 },
 zen:{
-  mode_id:"MY_ZEN",display_name:"自定义禅",icon:"zen",cacheable:true,
-  description:"单字禅意模式",
-  content:{type:"llm_json",prompt_template:"请给出一个蕴含哲理的汉字，并简短解读。JSON: {word, reading}。{context}",
+  mode_id:"MY_ZEN",display_name:"translated",icon:"zen",cacheable:true,
+  description:"translatedmode",
+  content:{type:"llm_json",prompt_template:"translated，translated。JSON: {word, reading}。{context}",
     output_schema:{word:{type:"string"},reading:{type:"string"}},temperature:0.9,
-    fallback:{word:"道",reading:"万物之始"}
+    fallback:{word:"translated",reading:"translated"}
   },
   layout:{status_bar:{line_width:1},body:[{type:"centered_text",field:"word",font:"NotoSerifSC-Bold.ttf",font_size:80,vertical_center:true},{type:"centered_text",field:"reading",font_size:13}],footer:{label:"MY_ZEN"}}
 },
 sections:{
-  mode_id:"MY_DAILY",display_name:"自定义综合",icon:"daily",cacheable:true,
-  description:"多栏综合内容",
-  content:{type:"llm_json",prompt_template:"请生成今日内容：一句话语录、一个推荐、一个小贴士。JSON: {quote, recommend, tip}。{context}",
+  mode_id:"MY_DAILY",display_name:"translated",icon:"daily",cacheable:true,
+  description:"translated",
+  content:{type:"llm_json",prompt_template:"translated：translated、translated、translated。JSON: {quote, recommend, tip}。{context}",
     output_schema:{quote:{type:"string"},recommend:{type:"string"},tip:{type:"string"}},temperature:0.8,
-    fallback:{quote:"今天是美好的一天",recommend:"推荐阅读",tip:"记得喝水"}
+    fallback:{quote:"translated",recommend:"translated",tip:"translated"}
   },
-  layout:{status_bar:{line_width:1},body:[{type:"section",label:"📖 语录",blocks:[{type:"text",field:"quote",font_size:13}]},{type:"separator",dashed:true},{type:"section",label:"💡 推荐",blocks:[{type:"text",field:"recommend",font_size:12}]},{type:"separator",dashed:true},{type:"section",label:"🌟 小贴士",blocks:[{type:"text",field:"tip",font_size:12}]}],footer:{label:"MY_DAILY"}}
+  layout:{status_bar:{line_width:1},body:[{type:"section",label:"📖 translated",blocks:[{type:"text",field:"quote",font_size:13}]},{type:"separator",dashed:true},{type:"section",label:"💡 translated",blocks:[{type:"text",field:"recommend",font_size:12}]},{type:"separator",dashed:true},{type:"section",label:"🌟 translated",blocks:[{type:"text",field:"tip",font_size:12}]}],footer:{label:"MY_DAILY"}}
 }
 };
 
@@ -123,18 +123,18 @@ function validateJSON(){
   try{
     JSON.parse(editor.value);
     errorBar.textContent='';errorBar.classList.remove('visible');
-    document.getElementById('statusText').textContent='JSON 有效 ✓';
+    document.getElementById('statusText').textContent='JSON translated ✓';
     return true;
   }catch(e){
-    errorBar.textContent='JSON 错误: '+e.message;
+    errorBar.textContent='JSON translated: '+e.message;
     errorBar.classList.add('visible');
-    document.getElementById('statusText').textContent='JSON 无效 ✗';
+    document.getElementById('statusText').textContent='JSON invalid ✗';
     return false;
   }
 }
 
 function updateCount(){
-  document.getElementById('charCount').textContent=editor.value.length+' 字符';
+  document.getElementById('charCount').textContent=editor.value.length+' translated';
 }
 
 editor.addEventListener('input',function(){validateJSON();updateCount();});
@@ -152,7 +152,7 @@ function doPreview(){
   if(!validateJSON())return;
   var def=JSON.parse(editor.value);
   var dims=document.getElementById('screenSizeSelect').value.split('x').map(Number);
-  document.getElementById('previewArea').innerHTML='<div class="preview-placeholder">加载中...</div>';
+  document.getElementById('previewArea').innerHTML='<div class="preview-placeholder">translated...</div>';
   fetch('/api/modes/custom/preview',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({mode_def:def,w:dims[0],h:dims[1]})
@@ -165,26 +165,26 @@ function doPreview(){
     var url=URL.createObjectURL(blob);
     document.getElementById('previewArea').innerHTML='<img src="'+url+'" alt="Preview">';
   }).catch(function(e){
-    document.getElementById('previewArea').innerHTML='<div class="preview-placeholder" style="color:#dc2626">预览失败: '+e.message+'</div>';
+    document.getElementById('previewArea').innerHTML='<div class="preview-placeholder" style="color:#dc2626">translatedfailed: '+e.message+'</div>';
   });
 }
 
 function doSave(){
   if(!validateJSON())return;
   var def=JSON.parse(editor.value);
-  if(!def.mode_id){alert('请设置 mode_id');return;}
+  if(!def.mode_id){alert('translated mode_id');return;}
   fetch('/api/modes/custom',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify(def)
   }).then(function(r){return r.json()}).then(function(d){
     if(d.ok||d.status==='ok'){
-      document.getElementById('statusText').textContent='保存成功 ✓';
-      alert('模式 '+def.mode_id+' 保存成功！');
+      document.getElementById('statusText').textContent='translatedsuccess ✓';
+      alert('mode '+def.mode_id+' translatedsuccess！');
     }else{
-      alert('保存失败: '+(d.error||d.message||'未知错误'));
+      alert('translatedfailed: '+(d.error||d.message||'translated'));
     }
   }).catch(function(e){
-    alert('保存失败: '+e.message);
+    alert('translatedfailed: '+e.message);
   });
 }
 

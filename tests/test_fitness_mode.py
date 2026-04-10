@@ -1,8 +1,8 @@
 """
-测试 FITNESS 模式 (JSON 定义版本)
+test FITNESS mode (JSON text)
 
-FITNESS 模式已从 Python 实现迁移到 JSON 定义 (core/modes/builtin/fitness.json)，
-内容生成由 json_content.py 处理，渲染由 json_renderer.py 处理。
+FITNESS modetext Python text JSON text (core/modes/builtin/fitness.json)，
+text json_content.py text，text json_renderer.py text。
 """
 import asyncio
 import json
@@ -29,8 +29,8 @@ async def main():
 
     content = await generate_json_mode_content(
         mode_def,
-        date_str="2月14日 周六",
-        weather_str="晴 15°C",
+        date_str="2/14 Sat",
+        weather_str="sunny 15°C",
         llm_provider="deepseek",
         llm_model="deepseek-chat",
     )
@@ -42,8 +42,8 @@ async def main():
 
     img = render_json_mode(
         mode_def, content,
-        date_str="2月14日 周六",
-        weather_str="晴 15°C",
+        date_str="2/14 Sat",
+        weather_str="sunny 15°C",
         battery_pct=85,
         weather_code=0,
         time_str="14:30",

@@ -19,7 +19,7 @@ class TestConfigRequest:
             always_active=True,
             language="zh",
             contentTone="neutral",
-            city="北京市",
+            city="Beijing",
             latitude=39.9042,
             longitude=116.4074,
             timezone="Asia/Shanghai",
@@ -41,7 +41,7 @@ class TestConfigRequest:
             ConfigRequest(mac="AA:BB")
 
     def test_unsupported_mode(self):
-        with pytest.raises(ValidationError, match="不支持的模式"):
+        with pytest.raises(ValidationError, match="textmode"):
             ConfigRequest(mac="AA:BB:CC:DD:EE:FF", modes=["INVALID_MODE"])
 
     def test_modes_uppercased(self):
@@ -61,19 +61,19 @@ class TestConfigRequest:
             ConfigRequest(mac="AA:BB:CC:DD:EE:FF", refreshInterval=2000)
 
     def test_invalid_language(self):
-        with pytest.raises(ValidationError, match="无效语言"):
+        with pytest.raises(ValidationError, match="invalidtext"):
             ConfigRequest(mac="AA:BB:CC:DD:EE:FF", language="fr")
 
     def test_invalid_tone(self):
-        with pytest.raises(ValidationError, match="无效调性"):
+        with pytest.raises(ValidationError, match="invalidtext"):
             ConfigRequest(mac="AA:BB:CC:DD:EE:FF", contentTone="angry")
 
     def test_invalid_provider(self):
-        with pytest.raises(ValidationError, match="无效 LLM 提供商"):
+        with pytest.raises(ValidationError, match="invalid LLM text"):
             ConfigRequest(mac="AA:BB:CC:DD:EE:FF", llmProvider="openai")
 
     def test_invalid_strategy(self):
-        with pytest.raises(ValidationError, match="无效刷新策略"):
+        with pytest.raises(ValidationError, match="invalidtext"):
             ConfigRequest(mac="AA:BB:CC:DD:EE:FF", refreshStrategy="sequential")
 
     def test_nickname_max_length(self):
@@ -89,7 +89,7 @@ class TestConfigRequest:
         assert body.always_active is False
         assert body.language == "zh"
         assert body.contentTone == "neutral"
-        assert body.city == "杭州"
+        assert body.city == "Hangzhou"
         assert body.latitude is None
         assert body.llmProvider == "deepseek"
 
@@ -103,23 +103,23 @@ class TestConfigRequest:
     def test_character_tones_cleaned(self):
         body = ConfigRequest(
             mac="AA:BB:CC:DD:EE:FF",
-            characterTones=["  鲁迅 ", "", "  莫言  "],
+            characterTones=["  Lu Xun ", "", "  Mo Yan  "],
         )
-        assert body.characterTones == ["鲁迅", "莫言"]
+        assert body.characterTones == ["Lu Xun", "Mo Yan"]
 
     def test_mode_overrides_accept_location_fields(self):
         body = ConfigRequest(
             mac="AA:BB:CC:DD:EE:FF",
             modeOverrides={
                 "WEATHER": {
-                    "city": "平阳县",
+                    "city": "Pingyang",
                     "latitude": 27.66,
                     "longitude": 120.56,
                     "timezone": "Asia/Shanghai",
-                    "admin1": "浙江省",
-                    "country": "中国",
+                    "admin1": "Zhejiang",
+                    "country": "China",
                 }
             },
         )
-        assert body.modeOverrides["WEATHER"]["city"] == "平阳县"
+        assert body.modeOverrides["WEATHER"]["city"] == "Pingyang"
         assert body.modeOverrides["WEATHER"]["latitude"] == pytest.approx(27.66)

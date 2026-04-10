@@ -64,10 +64,10 @@ async def init_db():
                 modes TEXT DEFAULT 'STOIC,ROAST,ZEN,DAILY',
                 refresh_strategy TEXT DEFAULT 'random',
                 character_tones TEXT DEFAULT '',
-                language TEXT DEFAULT 'zh',
+                language TEXT DEFAULT 'en',
                 mode_language TEXT DEFAULT '',
                 content_tone TEXT DEFAULT 'neutral',
-                city TEXT DEFAULT '杭州',
+                city TEXT DEFAULT 'Zagreb',
                 latitude REAL,
                 longitude REAL,
                 timezone TEXT DEFAULT '',
@@ -76,8 +76,8 @@ async def init_db():
                 refresh_interval INTEGER DEFAULT 60,
                 llm_provider TEXT DEFAULT 'deepseek',
                 llm_model TEXT DEFAULT 'deepseek-chat',
-                image_provider TEXT DEFAULT 'aliyun',
-                image_model TEXT DEFAULT 'qwen-image-max',
+                image_provider TEXT DEFAULT 'deepseek',
+                image_model TEXT DEFAULT '',
                 countdown_events TEXT DEFAULT '[]',
                 time_slot_rules TEXT DEFAULT '[]',
                 memo_text TEXT DEFAULT '',
@@ -106,10 +106,10 @@ async def init_db():
                         modes TEXT DEFAULT 'STOIC,ROAST,ZEN,DAILY',
                         refresh_strategy TEXT DEFAULT 'random',
                         character_tones TEXT DEFAULT '',
-                        language TEXT DEFAULT 'zh',
+                        language TEXT DEFAULT 'en',
                         mode_language TEXT DEFAULT '',
                         content_tone TEXT DEFAULT 'neutral',
-                        city TEXT DEFAULT '杭州',
+                        city TEXT DEFAULT 'Zagreb',
                         latitude REAL,
                         longitude REAL,
                         timezone TEXT DEFAULT '',
@@ -118,8 +118,8 @@ async def init_db():
                         refresh_interval INTEGER DEFAULT 60,
                         llm_provider TEXT DEFAULT 'deepseek',
                         llm_model TEXT DEFAULT 'deepseek-chat',
-                        image_provider TEXT DEFAULT 'aliyun',
-                        image_model TEXT DEFAULT 'qwen-image-max',
+                        image_provider TEXT DEFAULT 'deepseek',
+                        image_model TEXT DEFAULT '',
                         countdown_events TEXT DEFAULT '[]',
                         time_slot_rules TEXT DEFAULT '[]',
                         memo_text TEXT DEFAULT '',
@@ -160,8 +160,8 @@ async def init_db():
         _EXPECTED_COLUMNS = {
             "llm_provider": "TEXT DEFAULT 'deepseek'",
             "llm_model": "TEXT DEFAULT 'deepseek-chat'",
-            "image_provider": "TEXT DEFAULT 'aliyun'",
-            "image_model": "TEXT DEFAULT 'qwen-image-max'",
+            "image_provider": "TEXT DEFAULT 'deepseek'",
+            "image_model": "TEXT DEFAULT ''",
             "countdown_events": "TEXT DEFAULT '[]'",
             "time_slot_rules": "TEXT DEFAULT '[]'",
             "memo_text": "TEXT DEFAULT ''",
@@ -354,11 +354,11 @@ async def init_db():
                     INSERT INTO invitation_codes_new (code, is_used, generated_at, used_by_user_id)
                     SELECT code, is_used, generated_at, used_by_user_id FROM invitation_codes
                 """)
-                # 删除旧表
+                # translated
                 await db.execute("DROP TABLE invitation_codes")
-                # 重命名新表
+                # translated
                 await db.execute("ALTER TABLE invitation_codes_new RENAME TO invitation_codes")
-                # 重新创建索引
+                # translated
                 await db.execute(
                     "CREATE INDEX IF NOT EXISTS idx_invitation_codes_used_by ON invitation_codes(used_by_user_id)"
                 )
@@ -370,7 +370,7 @@ async def init_db():
         except Exception as e:
             logger.warning(f"[MIGRATION] Failed to migrate invitation_codes table: {e}", exc_info=True)
 
-        # API quotas table API额度表
+        # API quotas table APItranslated
         await db.execute("""
             CREATE TABLE IF NOT EXISTS api_quotas (
                 user_id INTEGER PRIMARY KEY,
@@ -379,7 +379,7 @@ async def init_db():
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         """)
-        # User LLM config table 用户级别的LLM配置表
+        # User LLM config table translatedLLMtranslated
         await db.execute("""
             CREATE TABLE IF NOT EXISTS user_llm_config (
                 user_id INTEGER PRIMARY KEY,
@@ -387,7 +387,7 @@ async def init_db():
                 provider TEXT DEFAULT 'deepseek',
                 api_key TEXT DEFAULT '',
                 base_url TEXT DEFAULT '',
-                image_provider TEXT DEFAULT 'aliyun',
+                image_provider TEXT DEFAULT 'deepseek',
                 image_api_key TEXT DEFAULT '',
                 updated_at TEXT NOT NULL,
                 FOREIGN KEY (user_id) REFERENCES users(id)
@@ -777,9 +777,9 @@ async def authenticate_user(username: str, password: str) -> Optional[dict]:
 
 
 async def get_user_role(user_id: int) -> Optional[str]:
-    """根据 user_id 获取用户的 role（权限）。
+    """Get by  user_id Get translated role（permission）。
 
-    返回 'root' 或 'user'，如果用户不存在则返回 None。
+    translated 'root' translated 'user'，translateddoes not existtranslated None。
     """
     db = await get_main_db()
     cursor = await db.execute(
@@ -789,16 +789,16 @@ async def get_user_role(user_id: int) -> Optional[str]:
     row = await cursor.fetchone()
     if not row:
         return None
-    return row[0] or "user"  # 默认为 'user'
+    return row[0] or "user"  # defaulttranslated 'user'
 
 
 # ── API quota & invitation helpers ────────────────────────────
 
 
 async def init_user_api_quota(user_id: int, *, free_quota: int = 5) -> None:
-    """为新用户初始化 API 调用额度（幂等）。
+    """translated API translated（translated）。
 
-    默认 5 次免费额度，可通过 free_quota 参数调整。
+    default 5 translated，translated free_quota translated。
     """
     db = await get_main_db()
     await db.execute(
@@ -812,7 +812,7 @@ async def init_user_api_quota(user_id: int, *, free_quota: int = 5) -> None:
 
 
 async def get_user_api_quota(user_id: int) -> Optional[dict]:
-    """查询用户当前额度信息。"""
+    """translated。"""
     db = await get_main_db()
     cursor = await db.execute(
         "SELECT user_id, total_calls_made, free_quota_remaining FROM api_quotas WHERE user_id = ?",
@@ -829,10 +829,10 @@ async def get_user_api_quota(user_id: int) -> Optional[dict]:
 
 
 async def consume_user_free_quota(user_id: int, *, amount: int = 1) -> bool:
-    """在额度足够时原子性扣减免费额度，并累计调用次数。
+    """translated，translated。
 
-    仅当 free_quota_remaining >= amount 时成功扣减并返回 True；
-    否则不修改记录并返回 False。
+    translated free_quota_remaining >= amount translatedsuccesstranslated True；
+    translated False。
     """
     if amount <= 0:
         return True
@@ -854,9 +854,9 @@ async def consume_user_free_quota(user_id: int, *, amount: int = 1) -> bool:
 
 
 async def get_quota_owner_for_mac(mac: str) -> Optional[int]:
-    """根据设备 MAC 查找与其绑定的计费用户（当前策略：设备 owner）。
+    """Get by device MAC translated（translated：device owner）。
 
-    如果找不到 owner，则返回 None，上层可以选择降级为不计费或使用其他策略。
+    translated owner，translated None，translated。
     """
     owner = await get_device_owner(mac)
     if not owner:
@@ -1511,7 +1511,7 @@ async def save_config(mac: str, data: dict) -> int:
 
 
 async def update_focus_listening(mac: str, enabled: bool) -> bool:
-    """轻量更新 focus_listening：复制当前 active config 并仅修改开关字段。"""
+    """translated focus_listening：translated active config translated。"""
     normalized_mac = mac.upper()
     db = await get_main_db()
     prev = await get_active_config(normalized_mac)
@@ -1683,7 +1683,7 @@ def _row_to_dict(row, columns) -> dict:
     if "mac" not in d:
         d["mac"] = d.get("mac", "default")
     d["memo_text"] = d.get("memo_text", "")
-    # 设备配置中不再存储 API key，相关标记统一为 False
+    # translated API key，translated False
     d["has_api_key"] = False
     d["has_image_api_key"] = False
     return d
@@ -1965,8 +1965,8 @@ async def get_custom_mode(user_id: int, mode_id: str, mac: Optional[str] = None)
     """
     Get a specific custom mode for a user *and* device.
 
-    重要：为了保证设备隔离，这里必须同时按 user_id 和 mac 过滤；
-    如果调用方没有提供 mac，则直接返回 None，而不是在所有设备中“拍脑袋选一条”。
+    Important：translated，translatedmusttranslated user_id translated mac translated；
+    translated mac，translated None，translated“translated”。
     """
     if not mac:
         logger.warning(
@@ -2034,9 +2034,9 @@ async def delete_custom_mode(user_id: int, mode_id: str, mac: Optional[str] = No
     """
     Delete a custom mode for a specific user and device.
 
-    重要：不再支持“只按 user_id + mode_id 删除所有设备上的记录”，
-    避免在一台设备上删除时把同一用户其他设备上的同名模式也一并删掉。
-    调用方必须提供 mac，否则这里会直接返回 False。
+    Important：translated“translated user_id + mode_id translated”，
+    translatedmodetranslated。
+    translatedmusttranslated mac，translated False。
     """
     if not mac:
         logger.warning(
@@ -2096,7 +2096,7 @@ async def validate_device_token(mac: str, token: str) -> bool:
 
 
 async def get_user_llm_config(user_id: int) -> Optional[dict]:
-    """获取用户级别的 LLM 配置（包含可选的自定义模型名）。"""
+    """Get translated LLM config（translated）。"""
     db = await get_main_db()
     # Inspect the table shape for backward compatibility with older schemas
     # that may not include image/model-related columns yet.
@@ -2166,11 +2166,11 @@ async def get_user_llm_config(user_id: int) -> Optional[dict]:
     }
     idx = 3 + offset
     if has_image_config:
-        result["image_provider"] = row[idx] or "aliyun"
+        result["image_provider"] = row[idx] or "deepseek"
         result["image_api_key"] = decrypt_api_key(row[idx + 1] or "") if row[idx + 1] else ""
         idx += 2
     else:
-        result["image_provider"] = "aliyun"
+        result["image_provider"] = "deepseek"
         result["image_api_key"] = ""
     if has_model_column and len(row) > idx:
         result["model"] = row[idx] or ""
@@ -2190,7 +2190,7 @@ async def save_user_llm_config(
     model: str = "",
     api_key: str = "",
     base_url: str = "",
-    image_provider: str = "aliyun",
+    image_provider: str = "deepseek",
     image_model: str = "",
     image_api_key: str = "",
     image_base_url: str = "",
@@ -2225,7 +2225,7 @@ async def save_user_llm_config(
     # Add image/model-related columns if they are missing.
     if not has_image_config:
         try:
-            await db.execute("ALTER TABLE user_llm_config ADD COLUMN image_provider TEXT DEFAULT 'aliyun'")
+            await db.execute("ALTER TABLE user_llm_config ADD COLUMN image_provider TEXT DEFAULT 'deepseek'")
             await db.execute("ALTER TABLE user_llm_config ADD COLUMN image_api_key TEXT DEFAULT ''")
             await db.commit()
             has_image_config = True
@@ -2353,7 +2353,7 @@ async def save_user_llm_config(
 
 
 async def delete_user_llm_config(user_id: int) -> bool:
-    """删除用户级别的 LLM 配置（BYOK）。删除后将回退到平台默认 key + 额度模式。"""
+    """translated LLM config（BYOK）。translateddefault key + translatedmode。"""
     db = await get_main_db()
     try:
         cursor = await db.execute(

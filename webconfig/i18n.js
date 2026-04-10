@@ -40,10 +40,10 @@
     if (!raw.trim()) return raw;
     if (dict[raw] !== undefined) return dict[raw];
     return raw
-      .replace(/(\d+)\s*秒/g, "$1s")
-      .replace(/(\d+)\s*分钟/g, "$1m")
-      .replace(/(\d+)\s*小时/g, "$1h")
-      .replace(/(\d+)\s*天/g, "$1d");
+      .replace(/(\d+)\s*translated/g, "$1s")
+      .replace(/(\d+)\s*translated/g, "$1m")
+      .replace(/(\d+)\s*translated/g, "$1h")
+      .replace(/(\d+)\s*translated/g, "$1d");
   }
 
   function translateNode(node, dict) {
@@ -74,7 +74,7 @@
     SUPPORTED.forEach((code) => {
       const opt = document.createElement("option");
       opt.value = code;
-      opt.textContent = code === "en-US" ? "English" : code === "hr-HR" ? "Hrvatski" : "中文";
+      opt.textContent = code === "en-US" ? "English" : code === "hr-HR" ? "Hrvatski" : "translated";
       if (code === lang) opt.selected = true;
       select.appendChild(opt);
     });

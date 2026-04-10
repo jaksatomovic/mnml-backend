@@ -1,8 +1,8 @@
 """
-统一异常层级 for InkSight backend.
+translated for InkSight backend.
 
-所有自定义异常继承自 InkSightError，每个异常类型关联 HTTP 状态码。
-api/index.py 注册全局异常处理器将它们转为 JSON 响应。
+translated InkSightError，translated HTTP translated。
+api/index.py translated JSON translated。
 """
 from __future__ import annotations
 

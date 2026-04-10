@@ -155,7 +155,7 @@ async def post_device_heartbeat(
 @router.post("/device/{mac}/alert-token")
 async def provision_device_alert_token(
     mac: str,
-    regenerate: bool = Query(default=False, description="是否强制重新生成 token"),
+    regenerate: bool = Query(default=False, description="translated token"),
     user_id: int = Depends(require_user),
 ):
     mac = validate_mac_param(mac)
@@ -305,7 +305,7 @@ async def alert_bmp(
     top_pad = max(8, int(h * 0.08))
     max_width = w - 2 * margin_x
 
-    label = "FOCUS ALERT" if level != "critical" else "紧急告警"
+    label = "FOCUS ALERT" if level != "critical" else "translated"
     title_w = draw.textlength(label, font=title_font)
     draw.text((max(margin_x, int((w - title_w) / 2)), top_pad), label, fill=0, font=title_font)
 
@@ -529,12 +529,12 @@ async def claim_consume(body: dict, user_id: int = Depends(require_user)):
     token = str(body.get("token") or "").strip()
     pair_code = str(body.get("pair_code") or "").strip()
     if not token and not pair_code:
-        return JSONResponse({"error": "token 或 pair_code 不能为空"}, status_code=400)
+        return JSONResponse({"error": "token translated pair_code cannot be empty"}, status_code=400)
     result = await consume_claim_token(user_id=user_id, token=token, pair_code=pair_code)
     if result["status"] == "invalid":
-        return JSONResponse({"error": "配对码或 claim token 无效"}, status_code=404)
+        return JSONResponse({"error": "translated claim token invalid"}, status_code=404)
     if result["status"] == "expired":
-        return JSONResponse({"error": "配对码或 claim token 已失效"}, status_code=410)
+        return JSONResponse({"error": "translated claim token translated"}, status_code=410)
     return {"ok": True, **result}
 
 

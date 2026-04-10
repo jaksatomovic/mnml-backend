@@ -310,9 +310,9 @@ async def preview(
         mac = validate_mac_param(mac)
         await ensure_web_or_device_access(request, mac, x_device_token, ink_session)
     
-    # 获取当前登录用户 ID：
-    # - 用于 Web 预览时关联 user_llm_config（个人信息里的 API Key）
-    # - 计费归属仍按 BILLING.md：设备端按 owner 计费，Web 端按登录用户计费
+    # Get translated ID：
+    # - translated Web translated user_llm_config（translated API Key）
+    # - translated BILLING.md：translated owner translated，Web translated
     current_user_id = None
     try:
         from core.auth import get_current_user_optional
@@ -365,39 +365,39 @@ async def preview(
                     "llm_mode_requires_quota": llm_mode_requires_quota,
                 },
             )
-        # 如果 API key 无效，返回 JSON 响应，提醒用户
+        # translated API key invalid，translated JSON translated，translated
         if api_key_invalid:
             from fastapi.responses import JSONResponse
             return JSONResponse(
                 status_code=400,  # Bad Request
                 content={
                     "error": "api_key_invalid",
-                    "message": "您提供的 API key 无效或已过期，请检查个人信息或服务器中的 API key 配置",
+                    "message": "translated API key invalidtranslated，translated API key config",
                 },
             )
-        # 如果额度耗尽，返回 JSON 响应，让前端显示邀请码输入弹窗
+        # translated，translated JSON translated，translated
         if quota_exhausted:
             from fastapi.responses import JSONResponse
             return JSONResponse(
                 status_code=402,  # Payment Required
                 content={
                     "error": "quota_exhausted",
-                    "message": "您的免费额度已用完，请输入邀请码获取更多额度",
+                    "message": "translated，translatedGet translated",
                     "requires_invite_code": True,
                 },
             )
-        # 如果 img 为 None（不应该发生，但为了安全起见）
+        # translated img translated None（translated，translated）
         if img is None:
             logger.error("[PREVIEW] img is None but quota_exhausted is False")
             from fastapi.responses import JSONResponse
             return JSONResponse(
                 status_code=500,
-                content={"error": "image_generation_failed", "message": "图片生成失败"},
+                content={"error": "image_generation_failed", "message": "imagegeneratefailed"},
             )
         png_bytes = image_to_png_bytes(img)
         logger.info("[PREVIEW] Generated PNG persona=%s size=%sx%s", resolved_persona, w, h)
         
-        # 确定生成状态（使用英文避免编码问题）
+        # translated（translated）
         status_msg = "no_llm_required" if not llm_mode_requires_quota else ("model_generated" if not _content_fallback else "fallback_used")
         
         return Response(
@@ -443,7 +443,7 @@ async def preview_stream(
         mac = validate_mac_param(mac)
         await ensure_web_or_device_access(request, mac, x_device_token, ink_session)
     
-    # 获取当前登录用户 ID：同上，用于合入 user_llm_config，而计费仍按 owner / 登录用户归属
+    # Get translated ID：translated，translated user_llm_config，translated owner / translated
     current_user_id = None
     try:
         from core.auth import get_current_user_optional
@@ -457,7 +457,7 @@ async def preview_stream(
 
     async def stream():
         try:
-            yield _sse_event("status", {"stage": "generating", "message": "正在生成..."})
+            yield _sse_event("status", {"stage": "generating", "message": "translated..."})
             effective_v = await resolve_preview_voltage(v, mac)
             parsed_mode_override = None
             if mode_override:
@@ -485,23 +485,23 @@ async def preview_stream(
                 user_api_key=x_inksight_llm_api_key,
                 colors=colors,
             )
-            # 如果 API key 无效，返回错误事件
+            # translated API key invalid，translated
             if api_key_invalid:
                 yield _sse_event("error", {
                     "error": "api_key_invalid",
-                    "message": "您提供的 API key 无效或已过期，请检查个人信息或服务器中的 API key 配置",
+                    "message": "translated API key invalidtranslated，translated API key config",
                 })
                 return
-            # 如果额度耗尽，返回错误事件
+            # translated，translated
             if quota_exhausted:
                 yield _sse_event("error", {
                     "error": "quota_exhausted",
-                    "message": "您的免费额度已用完，请输入邀请码获取更多额度",
+                    "message": "translated，translatedGet translated",
                     "requires_invite_code": True,
                     "usage_source": usage_source,
                 })
                 return
-            yield _sse_event("status", {"stage": "rendering", "message": "正在渲染..."})
+            yield _sse_event("status", {"stage": "rendering", "message": "translated..."})
             png_bytes = image_to_png_bytes(img)
             data_url = f"data:image/png;base64,{base64.b64encode(png_bytes).decode('ascii')}"
             # Keep SSE result payload aligned with /preview headers for UI.
@@ -514,7 +514,7 @@ async def preview_stream(
                 "result",
                 {
                     "stage": "done",
-                    "message": "完成",
+                    "message": "translated",
                     "persona": resolved_persona,
                     "cache_hit": cache_hit,
                     "usage_source": usage_source,

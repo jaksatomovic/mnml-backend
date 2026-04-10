@@ -69,7 +69,7 @@ async def get_config(
     x_device_token: Optional[str] = Header(default=None),
     ink_session: Optional[str] = Cookie(default=None),
 ):
-    # FastAPI 会自动解码 URL 编码的路径参数，但需要验证 MAC 格式
+    # FastAPI translated URL translated，translated MAC translated
     logger.debug(f"[CONFIG GET] Received MAC: {mac} (raw)")
     try:
         mac = validate_mac_param(mac)
@@ -124,7 +124,7 @@ async def patch_focus_listening(
     authorization: Optional[str] = Header(default=None),
     ink_session: Optional[str] = Cookie(default=None),
 ):
-    """轻量级端点：仅更新 focus_listening；开启时如无 alert_token 则自动生成并返回。"""
+    """translated：translated focus_listening；translated alert_token translated。"""
     mac = validate_mac_param(mac)
     if not is_admin_authorized(authorization):
         await ensure_web_or_device_access(

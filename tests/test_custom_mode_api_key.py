@@ -1,14 +1,14 @@
 """
-测试自定义模式的 API key 传递逻辑
+testtextmodetext API key text
 
-测试场景：
-1. 用户配置了有效的 api_key - 应该使用用户配置的
-2. 用户配置了但解密后为空 - 应该报错提示用户配置有问题
-3. 用户没有配置 api_key - 应该使用环境变量
-4. 用户没有配置且环境变量也没有 - 应该报错
-5. 测试 pipeline.py 中的 api_key 传递
-6. 测试 json_content.py 中的 api_key 传递
-7. 测试 mode_generator.py 中的 api_key 传递
+testtext：
+1. text api_key - text
+2. text - text
+3. text api_key - text
+4. text - text
+5. test pipeline.py text api_key text
+6. test json_content.py text api_key text
+7. test mode_generator.py text api_key text
 """
 import os
 import sys
@@ -28,24 +28,24 @@ from core.content import _get_client
 def sample_date_ctx():
     """A typical date context dict."""
     return {
-        "date_str": "2月16日 周一",
+        "date_str": "2/16 Mon",
         "time_str": "09:30:00",
         "weekday": 0,
         "hour": 9,
         "is_weekend": False,
         "year": 2026,
         "day": 16,
-        "month_cn": "二月",
-        "weekday_cn": "周一",
+        "month_cn": "February",
+        "weekday_cn": "Mon",
         "day_of_year": 47,
         "days_in_year": 365,
         "festival": "",
         "is_holiday": False,
         "is_workday": True,
-        "upcoming_holiday": "清明节",
+        "upcoming_holiday": "Qingming Festival",
         "days_until_holiday": 48,
-        "holiday_date": "04月05日",
-        "daily_word": "春风化雨",
+        "holiday_date": "04/05",
+        "daily_word": "spring breeze",
     }
 
 
@@ -64,15 +64,15 @@ def custom_mode_def():
     """A custom mode definition for testing."""
     return {
         "mode_id": "TEST_CUSTOM",
-        "display_name": "测试自定义模式",
+        "display_name": "testtextmode",
         "content": {
             "type": "llm_json",
-            "prompt_template": "测试提示词 {context}",
+            "prompt_template": "testtext {context}",
             "output_schema": {
-                "quote": {"type": "string", "default": "默认语录"},
-                "author": {"type": "string", "default": "默认作者"},
+                "quote": {"type": "string", "default": "defaulttext"},
+                "author": {"type": "string", "default": "defaulttext"},
             },
-            "fallback": {"quote": "默认语录", "author": "默认作者"},
+            "fallback": {"quote": "defaulttext", "author": "defaulttext"},
         },
         "layout": {"body": []},
     }
@@ -85,7 +85,7 @@ def _mock_registry(*, json_modes=None):
     mock_reg.is_json_mode.side_effect = lambda p: p in json_modes
     
     def _get_json_mode(p, mac=None, *args, **kwargs):
-        # 测试环境下忽略 mac，仅根据模式 ID 判断是否为 JSON 模式
+        # testtext mac，textmode ID text JSON mode
         if p in json_modes:
             jm = MagicMock()
             jm.definition = {
@@ -101,22 +101,22 @@ def _mock_registry(*, json_modes=None):
 
 
 class TestPipelineApiKey:
-    """测试 pipeline.py 中的 api_key 传递"""
+    """test pipeline.py text api_key text"""
 
     @pytest.mark.asyncio
     async def test_pipeline_passes_user_api_key_to_json_content(self, sample_date_ctx, sample_weather, custom_mode_def):
-        """测试 pipeline 正确传递用户配置的 api_key"""
+        """test pipeline text api_key"""
         mock_reg = _mock_registry(json_modes=["TEST_CUSTOM"])
         user_api_key = "sk-user-key-12345"
         
-        # 模拟加密的 api_key
+        # text api_key
         from core.crypto import encrypt_api_key
         encrypted_key = encrypt_api_key(user_api_key)
         
-        # 在新的实现中，pipeline 不再从设备配置的 llm_api_key 读取用户 Key，
-        # 而是由上层 shared.build_image 注入 config["user_api_key"]。
-        # 为了验证 generate_json_mode_content 收到正确的 api_key，
-        # 这里直接通过 config["user_api_key"] 传递。
+        # text，pipeline text llm_api_key text Key，
+        # text shared.build_image text config["user_api_key"]。
+        # text generate_json_mode_content text api_key，
+        # text config["user_api_key"] text。
         config = {
             "user_api_key": user_api_key,
             "llm_provider": "deepseek",
@@ -136,17 +136,17 @@ class TestPipelineApiKey:
                 sample_weather["weather_str"],
             )
             
-            # 验证 api_key 被正确传递
+            # text api_key text
             call_args = mock_gc.call_args
             assert call_args is not None
             assert call_args.kwargs.get("api_key") == user_api_key
 
     @pytest.mark.asyncio
     async def test_pipeline_handles_empty_decrypted_key(self, sample_date_ctx, sample_weather, custom_mode_def):
-        """测试 pipeline 处理解密后为空的情况"""
+        """test pipeline text"""
         mock_reg = _mock_registry(json_modes=["TEST_CUSTOM"])
         
-        # 模拟上层传入 user_api_key 为空字符串（表示用户配置了但无效）
+        # text user_api_key text（textinvalid）
         config = {
             "user_api_key": "",
             "llm_provider": "deepseek",
@@ -155,7 +155,7 @@ class TestPipelineApiKey:
         
         with (
             patch("core.mode_registry.get_registry", return_value=mock_reg),
-            patch("core.crypto.decrypt_api_key", return_value=""),  # 解密失败返回空字符串
+            patch("core.crypto.decrypt_api_key", return_value=""),  # text
             patch("core.json_content.generate_json_mode_content", new_callable=AsyncMock) as mock_gc,
         ):
             mock_gc.return_value = {"quote": "test", "author": "test"}
@@ -167,14 +167,14 @@ class TestPipelineApiKey:
                 sample_weather["weather_str"],
             )
             
-            # 验证传递的是空字符串（表示用户配置了但无效）
+            # text（textinvalid）
             call_args = mock_gc.call_args
             assert call_args is not None
             assert call_args.kwargs.get("api_key") == ""
 
     @pytest.mark.asyncio
     async def test_pipeline_uses_none_when_no_config(self, sample_date_ctx, sample_weather, custom_mode_def):
-        """测试 pipeline 在没有配置时传递 None"""
+        """test pipeline text None"""
         mock_reg = _mock_registry(json_modes=["TEST_CUSTOM"])
         
         config = {
@@ -195,18 +195,18 @@ class TestPipelineApiKey:
                 sample_weather["weather_str"],
             )
             
-            # 验证传递的是 None（表示用户没有配置）
+            # text None（text）
             call_args = mock_gc.call_args
             assert call_args is not None
             assert call_args.kwargs.get("api_key") is None
 
 
 class TestJsonContentApiKey:
-    """测试 json_content.py 中的 api_key 传递"""
+    """test json_content.py text api_key text"""
 
     @pytest.mark.asyncio
     async def test_json_content_uses_user_api_key(self, custom_mode_def):
-        """测试 json_content 使用用户配置的 api_key"""
+        """test json_content text api_key"""
         user_api_key = "sk-user-key-12345"
         
         with patch("core.json_content._call_llm", new_callable=AsyncMock) as mock_llm:
@@ -215,18 +215,18 @@ class TestJsonContentApiKey:
             await generate_json_mode_content(
                 custom_mode_def,
                 date_str="2025-03-12",
-                weather_str="晴 15°C",
+                weather_str="sunny 15°C",
                 api_key=user_api_key,
             )
             
-            # 验证 _call_llm 被调用时传递了用户配置的 api_key
+            # text _call_llm text api_key
             mock_llm.assert_called_once()
             call_args = mock_llm.call_args
             assert call_args.kwargs.get("api_key") == user_api_key
 
     @pytest.mark.asyncio
     async def test_json_content_uses_env_var_when_api_key_is_none(self, custom_mode_def):
-        """测试 json_content 在 api_key 为 None 时使用环境变量"""
+        """test json_content text api_key text None text"""
         env_api_key = "sk-env-key-67890"
         
         with (
@@ -238,40 +238,40 @@ class TestJsonContentApiKey:
             await generate_json_mode_content(
                 custom_mode_def,
                 date_str="2025-03-12",
-                weather_str="晴 15°C",
-                api_key=None,  # 用户没有配置
+                weather_str="sunny 15°C",
+                api_key=None,  # text
             )
             
-            # 验证 _call_llm 被调用，_get_client 会从环境变量获取
+            # text _call_llm text，_get_client text
             mock_llm.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_json_content_raises_error_when_user_key_empty(self, custom_mode_def):
-        """测试 json_content 在用户配置的 api_key 为空时抛出错误"""
+        """test json_content text api_key text"""
         with (
-            patch.dict(os.environ, {}, clear=True),  # 清空环境变量
+            patch.dict(os.environ, {}, clear=True),  # text
             patch("core.json_content._call_llm", new_callable=AsyncMock) as mock_llm,
         ):
-            # _get_client 会抛出 LLMKeyMissingError
-            mock_llm.side_effect = LLMKeyMissingError("您配置的 API key 为空或无效")
+            # _get_client text LLMKeyMissingError
+            mock_llm.side_effect = LLMKeyMissingError("text API key textinvalid")
             
             result = await generate_json_mode_content(
                 custom_mode_def,
                 date_str="2025-03-12",
-                weather_str="晴 15°C",
-                api_key="",  # 用户配置了但为空
+                weather_str="sunny 15°C",
+                api_key="",  # text
             )
             
-            # 应该返回 fallback 内容，并标记 api_key_invalid
+            # text fallback text，text api_key_invalid
             assert "quote" in result
             assert result.get("_api_key_invalid") is True
 
     @pytest.mark.asyncio
     async def test_json_content_passes_api_key_to_nested_calls(self, custom_mode_def):
-        """测试 json_content 在嵌套调用中传递 api_key"""
+        """test json_content text api_key"""
         user_api_key = "sk-user-key-12345"
         
-        # 测试 external_data 类型（briefing provider）
+        # test external_data text（briefing provider）
         mode_def_briefing = {
             "mode_id": "TEST_BRIEFING",
             "content": {
@@ -299,12 +299,12 @@ class TestJsonContentApiKey:
             await generate_json_mode_content(
                 mode_def_briefing,
                 date_str="2025-03-12",
-                weather_str="晴 15°C",
+                weather_str="sunny 15°C",
                 language="en",
                 api_key=user_api_key,
             )
             
-            # 验证嵌套调用都传递了 api_key
+            # text api_key
             mock_summarize.assert_called_once()
             assert mock_summarize.call_args.kwargs.get("api_key") == user_api_key
             assert mock_summarize.call_args.kwargs.get("language") == "en"
@@ -314,16 +314,16 @@ class TestJsonContentApiKey:
 
 
 class TestModeGeneratorApiKey:
-    """测试 mode_generator.py 中的 api_key 传递"""
+    """test mode_generator.py text api_key text"""
 
     @pytest.mark.asyncio
     async def test_mode_generator_uses_user_api_key(self):
-        """测试 mode_generator 使用用户配置的 api_key"""
+        """test mode_generator text api_key"""
         user_api_key = "sk-user-key-12345"
         
         with patch("core.mode_generator._get_client") as mock_get_client:
             mock_client = MagicMock()
-            # 创建 mock response
+            # text mock response
             mock_response = MagicMock()
             mock_choice = MagicMock()
             mock_choice.message = MagicMock(content='{"mode_id": "TEST", "display_name": "Test"}')
@@ -341,16 +341,16 @@ class TestModeGeneratorApiKey:
                     api_key=user_api_key,
                 )
             except Exception:
-                pass  # 忽略其他错误，只关注 api_key 传递
+                pass  # text，text api_key text
             
-            # 验证 _get_client 被调用时传递了 api_key
+            # text _get_client text api_key
             mock_get_client.assert_called_once()
             call_args = mock_get_client.call_args
             assert call_args.kwargs.get("api_key") == user_api_key
 
     @pytest.mark.asyncio
     async def test_generate_mode_definition_passes_api_key(self):
-        """测试 generate_mode_definition 传递 api_key"""
+        """test generate_mode_definition text api_key"""
         user_api_key = "sk-user-key-12345"
         
         with (
@@ -360,37 +360,37 @@ class TestModeGeneratorApiKey:
             
             try:
                 await generate_mode_definition(
-                    description="测试模式",
+                    description="testmode",
                     provider="deepseek",
                     model="deepseek-chat",
                     api_key=user_api_key,
                 )
             except Exception:
-                pass  # 忽略验证错误，只关注 api_key 传递
+                pass  # text，text api_key text
             
-            # 验证 _call_llm_with_messages 被调用时传递了 api_key
+            # text _call_llm_with_messages text api_key
             mock_llm.assert_called_once()
             call_args = mock_llm.call_args
             assert call_args.kwargs.get("api_key") == user_api_key
 
 
 class TestGetClientApiKey:
-    """测试 _get_client 中的 api_key 处理逻辑"""
+    """test _get_client text api_key text"""
 
     def test_get_client_uses_user_api_key(self):
-        """测试 _get_client 使用用户配置的 api_key"""
+        """test _get_client text api_key"""
         user_api_key = "sk-user-key-12345"
         
         client, max_tokens = _get_client("deepseek", "deepseek-chat", api_key=user_api_key)
         
         assert client is not None
         assert max_tokens > 0
-        # 验证 client 使用的是用户配置的 api_key（通过检查 client 的 api_key 属性）
+        # text client text api_key（text client text api_key text）
         assert hasattr(client, "_client")
-        # 注意：AsyncOpenAI 的 api_key 存储在内部，我们无法直接访问，但可以确认没有抛出异常
+        # text：AsyncOpenAI text api_key text，text，text
 
     def test_get_client_uses_env_var_when_api_key_is_none(self):
-        """测试 _get_client 在 api_key 为 None 时使用环境变量"""
+        """test _get_client text api_key text None text"""
         env_api_key = "sk-env-key-67890"
         
         with patch.dict(os.environ, {"DEEPSEEK_API_KEY": env_api_key}):
@@ -400,26 +400,26 @@ class TestGetClientApiKey:
             assert max_tokens > 0
 
     def test_get_client_raises_error_when_user_key_empty(self):
-        """测试 _get_client 在用户配置的 api_key 为空时抛出错误"""
+        """test _get_client text api_key text"""
         with (
-            patch.dict(os.environ, {}, clear=True),  # 清空环境变量
+            patch.dict(os.environ, {}, clear=True),  # text
         ):
             with pytest.raises(LLMKeyMissingError) as exc_info:
                 _get_client("deepseek", "deepseek-chat", api_key="")
             
-            # 验证错误消息包含"您配置的"
-            assert "您配置的" in str(exc_info.value)
+            # text"text"
+            assert "text" in str(exc_info.value)
 
     def test_get_client_raises_error_when_no_key_at_all(self):
-        """测试 _get_client 在完全没有 api_key 时抛出错误"""
+        """test _get_client text api_key text"""
         with (
-            patch.dict(os.environ, {}, clear=True),  # 清空环境变量
+            patch.dict(os.environ, {}, clear=True),  # text
         ):
             with pytest.raises(LLMKeyMissingError) as exc_info:
                 _get_client("deepseek", "deepseek-chat", api_key=None)
             
-            # 验证错误消息不包含"您配置的"（因为用户没有配置）
-            assert "您配置的" not in str(exc_info.value)
+            # text"text"（text）
+            assert "text" not in str(exc_info.value)
 
 
 if __name__ == "__main__":

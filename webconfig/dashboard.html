@@ -66,19 +66,19 @@ canvas{display:block;width:100%}
   <!-- Overview cards (shown for global stats) -->
   <div class="stats-grid" id="overviewCards">
     <div class="stat-card">
-      <div class="stat-label">设备总数</div>
+      <div class="stat-label">translated</div>
       <div class="stat-value" id="statDevices">—</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">总渲染次数</div>
+      <div class="stat-label">translated</div>
       <div class="stat-value" id="statRenders">—</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">缓存命中率</div>
+      <div class="stat-label">translated</div>
       <div class="stat-value" id="statCacheRate">—</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">平均渲染时间</div>
+      <div class="stat-label">translated</div>
       <div class="stat-value" id="statAvgTime">—</div>
     </div>
   </div>
@@ -87,20 +87,20 @@ canvas{display:block;width:100%}
   <div id="deviceStats" style="display:none">
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">最后刷新</div>
+        <div class="stat-label">translated</div>
         <div class="stat-value" id="devLastRefresh" style="font-size:1rem">—</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">电池电压</div>
+        <div class="stat-label">translated</div>
         <div class="stat-value" id="devBattery">—</div>
         <div class="stat-sub" id="devBatterySub"></div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">WiFi 信号</div>
+        <div class="stat-label">WiFi translated</div>
         <div class="stat-value" id="devRssi">—</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">错误次数</div>
+        <div class="stat-label">translated</div>
         <div class="stat-value" id="devErrors">—</div>
       </div>
     </div>
@@ -108,13 +108,13 @@ canvas{display:block;width:100%}
     <div class="charts-row">
       <!-- Mode frequency -->
       <div class="card">
-        <div class="card-header">模式使用频率</div>
+        <div class="card-header">modetranslated</div>
         <div class="card-body" id="modeFrequency"></div>
       </div>
 
       <!-- Battery trend -->
       <div class="card">
-        <div class="card-header">电池电压趋势</div>
+        <div class="card-header">translated</div>
         <div class="card-body">
           <div class="chart-container">
             <canvas id="voltageChart" height="180"></canvas>
@@ -125,7 +125,7 @@ canvas{display:block;width:100%}
 
     <!-- Daily renders chart -->
     <div class="card">
-      <div class="card-header">每日渲染次数</div>
+      <div class="card-header">translated</div>
       <div class="card-body">
         <div class="chart-container">
           <canvas id="dailyChart" height="160"></canvas>
@@ -135,10 +135,10 @@ canvas{display:block;width:100%}
 
     <!-- Recent renders -->
     <div class="card">
-      <div class="card-header">最近渲染记录</div>
+      <div class="card-header">translated</div>
       <div class="card-body" style="padding:0;overflow-x:auto">
         <table class="render-table" id="renderTable">
-          <thead><tr><th>时间</th><th>模式</th><th>耗时</th><th>缓存</th><th>状态</th></tr></thead>
+          <thead><tr><th>translated</th><th>mode</th><th>translated</th><th>translated</th><th>translated</th></tr></thead>
           <tbody id="renderBody"></tbody>
         </table>
       </div>
@@ -147,28 +147,28 @@ canvas{display:block;width:100%}
     <!-- Content history -->
     <div class="card">
       <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
-        <span>内容历史</span>
+        <span>translated</span>
         <select id="historyModeFilter" onchange="loadContentHistory()" style="font-size:.72rem;padding:3px 8px;border:1px solid var(--border);border-radius:4px;background:#fff">
-          <option value="">全部模式</option>
+          <option value="">translatedmode</option>
         </select>
       </div>
       <div class="card-body" id="contentHistoryBody">
-        <div class="empty-state" style="padding:16px">加载设备数据后显示</div>
+        <div class="empty-state" style="padding:16px">translated</div>
       </div>
     </div>
 
     <!-- Favorites -->
     <div class="card">
-      <div class="card-header">收藏墙</div>
+      <div class="card-header">translated</div>
       <div class="card-body" id="favoritesBody">
-        <div class="empty-state" style="padding:16px">加载设备数据后显示</div>
+        <div class="empty-state" style="padding:16px">translated</div>
       </div>
     </div>
   </div>
 
   <div id="emptyState" class="empty-state" style="display:none">
-    <p>该设备暂无统计数据</p>
-    <p style="font-size:.75rem;margin-top:4px">设备首次请求后将开始记录统计信息</p>
+    <p>translated</p>
+    <p style="font-size:.75rem;margin-top:4px">translated</p>
   </div>
 </div>
 
@@ -224,7 +224,7 @@ async function loadStats() {
     if (hb && hb.length > 0) {
       const last = hb[hb.length - 1];
       document.getElementById('devBattery').textContent = last.voltage ? last.voltage.toFixed(2) + 'V' : '—';
-      document.getElementById('devBatterySub').textContent = hb.length > 1 ? `${hb.length} 条记录` : '';
+      document.getElementById('devBatterySub').textContent = hb.length > 1 ? `${hb.length} translated` : '';
       document.getElementById('devRssi').textContent = last.rssi != null ? last.rssi + ' dBm' : '—';
     } else {
       document.getElementById('devBattery').textContent = '—';
@@ -264,7 +264,7 @@ function renderModeFrequency(freq, total) {
   const container = document.getElementById('modeFrequency');
   const sorted = Object.entries(freq).sort((a, b) => b[1] - a[1]);
   if (sorted.length === 0) {
-    container.innerHTML = '<div style="color:var(--text2);font-size:.8rem;text-align:center;padding:20px">暂无数据</div>';
+    container.innerHTML = '<div style="color:var(--text2);font-size:.8rem;text-align:center;padding:20px">translated</div>';
     return;
   }
   const maxCount = sorted[0][1];
@@ -295,7 +295,7 @@ function renderVoltageChart(heartbeats) {
     ctx.fillStyle = '#737373';
     ctx.font = '13px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('数据不足', W / 2, H / 2);
+    ctx.fillText('translated', W / 2, H / 2);
     return;
   }
 
@@ -365,7 +365,7 @@ function renderDailyChart(dailyRenders) {
     ctx.fillStyle = '#737373';
     ctx.font = '13px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('暂无数据', W / 2, H / 2);
+    ctx.fillText('translated', W / 2, H / 2);
     return;
   }
 
@@ -419,7 +419,7 @@ async function loadRenderHistory(mac) {
     const tbody = document.getElementById('renderBody');
 
     if (!d.renders || d.renders.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text2)">暂无记录</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text2)">translated</td></tr>';
       return;
     }
 
@@ -452,12 +452,12 @@ async function loadContentHistory() {
     let url = `${API_BASE}/api/device/${mac}/history?limit=20`;
     if (mode) url += `&mode=${mode}`;
     const res = await fetch(url);
-    if (!res.ok) { container.innerHTML = '<div class="empty-state">加载失败</div>'; return; }
+    if (!res.ok) { container.innerHTML = '<div class="empty-state">translatedfailed</div>'; return; }
     const data = await res.json();
     const history = data.history || [];
 
     if (history.length === 0) {
-      container.innerHTML = '<div class="empty-state" style="padding:16px">暂无内容历史</div>';
+      container.innerHTML = '<div class="empty-state" style="padding:16px">translated</div>';
       return;
     }
 
@@ -473,11 +473,11 @@ async function loadContentHistory() {
           <span style="font-size:.7rem;color:var(--text2)">${time}</span>
           ${h.is_favorite ? '<span style="color:#eab308;font-size:.9rem">★</span>' : ''}
         </div>
-        <div style="font-size:.78rem;color:var(--text2);margin-top:4px;line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${preview || '(内容为空)'}</div>
+        <div style="font-size:.78rem;color:var(--text2);margin-top:4px;line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${preview || '(translated)'}</div>
       </div>`;
     }).join('');
   } catch (e) {
-    container.innerHTML = `<div class="empty-state">加载失败: ${e.message}</div>`;
+    container.innerHTML = `<div class="empty-state">translatedfailed: ${e.message}</div>`;
   }
 }
 
@@ -488,12 +488,12 @@ async function loadFavorites() {
 
   try {
     const res = await fetch(`${API_BASE}/api/device/${mac}/favorites?limit=20`);
-    if (!res.ok) { container.innerHTML = '<div class="empty-state">加载失败</div>'; return; }
+    if (!res.ok) { container.innerHTML = '<div class="empty-state">translatedfailed</div>'; return; }
     const data = await res.json();
     const favorites = data.favorites || [];
 
     if (favorites.length === 0) {
-      container.innerHTML = '<div class="empty-state" style="padding:16px">暂无收藏<br><span style="font-size:.72rem">三击设备按钮可收藏当前内容</span></div>';
+      container.innerHTML = '<div class="empty-state" style="padding:16px">translated<br><span style="font-size:.72rem">translated</span></div>';
       return;
     }
 
@@ -506,19 +506,19 @@ async function loadFavorites() {
         ).join('');
         return `<div style="padding:12px;border:1px solid var(--border);border-radius:8px;background:#fafaf7">
           <div style="font-size:.72rem;font-weight:600;color:var(--text2);margin-bottom:4px">${f.mode_id} · <span style="color:#eab308">★</span></div>
-          <div style="font-size:.78rem;line-height:1.5;color:var(--text)">${preview || '(内容)'}</div>
+          <div style="font-size:.78rem;line-height:1.5;color:var(--text)">${preview || '(translated)'}</div>
           <div style="font-size:.65rem;color:var(--text2);margin-top:4px">${time}</div>
         </div>`;
       }).join('') +
       '</div>';
   } catch (e) {
-    container.innerHTML = `<div class="empty-state">加载失败: ${e.message}</div>`;
+    container.innerHTML = `<div class="empty-state">translatedfailed: ${e.message}</div>`;
   }
 }
 
 function populateModeFilter(modes) {
   const select = document.getElementById('historyModeFilter');
-  select.innerHTML = '<option value="">全部模式</option>';
+  select.innerHTML = '<option value="">translatedmode</option>';
   Object.keys(modes || {}).forEach(m => {
     select.innerHTML += `<option value="${m}">${m}</option>`;
   });

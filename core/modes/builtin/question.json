@@ -1,22 +1,22 @@
 {
   "mode_id": "QUESTION",
-  "display_name": "每日一问",
+  "display_name": "translated",
   "icon": "question",
   "cacheable": true,
-  "description": "一个值得思考的开放式问题",
+  "description": "translated",
   "content": {
     "type": "llm_json",
-    "prompt_template": "你是一位善于提问的哲学家和心理咨询师。生成一个能引发深度思考的开放式问题，适合在工作间隙花3分钟思考。\n用 JSON 输出：\n{{\"question\": \"问题（30字以内，简洁有力）\", \"context_note\": \"为什么这个问题值得思考（25字以内）\", \"category\": \"问题类别（自我/关系/工作/人生/创造力）\"}}\n要求：\n1. 问题要有深度但不沉重，引发思考但不制造焦虑\n2. 不要是/否题，要开放式的\n3. 与当前季节、天气、时间有微妙的关联更佳\n只输出 JSON。\n环境：{context}",
+    "prompt_template": "translated。translated，translated3translated。\ntranslated JSON translated：\n{{\"question\": \"translated（30translated，translated）\", \"context_note\": \"translated（25translated）\", \"category\": \"translated（translated/translated/translated/translated/translated）\"}}\ntranslated：\n1. translated，translated\n2. translated/translated，translated\n3. translated、weather、translated\ntranslated JSON。\ntranslated：{context}",
     "output_schema": {
-      "question": { "type": "string", "default": "你最近一次改变想法是什么时候？" },
-      "context_note": { "type": "string", "default": "改变想法是成长的标志" },
-      "category": { "type": "string", "default": "自我" }
+      "question": { "type": "string", "default": "translated？" },
+      "context_note": { "type": "string", "default": "translated" },
+      "category": { "type": "string", "default": "translated" }
     },
     "temperature": 0.9,
     "fallback": {
-      "question": "你最近一次改变想法是什么时候？",
-      "context_note": "改变想法是成长的标志",
-      "category": "自我"
+      "question": "translated？",
+      "context_note": "translated",
+      "category": "translated"
     }
   },
   "layout": {

@@ -41,37 +41,37 @@ class TestCleanJsonResponse:
 
 class TestBuildContextStr:
     def test_basic(self):
-        result = _build_context_str("2月16日", "12°C")
-        assert "日期: 2月16日" in result
-        assert "天气: 12°C" in result
+        result = _build_context_str("2/16", "12°C")
+        assert "date: 2/16" in result
+        assert "weather: 12°C" in result
 
     def test_with_festival(self):
-        result = _build_context_str("1月1日", "5°C", festival="元旦")
-        assert "节日: 元旦" in result
+        result = _build_context_str("1/1", "5°C", festival="New Year")
+        assert "festival: New Year" in result
 
     def test_with_holiday(self):
         result = _build_context_str(
-            "3月1日", "10°C", upcoming_holiday="清明节", days_until=35
+            "3/1", "10°C", upcoming_holiday="Qingming Festival", days_until=35
         )
-        assert "35天后是清明节" in result
+        assert "35textQingming Festival" in result
 
     def test_with_daily_word(self):
-        result = _build_context_str("2月16日", "12°C", daily_word="春风化雨")
-        assert "每日一词: 春风化雨" in result
+        result = _build_context_str("2/16", "12°C", daily_word="spring breeze")
+        assert "daily word: spring breeze" in result
 
     def test_english_filters_cjk_holiday_context(self):
         result = _build_context_str(
             "Apr 4",
             "15°C",
-            festival="清明节",
-            daily_word="春和景明",
-            upcoming_holiday="清明节",
+            festival="Qingming Festival",
+            daily_word="text",
+            upcoming_holiday="Qingming Festival",
             days_until=3,
             language="en",
         )
         assert "Qingming" not in result
-        assert "清明" not in result
-        assert "春和景明" not in result
+        assert "text" not in result
+        assert "text" not in result
         assert "Date: Apr 4" in result
         assert "Weather: 15°C" in result
 
@@ -82,9 +82,9 @@ class TestBuildStyleInstructions:
         assert _build_style_instructions([], "zh", "neutral") == ""
 
     def test_character_tones(self):
-        result = _build_style_instructions(["鲁迅", "莫言"], None, None)
-        assert "鲁迅" in result
-        assert "莫言" in result
+        result = _build_style_instructions(["Lu Xun", "Mo Yan"], None, None)
+        assert "Lu Xun" in result
+        assert "Mo Yan" in result
 
     def test_language_en(self):
         result = _build_style_instructions(None, "en", None)
@@ -92,7 +92,7 @@ class TestBuildStyleInstructions:
 
     def test_content_tone_humor(self):
         result = _build_style_instructions(None, None, "humor")
-        assert "幽默" in result
+        assert "text" in result
 
 
 class TestFallbackContent:
@@ -121,7 +121,7 @@ class TestGenerateContent:
         with patch("core.content._call_llm", new_callable=AsyncMock) as mock_llm:
             result = await generate_content(
                 persona="STOIC",
-                date_str="2月16日",
+                date_str="2/16",
                 weather_str="12°C",
             )
             mock_llm.assert_not_called()
@@ -130,23 +130,23 @@ class TestGenerateContent:
     @pytest.mark.asyncio
     async def test_daily_mode(self):
         daily_json = json.dumps({
-            "quote": "学而不思则罔",
-            "author": "孔子",
-            "book_title": "《论语》",
-            "book_author": "孔子 著",
-            "book_desc": "中国古典哲学的基础之作。",
-            "tip": "多读书多思考。",
-            "season_text": "立春已过",
+            "quote": "Learning without thought is futile",
+            "author": "Confucius",
+            "book_title": "《Analects》",
+            "book_author": "Confucius text",
+            "book_desc": "Chinatext。",
+            "tip": "text。",
+            "season_text": "text",
         })
         with patch("core.content._call_llm", new_callable=AsyncMock) as mock_llm:
             mock_llm.return_value = daily_json
             result = await generate_content(
                 persona="DAILY",
-                date_str="2月16日",
+                date_str="2/16",
                 weather_str="12°C",
             )
-            assert result["quote"] == "学而不思则罔"
-            assert result["book_title"] == "《论语》"
+            assert result["quote"] == "Learning without thought is futile"
+            assert result["book_title"] == "《Analects》"
 
     @pytest.mark.asyncio
     async def test_llm_failure_returns_fallback(self):
@@ -154,7 +154,7 @@ class TestGenerateContent:
             mock_llm.side_effect = LLMKeyMissingError("missing key")
             result = await generate_content(
                 persona="DAILY",
-                date_str="2月16日",
+                date_str="2/16",
                 weather_str="12°C",
             )
             # Should return fallback content
@@ -168,15 +168,15 @@ class TestGenerateCountdownContent:
         result = await generate_countdown_content(
             config={
                 "countdownEvents": [
-                    {"name": "项目截止", "date": "2099-01-01", "type": "countdown"},
+                    {"name": "text", "date": "2099-01-01", "type": "countdown"},
                 ],
                 "content_tone": "positive",
             }
         )
 
-        assert result["events"][0]["name"] == "项目截止"
-        assert "项目截止" in result["message"]
-        assert "加油" in result["message"]
+        assert result["events"][0]["name"] == "text"
+        assert "text" in result["message"]
+        assert "text" in result["message"]
 
     @pytest.mark.asyncio
     async def test_generates_english_message(self):
@@ -317,11 +317,11 @@ class TestGenerateBriefingContent:
             m_hn.return_value = mock_stories
             m_ph.return_value = mock_ph
             m_sum.return_value = (mock_stories, mock_ph)
-            m_ins.return_value = "AI 行业持续创新。"
+            m_ins.return_value = "AI text。"
 
             result = await generate_briefing_content()
             assert len(result["hn_items"]) == 2
-            assert result["insight"] == "AI 行业持续创新。"
+            assert result["insight"] == "AI text。"
 
 
 class TestBriefingSummaries:
@@ -333,7 +333,7 @@ class TestBriefingSummaries:
         with patch("core.content._call_llm", new_callable=AsyncMock, return_value="not-json"):
             summarized_stories, summarized_ph = await summarize_briefing_content(stories, ph)
 
-        # 当 JSON 解析失败时，应该返回 None, None 表示失败
+        # text JSON text，text None, None text
         assert summarized_stories is None
         assert summarized_ph is None
 
@@ -351,7 +351,7 @@ class TestBriefingSummaries:
 
         prompt = mock_call.await_args.args[2]
         assert "concise English" in prompt
-        assert "中文" not in prompt
+        assert "Chinese" not in prompt
         assert summarized_stories[0]["summary"] == "Short summary"
         assert summarized_ph["tagline"] == "English intro"
 
@@ -370,14 +370,14 @@ class TestRecipeAndArtwallFallbacks:
     async def test_artwall_title_failure_keeps_image_prompt_fallback(self):
         with patch("core.content._call_llm", new_callable=AsyncMock, side_effect=LLMKeyMissingError("missing key")):
             result = await generate_artwall_content(
-                date_str="2月14日",
-                weather_str="晴 15°C",
-                festival="情人节",
+                date_str="2/14",
+                weather_str="sunny 15°C",
+                festival="Valentines Day",
                 image_api_key="",
-                fallback_title="墨韵天成",
+                fallback_title="Ink Harmony",
             )
 
-        assert result["artwork_title"] == "墨韵天成"
+        assert result["artwork_title"] == "Ink Harmony"
         assert result["image_url"] == ""
         assert result["prompt"]
 
@@ -385,14 +385,14 @@ class TestRecipeAndArtwallFallbacks:
     async def test_artwall_color_device_uses_color_prompt(self):
         with patch("core.content._call_llm", new_callable=AsyncMock, side_effect=LLMKeyMissingError("missing key")):
             result = await generate_artwall_content(
-                date_str="2月14日",
-                weather_str="晴 15°C",
-                festival="情人节",
+                date_str="2/14",
+                weather_str="sunny 15°C",
+                festival="Valentines Day",
                 colors=4,
                 image_api_key="",
-                fallback_title="墨韵天成",
+                fallback_title="Ink Harmony",
             )
 
         assert result["image_url"] == ""
-        assert "黑、白、红、黄" in result["prompt"]
-        assert result["description"] == "彩色极简插画"
+        assert "black, white, red, yellow" in result["prompt"]
+        assert result["description"] == "color minimalist illustration"

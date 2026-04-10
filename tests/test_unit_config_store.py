@@ -67,12 +67,12 @@ class TestConfigStore:
             "always_active": True,
             "language": "zh",
             "contentTone": "neutral",
-            "city": "北京",
+            "city": "Beijing",
             "latitude": 39.9042,
             "longitude": 116.4074,
             "timezone": "Asia/Shanghai",
-            "admin1": "北京市",
-            "country": "中国",
+            "admin1": "Beijing",
+            "country": "China",
             "llmProvider": "deepseek",
             "llmModel": "deepseek-chat",
         }
@@ -87,7 +87,7 @@ class TestConfigStore:
         assert config["always_active"] == 1
         assert config["is_always_active"] is True
         assert config["latitude"] == pytest.approx(39.9042)
-        assert config["country"] == "中国"
+        assert config["country"] == "China"
         assert isinstance(config["countdown_events"], list)
         assert isinstance(config["countdownEvents"], list)
 
@@ -150,7 +150,7 @@ class TestConfigStore:
             {
                 "modes": ["COUNTDOWN"],
                 "refreshStrategy": "random",
-                "countdownEvents": [{"name": "测试日", "date": "2030-01-01", "type": "countdown"}],
+                "countdownEvents": [{"name": "testtext", "date": "2030-01-01", "type": "countdown"}],
                 "timeSlotRules": [{"startHour": 9, "endHour": 12, "modes": ["DAILY"]}],
             },
         )
@@ -158,7 +158,7 @@ class TestConfigStore:
         config = await get_active_config(mac)
         assert isinstance(config["countdown_events"], list)
         assert isinstance(config["countdownEvents"], list)
-        assert config["countdown_events"][0]["name"] == "测试日"
+        assert config["countdown_events"][0]["name"] == "testtext"
         assert isinstance(config["time_slot_rules"], list)
         assert config["time_slot_rules"][0]["modes"] == ["DAILY"]
 
@@ -175,8 +175,8 @@ class TestConfigStore:
         assert reused["pair_code"] == created["pair_code"]
         assert reused["expires_at"] == created["expires_at"]
 
-    # 设备配置层面的 API key 行为已完全迁移到用户级配置（user_llm_config），
-    # 不再在 config_store 里做单元测试，相关旧用例已移除。
+    # text API key text（user_llm_config），
+    # text config_store texttest，text。
 
     async def test_remove_mode_from_all_configs_cleans_modes_and_overrides(self):
         await init_db()
@@ -187,8 +187,8 @@ class TestConfigStore:
                 "modes": ["STOIC", "CUSTOM_DELETED"],
                 "refreshStrategy": "random",
                 "modeOverrides": {
-                    "CUSTOM_DELETED": {"city": "上海"},
-                    "STOIC": {"city": "杭州"},
+                    "CUSTOM_DELETED": {"city": "Shanghai"},
+                    "STOIC": {"city": "Hangzhou"},
                 },
             },
         )
@@ -201,4 +201,4 @@ class TestConfigStore:
         assert "CUSTOM_DELETED" not in config["modes"]
         assert "STOIC" in config["modes"]
         assert "CUSTOM_DELETED" not in config["mode_overrides"]
-        assert config["mode_overrides"]["STOIC"]["city"] == "杭州"
+        assert config["mode_overrides"]["STOIC"]["city"] == "Hangzhou"

@@ -74,25 +74,25 @@ async def send_verification_code(email: str) -> tuple[bool, str]:
     existing = _pending_codes.get(email)
     if existing and time.time() - existing[1] < _CODE_COOLDOWN_SECONDS:
         remaining = int(_CODE_COOLDOWN_SECONDS - (time.time() - existing[1]))
-        return False, f"请 {remaining} 秒后再试"
+        return False, f"translated {remaining} translated"
 
     code = _generate_code()
     _pending_codes[email] = (code, time.time())
 
     if not _smtp_configured():
         logger.warning("[EMAIL] SMTP not configured — code for %s is %s (dev mode)", email, code)
-        return True, "验证码已发送（开发模式：检查服务器日志）"
+        return True, "translated（translatedmode：translated）"
 
-    subject = "InkSight 验证码"
-    body = f"您的验证码是：{code}\n\n{_CODE_TTL_SECONDS // 60} 分钟内有效，请勿泄露给他人。"
+    subject = "InkSight translated"
+    body = f"translated：{code}\n\n{_CODE_TTL_SECONDS // 60} translated，translated。"
 
     try:
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, _send_smtp, email, subject, body)
-        return True, "验证码已发送"
+        return True, "translated"
     except Exception as exc:
         logger.error("[EMAIL] Failed to send to %s: %s", email, exc, exc_info=True)
-        return False, "验证码发送失败，请稍后重试"
+        return False, "translatedfailed，please try again later"
 
 
 def verify_code(email: str, code: str) -> bool:

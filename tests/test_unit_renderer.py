@@ -40,7 +40,7 @@ class TestRenderMode:
     """render_mode is legacy; all modes are JSON-defined."""
 
     COMMON_KWARGS = dict(
-        date_str="2月16日 周一",
+        date_str="2/16 Mon",
         weather_str="12°C",
         battery_pct=85,
         weather_code=1,

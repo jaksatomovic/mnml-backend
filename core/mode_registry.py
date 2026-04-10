@@ -1,6 +1,6 @@
 """
-模式注册中心
-统一管理内置 Python 模式和 JSON 自定义模式的注册、查询、加载
+modetranslated
+translated Python modetranslated JSON translatedmodetranslated、translated、translated
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ContentContext:
-    """统一的 Python 内置模式内容生成上下文。"""
+    """translated Python translatedmodetranslated。"""
     config: dict
     date_ctx: dict
     weather_str: str

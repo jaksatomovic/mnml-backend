@@ -1,6 +1,6 @@
 """
-AI 模式生成器
-根据用户自然语言描述（和可选的参考图片）生成 InkSight 模式 JSON 定义
+AI modetranslated
+Get by translated（translatedimage）generate InkSight mode JSON translated
 """
 from __future__ import annotations
 
@@ -14,9 +14,7 @@ from .mode_registry import _validate_mode_def
 logger = logging.getLogger(__name__)
 
 # Vision-capable models per provider
-VISION_MODELS = {
-    "aliyun": {"qwen-vl-max", "qwen-vl-plus"},
-}
+VISION_MODELS = {}
 
 AVAILABLE_ICONS = (
     "art, body, book, breakfast, cloud, cookie, dinner, electric_bolt, "
@@ -25,10 +23,10 @@ AVAILABLE_ICONS = (
 )
 
 IMAGE_INTENT_PATTERNS = (
-    r"文生图", r"图生图", r"生成.*图", r"生成.*画", r"生成一张", r"来一张",
-    r"图片", r"图像", r"配图", r"画面", r"图画", r"画作", r"绘画", r"作画",
-    r"画一张", r"画个", r"画幅", r"插画", r"海报", r"壁纸", r"水墨画", r"简笔画",
-    r"素描", r"速写", r"漫画", r"手绘", r"风景画", r"肖像画",
+    r"translated", r"translated", r"generate.*translated", r"generate.*translated", r"translated", r"translated",
+    r"image", r"translated", r"translated", r"translated", r"translated", r"translated", r"translated", r"translated",
+    r"translated", r"translated", r"translated", r"translated", r"translated", r"translated", r"translated", r"translated",
+    r"translated", r"translated", r"translated", r"translated", r"translated", r"translated",
     r"text2image", r"image generation", r"generate.*image", r"create.*image",
     r"image", r"illustration", r"poster", r"wallpaper", r"artwork", r"render",
     r"photo", r"painting", r"drawing", r"sketch",
@@ -36,14 +34,14 @@ IMAGE_INTENT_PATTERNS = (
 
 # Compact examples embedded directly
 _ZEN_EXAMPLE = """{
-  "mode_id": "ZEN", "display_name": "禅意", "icon": "zen", "cacheable": true,
-  "description": "极简汉字与意境注释",
+  "mode_id": "ZEN", "display_name": "translated", "icon": "zen", "cacheable": true,
+  "description": "translated",
   "content": {
     "type": "llm_json",
-    "prompt_template": "你是一位禅宗大师。选择一个最适合当下环境的汉字，并说明为什么选这个字。\\n用 JSON 输出：{{\\"word\\": \\"一个汉字\\", \\"source\\": \\"出处或意境说明（10字以内）\\"}}\\n只输出一个字和一句意境说明。\\n环境：{context}",
-    "output_schema": { "word": { "type": "string", "default": "静" }, "source": { "type": "string", "default": "万物归寂" } },
+    "prompt_template": "translated。translated，translated。\\ntranslated JSON translated：{{\\"word\\": \\"translated\\", \\"source\\": \\"translated（10translated）\\"}}\\ntranslated。\\ntranslated：{context}",
+    "output_schema": { "word": { "type": "string", "default": "translated" }, "source": { "type": "string", "default": "translated" } },
     "temperature": 0.8,
-    "fallback": { "word": "静", "source": "万物归寂" }
+    "fallback": { "word": "translated", "source": "translated" }
   },
   "layout": {
     "status_bar": { "line_width": 1, "dashed": true },
@@ -57,18 +55,18 @@ _ZEN_EXAMPLE = """{
 }"""
 
 _STOIC_EXAMPLE = """{
-  "mode_id": "STOIC", "display_name": "斯多葛哲学", "icon": "book", "cacheable": true,
-  "description": "庄重、内省的哲学语录，附当代解读",
+  "mode_id": "STOIC", "display_name": "translated", "icon": "book", "cacheable": true,
+  "description": "translated、translated，translated",
   "content": {
     "type": "llm_json",
-    "prompt_template": "你是一位斯多葛哲学导师。根据当前情境选择一个斯多葛核心概念，用一句原文语录+一句当代解读呈现。\\n用 JSON 输出：{{\\"quote\\": \\"语录原文（40字以内）\\", \\"author\\": \\"作者\\", \\"interpretation\\": \\"当代解读（20字以内）\\"}}\\n只输出 JSON。\\n环境：{context}",
+    "prompt_template": "translated。Get by translated，translated+translated。\\ntranslated JSON translated：{{\\"quote\\": \\"translated（40translated）\\", \\"author\\": \\"translated\\", \\"interpretation\\": \\"translated（20translated）\\"}}\\ntranslated JSON。\\ntranslated：{context}",
     "output_schema": {
       "quote": { "type": "string", "default": "The impediment to action advances action." },
       "author": { "type": "string", "default": "Marcus Aurelius" },
-      "interpretation": { "type": "string", "default": "挡路的石头，本身就是路。" }
+      "interpretation": { "type": "string", "default": "translated，translated。" }
     },
     "temperature": 0.8,
-    "fallback": { "quote": "The impediment to action advances action.", "author": "Marcus Aurelius", "interpretation": "挡路的石头，本身就是路。" }
+    "fallback": { "quote": "The impediment to action advances action.", "author": "Marcus Aurelius", "interpretation": "translated，translated。" }
   },
   "layout": {
     "status_bar": { "line_width": 1 },
@@ -82,65 +80,65 @@ _STOIC_EXAMPLE = """{
 
 def _build_generation_prompt(description: str) -> str:
     """Build the meta-prompt that teaches the LLM to produce valid mode JSON."""
-    return f"""你是 InkSight 模式设计助手。InkSight 是一个墨水屏桌面伴侣，屏幕 400x300 像素，1位黑白显示。
+    return f"""translated InkSight modetranslated。InkSight translated，screen 400x300 translated，1translated。
 
-你的任务是根据用户描述，生成一个完整有效的 InkSight 模式 JSON 定义。
+translatedGet by translated，translated InkSight mode JSON translated。
 
-## 模式 JSON 结构规范
+## mode JSON translated
 
-### 顶层字段（全部必填除 icon/cacheable/description）
-- mode_id: 大写字母+数字+下划线，2-32字符，以字母开头，如 "MY_VOCAB"
-- display_name: 显示名称，最长32字符
-- icon: 图标名，可选值: {AVAILABLE_ICONS}
-- cacheable: 布尔值，是否可缓存（默认 true）
-- description: 简短描述，最长200字符
+### translated（translated icon/cacheable/description）
+- mode_id: translated+translated+translated，2-32translated，translated，translated "MY_VOCAB"
+- display_name: translated，translated32translated
+- icon: translated，translated: {AVAILABLE_ICONS}
+- cacheable: translated，translated（default true）
+- description: translated，translated200translated
 
-### content 配置（推荐 "llm_json" 类型）
+### content config（translated "llm_json" translated）
 - type: "llm_json"
-- prompt_template: LLM 提示词，**必须**包含 {{context}} 占位符。提示词中的 JSON 示例必须用双花括号 {{{{ }}}} 转义
-- output_schema: 定义输出字段，每个字段有 type（"string"/"number"/"array"/"boolean"）和 default
-- temperature: 0.0-2.0，推荐 0.7-0.9
-- fallback: 兜底数据，字段必须与 output_schema 完全对应
+- prompt_template: LLM translated，**must**translated {{context}} translated。translated JSON translatedmusttranslated {{{{ }}}} translated
+- output_schema: translated，translated type（"string"/"number"/"array"/"boolean"）translated default
+- temperature: 0.0-2.0，translated 0.7-0.9
+- fallback: translated，translatedmusttranslated output_schema translated
 
-### layout 配置
-- status_bar: {{"line_width": 1}} 或 {{"line_width": 1, "dashed": true}}
-- body: 布局块数组（从上到下渲染），**至少一个块**
+### layout config
+- status_bar: {{"line_width": 1}} translated {{"line_width": 1, "dashed": true}}
+- body: translated（translated），**translated**
 - footer: {{"label": "MODE_ID", "attribution_template": "— {{field_name}}"}}
 
-### 可用布局块类型
-- centered_text: 居中大文本。字段: field, font, font_size, vertical_center(bool), max_width_ratio(0.3-1.0)
-- text: 普通文本。字段: field 或 template, font, font_size, align(left/center/right), margin_x, max_lines
-- separator: 分隔线。字段: style(solid/dashed/short), margin_x
-- spacer: 间距。字段: height
-- list: 列表。字段: field(数组字段名), max_items, item_template, numbered(bool), item_spacing, margin_x
-- section: 带标题区块。字段: title, icon, children(子块数组)
-- icon_text: 图标+文字行。字段: icon, text/field, font_size
-- two_column: 双栏。字段: left(块数组), right(块数组), left_width, gap
-- big_number: 大数字。字段: field, font_size, align
-- key_value: 键值对。字段: field, label, font_size
-- group: 分组。字段: title, children(子块数组)
+### translated
+- centered_text: translated。translated: field, font, font_size, vertical_center(bool), max_width_ratio(0.3-1.0)
+- text: translated。translated: field translated template, font, font_size, align(left/center/right), margin_x, max_lines
+- separator: translated。translated: style(solid/dashed/short), margin_x
+- spacer: translated。translated: height
+- list: list。translated: field(translated), max_items, item_template, numbered(bool), item_spacing, margin_x
+- section: translated。translated: title, icon, children(translated)
+- icon_text: translated+translated。translated: icon, text/field, font_size
+- two_column: translated。translated: left(translated), right(translated), left_width, gap
+- big_number: translated。translated: field, font_size, align
+- key_value: translated。translated: field, label, font_size
+- group: translated。translated: title, children(translated)
 
-### 可用字体
+### translated
 noto_serif_light, noto_serif_regular, noto_serif_bold, lora_regular, lora_bold
 
-## 示例1：禅意模式（大字居中）
+## translated1：translatedmode（translated）
 {_ZEN_EXAMPLE}
 
-## 示例2：斯多葛模式（语录+归属）
+## translated2：translatedmode（translated+translated）
 {_STOIC_EXAMPLE}
 
-## 设计要点
-1. 屏幕只有 400x300 像素，内容要精简，不要塞太多内容
-2. 1位黑白显示，无灰度，设计要简洁
-3. font_size 推荐: 标题 14-18, 正文 12-14, 注释 9-11, 大字展示 36-96
-4. fallback 数据必须完整，包含所有 output_schema 的字段
-5. prompt_template 中演示 JSON 格式时必须用双花括号 {{{{}}}} 转义，但 {{context}} 保持单花括号
-6. body 数组不要过长，一般 2-6 个块即可
+## translated
+1. translated 400x300 translated，translated，translated
+2. 1translated，translated，translated
+3. font_size translated: translated 14-18, translated 12-14, translated 9-11, translated 36-96
+4. fallback translatedmusttranslated，translated output_schema translated
+5. prompt_template translated JSON translatedmusttranslated {{{{}}}} translated，translated {{context}} translated
+6. body translated，translated 2-6 translated
 
-## 用户需求
+## translated
 {description}
 
-请直接输出完整有效的 JSON 模式定义，不要输出任何其他内容。"""
+translated JSON modetranslated，translated。"""
 
 
 def _supports_vision(provider: str, model: str) -> bool:
@@ -185,8 +183,6 @@ async def _call_llm_with_messages(
         "max_tokens": max_tokens,
         "temperature": temperature,
     }
-    if provider == "aliyun" and model == "qwen3.5-flash":
-        request_kwargs["extra_body"] = {"enable_thinking": False}
     response = await client.chat.completions.create(
         **request_kwargs,
     )
@@ -224,7 +220,7 @@ def _auto_fix(definition: dict) -> dict:
     # Ensure prompt_template contains {context}
     pt = content.get("prompt_template", "")
     if isinstance(pt, str) and "{context}" not in pt:
-        content["prompt_template"] = pt + "\n环境：{context}"
+        content["prompt_template"] = pt + "\ntranslated：{context}"
 
     # Ensure fallback has all output_schema fields
     schema = content.get("output_schema", {})
@@ -265,7 +261,7 @@ def _is_image_generation_request(description: str) -> bool:
 
 def _force_image_gen_mode(definition: dict) -> dict:
     mode_id = (definition.get("mode_id") or "MY_IMAGE").upper()
-    display_name = definition.get("display_name") or "自定义图像"
+    display_name = definition.get("display_name") or "translated"
     icon = definition.get("icon") or "art"
 
     fixed = dict(definition)
@@ -273,14 +269,14 @@ def _force_image_gen_mode(definition: dict) -> dict:
     fixed["display_name"] = display_name
     fixed["icon"] = icon
     fixed["cacheable"] = False
-    fixed["description"] = fixed.get("description") or "AI 图像生成模式"
+    fixed["description"] = fixed.get("description") or "AI translatedmode"
     fixed["content"] = {
         "type": "image_gen",
         "provider": "text2image",
         "fallback": {
             "artwork_title": display_name,
             "image_url": "",
-            "description": "图像生成中",
+            "description": "translatedgenerating",
         },
     }
     fixed["layout"] = {
@@ -313,7 +309,7 @@ async def generate_mode_definition(
 
     # Check vision support
     if image_base64 and not _supports_vision(provider, model):
-        warning = "当前模型不支持图片输入，已忽略上传的图片"
+        warning = "translatedimagetranslated，translatedimage"
         image_base64 = None
 
     prompt = _build_generation_prompt(description)
@@ -336,12 +332,12 @@ async def generate_mode_definition(
         logger.warning(f"[MODE_GEN] Invalid JSON from LLM: {e}")
         return {
             "ok": False,
-            "error": f"AI 返回的内容不是有效 JSON: {e}",
+            "error": f"AI translated JSON: {e}",
             "raw_response": raw_text[:500],
         }
 
     if not isinstance(definition, dict):
-        return {"ok": False, "error": "AI 返回的不是 JSON 对象"}
+        return {"ok": False, "error": "AI translated JSON translated"}
 
     # Auto-fix common issues
     definition = _auto_fix(definition)
@@ -353,7 +349,7 @@ async def generate_mode_definition(
     if not _validate_mode_def(definition):
         return {
             "ok": False,
-            "error": "生成的模式定义校验失败，请尝试更详细的描述",
+            "error": "translatedmodetranslatedfailed，translated",
             "mode_def": definition,
         }
 

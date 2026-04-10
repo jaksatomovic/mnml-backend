@@ -158,7 +158,7 @@ async def firmware_download(
             content={
                 "error": "concurrent_limit_reached",
                 "detail": (
-                    "服务器同时刷机人数已达上限，请稍后重试"
+                    "translated，please try again later"
                     if is_zh
                     else "Too many firmware updates in progress. Please try again shortly."
                 ),
