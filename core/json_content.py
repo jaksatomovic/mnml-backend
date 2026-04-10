@@ -1043,6 +1043,30 @@ async def _generate_external_data_content(mode_def: dict, content_cfg: dict, fal
             logger.warning(f"[JSONContent] Failed to get Halo F1 weekend: {e}", exc_info=True)
             return dict(fallback)
 
+    if provider == "bf6_profile":
+        from .bf6 import get_bf6_profile_snapshot
+        try:
+            config = kwargs.get("config") or {}
+            mode_settings = config.get("mode_settings", {}) if isinstance(config.get("mode_settings", {}), dict) else {}
+
+            username = str(mode_settings.get("bf6_username", "") or "").strip()
+            platform = str(mode_settings.get("bf6_platform", "pc") or "pc").strip().lower()
+
+            if not username:
+                fb = dict(fallback)
+                fb["error"] = "Set BF6 username in mode settings"
+                return fb
+
+            data = await get_bf6_profile_snapshot(username=username, platform=platform)
+            merged = dict(fallback)
+            merged.update(data)
+            return merged
+        except (httpx.HTTPError, TypeError, ValueError, KeyError, JSONDecodeError) as e:
+            logger.warning(f"[JSONContent] Failed to get BF6 profile: {e}", exc_info=True)
+            fb = dict(fallback)
+            fb["error"] = "BF6 profile unavailable"
+            return fb
+
     return dict(fallback)
 
 

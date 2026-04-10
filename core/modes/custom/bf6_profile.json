@@ -1,0 +1,187 @@
+{
+  "mode_id": "BF6_PROFILE",
+  "display_name": "BF6 Profile",
+  "icon": "gamepad-2",
+  "cacheable": false,
+  "description": "Battlefield 6 player profile snapshot from GameTools API.",
+  "settings_schema": [
+    {
+      "key": "bf6_username",
+      "label": "BF6 Username",
+      "type": "text",
+      "default": "",
+      "description": "Enter the Battlefield 6 in-game username."
+    },
+    {
+      "key": "bf6_platform",
+      "label": "Platform",
+      "type": "select",
+      "default": "pc",
+      "options": [
+        { "value": "pc", "label": "PC" },
+        { "value": "xbox", "label": "Xbox (generic)" },
+        { "value": "xboxseries", "label": "Xbox Series" },
+        { "value": "xboxone", "label": "Xbox One" },
+        { "value": "psn", "label": "PlayStation (generic)" },
+        { "value": "ps5", "label": "PlayStation 5" },
+        { "value": "ps4", "label": "PlayStation 4" }
+      ],
+      "description": "Choose the platform where the player account is active."
+    }
+  ],
+  "content": {
+    "type": "external_data",
+    "provider": "bf6_profile",
+    "fallback": {
+      "title": "BF6 Profile",
+      "username": "Not set",
+      "platform": "PC",
+      "rank": "-",
+      "avatar_url": "",
+      "badges": "-",
+      "score_total": "-",
+      "kills": "-",
+      "deaths": "-",
+      "kd": "-",
+      "assists": "-",
+      "revives": "-",
+      "headshots": "-",
+      "headshot_rate": "-",
+      "summary_left": [
+        { "line": "Kills   -" },
+        { "line": "Deaths  -" },
+        { "line": "K/D     -" },
+        { "line": "Assists -" }
+      ],
+      "summary_right": [
+        { "line": "Score     -" },
+        { "line": "Headshots -" },
+        { "line": "HS Rate   -" },
+        { "line": "Revives   -" }
+      ],
+      "error": ""
+    }
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false,
+      "bottom_pct": 0.108
+    },
+    "body": [
+      {
+        "type": "text",
+        "field": "title",
+        "font_size": 17,
+        "font": "noto_serif_bold",
+        "align": "center",
+        "max_lines": 1,
+        "margin_x": 14
+      },
+      {
+        "type": "text",
+        "text": "{username} · {platform}",
+        "font_size": 11,
+        "font": "noto_sans_regular",
+        "align": "left",
+        "max_lines": 1,
+        "margin_x": 18
+      },
+      {
+        "type": "image",
+        "field": "avatar_url",
+        "width": 74,
+        "height": 74,
+        "x": 308,
+        "y": 44,
+        "margin_bottom": 0,
+        "fallback_text": "RANK"
+      },
+      {
+        "type": "spacer",
+        "height": 3
+      },
+      {
+        "type": "separator",
+        "style": "solid",
+        "line_width": 1,
+        "margin_x": 16
+      },
+      {
+        "type": "spacer",
+        "height": 3
+      },
+      {
+        "type": "big_number",
+        "field": "rank",
+        "font_size": 35,
+        "align": "left"
+      },
+      {
+        "type": "text",
+        "text": "Rank",
+        "font_size": 9,
+        "font": "noto_sans_regular",
+        "align": "left",
+        "margin_x": 20
+      },
+      {
+        "type": "big_number",
+        "field": "score_total",
+        "font_size": 24,
+        "align": "left"
+      },
+      {
+        "type": "text",
+        "text": "Total Score",
+        "font_size": 9,
+        "font": "noto_sans_regular",
+        "align": "left",
+        "margin_x": 20
+      },
+      {
+        "type": "spacer",
+        "height": 3
+      },
+      {
+        "type": "spacer",
+        "height": 2
+      },
+      {
+        "type": "two_column",
+        "left_x": 18,
+        "left_width": 184,
+        "gap": 12,
+        "right_margin": 18,
+        "left": [
+          {
+            "type": "list",
+            "field": "summary_left",
+            "item_template": "{line}",
+            "font_size": 10,
+            "font": "noto_sans_regular",
+            "item_spacing": 10,
+            "margin_x": 0,
+            "max_items": 5
+          }
+        ],
+        "right": [
+          {
+            "type": "list",
+            "field": "summary_right",
+            "item_template": "{line}",
+            "font_size": 10,
+            "font": "noto_sans_regular",
+            "item_spacing": 10,
+            "margin_x": 0,
+            "max_items": 5
+          }
+        ]
+      }
+    ],
+    "footer": {
+      "label": "BF6",
+      "attribution_template": "— GameTools"
+    }
+  }
+}
