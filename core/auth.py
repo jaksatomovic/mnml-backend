@@ -24,18 +24,34 @@ from .i18n import detect_lang_from_request, msg, normalize_lang
 logger = logging.getLogger(__name__)
 
 def _load_jwt_secret() -> str:
-    env = os.environ.get("JWT_SECRET")
+    # Prefer explicit environment configuration in all deployments.
+    env = (
+        os.environ.get("INKSIGHT_JWT_SECRET")
+        or os.environ.get("JWT_SECRET")
+        or ""
+    ).strip()
     if env:
         return env
+
+    # Local-dev compatibility: reuse existing file if present.
     secret_file = os.path.join(os.path.dirname(__file__), "..", ".jwt_secret")
     try:
         with open(secret_file, "r") as f:
             return f.read().strip()
     except FileNotFoundError:
-        s = secrets.token_urlsafe(48)
-        with open(secret_file, "w") as f:
-            f.write(s)
-        return s
+        pass
+    except OSError:
+        # Read errors should not crash module import in serverless runtime.
+        pass
+
+    # Serverless filesystems are read-only (`/var/task` on Vercel), so do not
+    # attempt to create `.jwt_secret` here. Use a process-local fallback secret
+    # to keep the app bootable; production should always set INKSIGHT_JWT_SECRET.
+    logger.warning(
+        "[AUTH] JWT secret not configured via INKSIGHT_JWT_SECRET/JWT_SECRET "
+        "and no .jwt_secret file available; using ephemeral in-memory secret."
+    )
+    return secrets.token_urlsafe(48)
 
 _JWT_SECRET = _load_jwt_secret()
 _JWT_ALGORITHM = "HS256"
