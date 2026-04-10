@@ -73,11 +73,20 @@ async def init_stats_db():
         await db.execute("CREATE INDEX IF NOT EXISTS idx_content_history_mac ON content_history(mac)")
         await db.execute("CREATE INDEX IF NOT EXISTS idx_content_history_hash ON content_history(mac, mode_id, content_hash)")
         await db.execute("CREATE INDEX IF NOT EXISTS idx_habit_mac ON habit_records(mac)")
-        # Migration: add is_fallback if it does not exist in older databases
+        # Migration: add is_fallback only when missing.
         try:
-            await db.execute("ALTER TABLE render_logs ADD COLUMN is_fallback INTEGER DEFAULT 0")
-        except aiosqlite.OperationalError:
-            pass  # Column already exists
+            cursor = await db.execute("PRAGMA table_info(render_logs)")
+            columns = await cursor.fetchall()
+            names = [c[1] for c in columns]
+            if "is_fallback" not in names:
+                await db.execute("ALTER TABLE render_logs ADD COLUMN is_fallback INTEGER DEFAULT 0")
+                await db.commit()
+        except Exception:
+            try:
+                await db.rollback()
+            except Exception:
+                pass
+            logger.warning("[MIGRATION] Failed to ensure render_logs.is_fallback", exc_info=True)
         await db.commit()
     finally:
         await db.close()
