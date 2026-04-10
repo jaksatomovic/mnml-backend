@@ -80,12 +80,21 @@
       },
       {
         "type": "text",
-        "text": "{username} · {platform}",
-        "font_size": 11,
+        "text": "{username}",
+        "font_size": 12,
         "font": "lora_regular",
-        "align": "left",
+        "align": "center",
         "max_lines": 1,
-        "margin_x": 18
+        "margin_x": 14
+      },
+      {
+        "type": "text",
+        "text": "Platform {platform}",
+        "font_size": 9,
+        "font": "lora_regular",
+        "align": "center",
+        "max_lines": 1,
+        "margin_x": 14
       },
       {
         "type": "image",
