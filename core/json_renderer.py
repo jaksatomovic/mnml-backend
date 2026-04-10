@@ -1192,8 +1192,8 @@ def _render_icon_list(ctx: RenderContext, block: dict) -> None:
 def _resolve_local_asset(url: str) -> str | None:
     """Resolve known local URLs to local filesystem paths."""
     if url.startswith("/webconfig/"):
-        project_root = Path(__file__).resolve().parent.parent.parent
-        local = project_root / "webconfig" / url[len("/webconfig/"):]
+        backend_root = Path(__file__).resolve().parent.parent
+        local = backend_root / "webconfig" / url[len("/webconfig/"):]
         if local.exists() and local.is_file():
             return str(local)
         return None

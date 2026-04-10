@@ -14,8 +14,8 @@ router = APIRouter(tags=["pages"])
 
 
 def _load_web_page_html(filename: str) -> str:
-    project_root = Path(__file__).resolve().parent.parent.parent.parent
-    html_path = project_root / "webconfig" / filename
+    backend_root = Path(__file__).resolve().parent.parent.parent
+    html_path = backend_root / "webconfig" / filename
     if not html_path.exists():
         raise FileNotFoundError(f"Static page not found in webconfig: {filename}")
     html = html_path.read_text(encoding="utf-8")
@@ -116,9 +116,9 @@ async def editor_page():
 
 @router.get("/webconfig/{asset_path:path}")
 async def webconfig_asset(asset_path: str):
-    project_root = Path(__file__).resolve().parent.parent.parent.parent
-    file_path = (project_root / "webconfig" / asset_path).resolve()
-    webconfig_root = (project_root / "webconfig").resolve()
+    backend_root = Path(__file__).resolve().parent.parent.parent
+    file_path = (backend_root / "webconfig" / asset_path).resolve()
+    webconfig_root = (backend_root / "webconfig").resolve()
     if not str(file_path).startswith(str(webconfig_root)) or not file_path.exists() or not file_path.is_file():
         return JSONResponse(
             {"error": "asset_not_found", "message": "Webconfig asset not found"},
@@ -130,8 +130,8 @@ async def webconfig_asset(asset_path: str):
 
 @router.get("/thumbs/{filename}")
 async def get_thumb(filename: str):
-    project_root = Path(__file__).resolve().parent.parent.parent.parent
-    thumb_path = project_root / "webconfig" / "thumbs" / filename
+    backend_root = Path(__file__).resolve().parent.parent.parent
+    thumb_path = backend_root / "webconfig" / "thumbs" / filename
     if thumb_path.exists() and thumb_path.is_file():
         return Response(content=thumb_path.read_bytes(), media_type="image/png")
 
