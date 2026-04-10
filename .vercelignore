@@ -1,0 +1,11 @@
+venv/
+.venv/
+__pycache__/
+*/__pycache__/
+.pytest_cache/
+tests/
+runtime_uploads/
+*.db
+*.sqlite
+.env
+.jwt_secret
