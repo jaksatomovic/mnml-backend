@@ -2,6 +2,7 @@
   "mode_id": "MY_QUOTE",
   "display_name": "Daily Quote",
   "icon": "my_quote",
+  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": false,
   "description": "A short, powerful quote with attribution",
   "content": {
@@ -63,6 +64,79 @@
     "footer": {
       "label": "Custom Quote",
       "attribution_template": "— {author}"
+    }
+  },
+  "variants": {
+    "LARGE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 16,
+          "max_width_ratio": 0.86,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "QUOTE",
+        "attribution_template": "— {author}"
+      }
+    },
+    "WIDE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 14,
+          "max_width_ratio": 0.9,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "QUOTE",
+        "attribution_template": "— {author}",
+        "height": 18
+      }
+    },
+    "TALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 15,
+          "max_width_ratio": 0.84,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "QUOTE",
+        "attribution_template": "— {author}",
+        "height": 20
+      }
+    },
+    "SMALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 12,
+          "max_width_ratio": 0.93,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "QUOTE",
+        "attribution_template": "— {author}",
+        "height": 16
+      }
     }
   },
   "layout_overrides": {

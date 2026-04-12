@@ -44,7 +44,6 @@ class TestRenderMode:
         weather_str="12°C",
         battery_pct=85,
         weather_code=1,
-        time_str="09:30",
     )
 
     def test_all_personas_raise_value_error(self):

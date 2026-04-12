@@ -31,7 +31,6 @@ def render_mode(
     weather_str: str,
     battery_pct: float,
     weather_code: int = -1,
-    time_str: str = "",
     date_ctx: dict | None = None,
     screen_w: int = SCREEN_WIDTH,
     screen_h: int = SCREEN_HEIGHT,

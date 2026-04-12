@@ -2,6 +2,7 @@
   "mode_id": "QUESTION",
   "display_name": "Daily Question",
   "icon": "question",
+  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": true,
   "description": "An open-ended question to spark deep thinking",
   "content": {
@@ -66,6 +67,112 @@
       "label": "Daily Question",
       "attribution_template": "— Take a Moment",
       "dashed": true
+    }
+  },
+  "variants": {
+    "LARGE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "question",
+          "font": "noto_serif_regular",
+          "font_size": 15,
+          "max_width_ratio": 0.86,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "QUESTION"
+      }
+    },
+    "WIDE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "two_column",
+          "left_width": 72,
+          "gap": 8,
+          "left": [
+            {
+              "type": "text",
+              "field": "category",
+              "font": "noto_serif_light",
+              "font_size": 9,
+              "align": "center",
+              "max_lines": 1,
+              "margin_x": 4
+            }
+          ],
+          "right": [
+            {
+              "type": "centered_text",
+              "field": "question",
+              "font": "noto_serif_regular",
+              "font_size": 12,
+              "max_width_ratio": 0.95,
+              "vertical_center": true,
+              "line_spacing": 8
+            }
+          ]
+        }
+      ],
+      "footer": {
+        "label": "QUESTION",
+        "height": 18
+      }
+    },
+    "TALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "text",
+          "field": "category",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 1
+        },
+        {
+          "type": "centered_text",
+          "field": "question",
+          "font_name": "Lora-Bold.ttf",
+          "font_size": 17,
+          "max_width_ratio": 0.8,
+          "vertical_center": false,
+          "line_spacing": 11
+        },
+        {
+          "type": "text",
+          "field": "context_note",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "Daily Question",
+        "attribution_template": "— Take a Moment",
+        "dashed": true,
+        "height": 20
+      }
+    },
+    "SMALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "question",
+          "font": "noto_serif_regular",
+          "font_size": 11,
+          "max_width_ratio": 0.93,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "QUESTION",
+        "height": 16
+      }
     }
   },
   "layout_overrides": {

@@ -2,6 +2,7 @@
   "mode_id": "ZEN",
   "display_name": "translated",
   "icon": "zen",
+  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": true,
   "description": "translated",
   "content": {

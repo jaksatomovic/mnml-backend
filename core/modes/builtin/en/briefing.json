@@ -2,6 +2,7 @@
   "mode_id": "BRIEFING",
   "display_name": "Tech Brief",
   "icon": "global",
+  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": false,
   "description": "Top tech stories from HN and Product Hunt",
   "content": {
@@ -160,6 +161,129 @@
     "footer": {
       "label": "Briefing",
       "attribution_template": "— AI Brief"
+    }
+  },
+  "variants": {
+    "LARGE": {
+      "body": [
+        {
+          "type": "section",
+          "title": "HN",
+          "icon": "global",
+          "title_font_size": 12,
+          "children": [
+            {
+              "type": "list",
+              "field": "hn_items",
+              "max_items": 2,
+              "item_template": "{title}",
+              "right_field": "score",
+              "font_size": 11,
+              "item_spacing": 16,
+              "margin_x": 28
+            }
+          ]
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 16
+        },
+        {
+          "type": "text",
+          "field": "insight",
+          "font_size": 11,
+          "align": "left",
+          "margin_x": 16,
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "BRIEFING",
+        "attribution_template": "— AI Brief"
+      }
+    },
+    "WIDE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "list",
+          "field": "hn_items",
+          "max_items": 2,
+          "item_template": "{title}",
+          "right_field": "score",
+          "font_size": 10,
+          "item_spacing": 10,
+          "margin_x": 10
+        },
+        {
+          "type": "text",
+          "field": "insight",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 10,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "BRIEFING",
+        "attribution_template": "— AI Brief",
+        "height": 18
+      }
+    },
+    "TALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "list",
+          "field": "hn_items",
+          "max_items": 1,
+          "item_template": "{title}",
+          "font_size": 10,
+          "item_spacing": 8,
+          "margin_x": 8
+        },
+        {
+          "type": "text",
+          "field": "insight",
+          "font_size": 9,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "BRIEFING",
+        "attribution_template": "— AI Brief",
+        "height": 18
+      }
+    },
+    "SMALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "list",
+          "field": "hn_items",
+          "max_items": 1,
+          "item_template": "{title}",
+          "font_size": 9,
+          "item_spacing": 6,
+          "margin_x": 6
+        },
+        {
+          "type": "text",
+          "field": "insight",
+          "font_size": 9,
+          "align": "left",
+          "margin_x": 6,
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "BRIEFING",
+        "attribution_template": "— AI Brief",
+        "height": 16
+      }
     }
   },
   "layout_overrides": {

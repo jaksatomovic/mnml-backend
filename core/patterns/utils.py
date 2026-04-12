@@ -253,7 +253,6 @@ def draw_status_bar(
     weather_code: int = -1,
     line_width: int = 1,
     dashed: bool = False,
-    time_str: str = "",
     screen_w: int = SCREEN_WIDTH,
     screen_h: int = SCREEN_HEIGHT,
     colors: int = 2,
@@ -305,12 +304,13 @@ def draw_status_bar(
     if fitted_date:
         draw.text((pad_x, date_y), fitted_date, fill=EINK_FG, font=font_date)
 
+    # Weather icon only in the bar center — omit temperature text (e.g. "22°C"), which on
+    # 1-bit panels is often misread as a clock; full detail stays in WEATHER mode body, etc.
     weather_icon = get_weather_icon(weather_code) if weather_code >= 0 else None
     if weather_icon:
         icon_fill = EINK_COLOR_NAME_MAP.get("red", EINK_FG) if colors >= 3 else EINK_FG
         paste_icon_onto(img, weather_icon, (wx, y - 1), fill=icon_fill)
-        draw.text((wx + int(18 * scale), y), weather_str, fill=EINK_FG, font=font_date)
-    else:
+    elif (weather_str or "").strip():
         draw.text((wx, y), weather_str, fill=EINK_FG, font=font_date)
 
     batt_text = f"{battery_pct}%"
@@ -362,7 +362,6 @@ def draw_footer(
     screen_w: int = SCREEN_WIDTH,
     screen_h: int = SCREEN_HEIGHT,
     colors: int = 2,
-    time_str: str = "",
 ):
     """translated"""
     scale = screen_w / 400.0
@@ -417,22 +416,65 @@ def draw_footer(
 
 
 def wrap_text(text: str, font: ImageFont.ImageFont, max_width: int) -> list[str]:
-    """translated"""
-    lines = []
-    for paragraph in text.split("\n"):
-        words = list(paragraph)
+    """Wrap text to pixel width. Latin uses word boundaries; CJK uses per-character fitting."""
+
+    def _line_width(s: str) -> float:
+        try:
+            return float(font.getlength(s))
+        except Exception:
+            bbox = font.getbbox(s)
+            return float(bbox[2] - bbox[0])
+
+    def _wrap_latin_words(paragraph: str) -> list[str]:
+        out: list[str] = []
+        parts = paragraph.split()
+        if not parts:
+            return [""] if paragraph.strip() == "" else []
+        current = parts[0]
+        for word in parts[1:]:
+            trial = current + " " + word
+            if _line_width(trial) <= max_width:
+                current = trial
+                continue
+            out.append(current)
+            if _line_width(word) <= max_width:
+                current = word
+                continue
+            chunk = ""
+            for ch in word:
+                t2 = chunk + ch
+                if _line_width(t2) > max_width and chunk:
+                    out.append(chunk)
+                    chunk = ch
+                else:
+                    chunk = t2
+            current = chunk
+        out.append(current)
+        return out
+
+    def _wrap_cjk_chars(paragraph: str) -> list[str]:
+        out: list[str] = []
         current = ""
-        for ch in words:
+        for ch in paragraph:
             test = current + ch
-            bbox = font.getbbox(test)
-            if bbox[2] > max_width:
-                if current:
-                    lines.append(current)
+            if _line_width(test) > max_width and current:
+                out.append(current)
                 current = ch
             else:
                 current = test
         if current:
-            lines.append(current)
+            out.append(current)
+        return out
+
+    lines: list[str] = []
+    for paragraph in text.split("\n"):
+        if paragraph == "":
+            lines.append("")
+            continue
+        if has_cjk(paragraph):
+            lines.extend(_wrap_cjk_chars(paragraph))
+        else:
+            lines.extend(_wrap_latin_words(paragraph))
     return lines
 
 

@@ -12,6 +12,7 @@ from .render import router as render_router
 from .stats import router as stats_router
 from .uploads import router as uploads_router
 from .user import router as user_router
+from .layout import router as layout_router
 
 api_routers = [
     render_router,
@@ -27,6 +28,7 @@ api_routers = [
     discover_router,
     locations_router,
     uploads_router,
+    layout_router,
 ]
 
 page_routers = [pages_router]

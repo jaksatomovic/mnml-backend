@@ -71,6 +71,21 @@
     },
     "layout": {
       "$ref": "#/definitions/layout_def"
+    },
+    "variants": {
+      "type": "object",
+      "description": "Slot-shape layouts (SMALL, WIDE, TALL, LARGE) for mosaic tiles; selected by geometry instead of pixel-tier slot_* overrides",
+      "additionalProperties": {
+        "$ref": "#/definitions/layout_def"
+      }
+    },
+    "supported_slot_types": {
+      "type": "array",
+      "description": "If set, this mode may only be placed in these surface slot types; omit for legacy (all allowed).",
+      "items": {
+        "type": "string",
+        "enum": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"]
+      }
     }
   },
   "definitions": {

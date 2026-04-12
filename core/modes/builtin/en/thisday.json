@@ -2,6 +2,7 @@
   "mode_id": "THISDAY",
   "display_name": "On This Day",
   "icon": "thisday",
+  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": true,
   "description": "A notable historical event on the same date",
   "content": {
@@ -114,6 +115,142 @@
     "footer": {
       "label": "On This Day",
       "attribution_template": "— History"
+    }
+  },
+  "variants": {
+    "LARGE": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "text",
+          "field": "event_title",
+          "font": "noto_serif_bold",
+          "font_size": 14,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "event_desc",
+          "font_size": 11,
+          "align": "left",
+          "margin_x": 12,
+          "max_lines": 3
+        }
+      ],
+      "footer": {
+        "label": "THISDAY"
+      }
+    },
+    "WIDE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "two_column",
+          "left_width": 96,
+          "gap": 8,
+          "left": [
+            {
+              "type": "big_number",
+              "field": "year",
+              "font_size": 28,
+              "align": "center"
+            }
+          ],
+          "right": [
+            {
+              "type": "text",
+              "field": "event_title",
+              "font": "noto_serif_bold",
+              "font_size": 11,
+              "align": "left",
+              "margin_x": 4,
+              "max_lines": 2
+            },
+            {
+              "type": "text",
+              "field": "event_desc",
+              "font_size": 10,
+              "align": "left",
+              "margin_x": 4,
+              "max_lines": 2
+            }
+          ]
+        }
+      ],
+      "footer": {
+        "label": "THISDAY",
+        "height": 18
+      }
+    },
+    "TALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "text",
+          "field": "years_ago",
+          "font_size": 10,
+          "align": "center"
+        },
+        {
+          "type": "big_number",
+          "field": "year",
+          "font_size": 34,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "event_title",
+          "font_name": "Lora-Bold.ttf",
+          "font_size": 13,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 8
+        },
+        {
+          "type": "text",
+          "field": "event_desc",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 11,
+          "align": "center",
+          "margin_x": 8,
+          "max_lines": 4
+        },
+        {
+          "type": "text",
+          "field": "significance",
+          "font_name": "Lora-Italic.ttf",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "On This Day",
+        "attribution_template": "— History",
+        "height": 20
+      }
+    },
+    "SMALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "big_number",
+          "field": "year",
+          "font_size": 26,
+          "align": "center"
+        },
+        {
+          "type": "text",
+          "field": "event_title",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2
+        }
+      ],
+      "footer": {
+        "label": "THISDAY",
+        "height": 16
+      }
     }
   },
   "layout_overrides": {

@@ -81,7 +81,7 @@ from core.config_store import (
 )
 from core.context import calc_battery_pct, extract_location_settings, get_date_context, get_weather
 from core.pipeline import generate_and_render, get_effective_mode_config
-from core.renderer import image_to_bmp_bytes
+from core.renderer import image_to_bmp_bytes, render_error
 from core.stats_store import (
     get_latest_battery_voltage,
     init_stats_db,
@@ -355,10 +355,19 @@ async def build_image(
                 owner_user_id = None
 
     registry = get_registry()
-    
+
+    is_surface_device = bool(
+        mac
+        and config
+        and str(config.get("device_mode") or config.get("deviceMode") or "mode").strip().lower()
+        == "surface"
+    )
+
     # Load device owner's custom modes if needed (for device rendering)
     # Only load modes for the specific device to avoid loading modes from other devices
-    if mac and not registry.is_supported(persona, mac):
+    if is_surface_device and owner_user_id:
+        await registry.load_user_custom_modes(owner_user_id, mac)
+    elif mac and not registry.is_supported(persona, mac):
         if owner_user_id:
             await registry.load_user_custom_modes(owner_user_id, mac)
             logger.debug(f"[BUILD_IMAGE] Loaded custom modes for device owner {owner_user_id} (device {mac})")
@@ -388,6 +397,9 @@ async def build_image(
     
     mode_info = registry.get_mode_info(persona)
     is_mode_cacheable = bool(mode_info.cacheable) if mode_info else True
+    if is_surface_device:
+        # Composite is keyed by active surface, not the legacy rotation persona.
+        is_mode_cacheable = False
 
     # ── translated LLM / translated API config ─────────────────────────────
     selected_config_user_id: Optional[int] = None
@@ -556,6 +568,11 @@ async def build_image(
                                     break
     if not llm_mode_requires_quota:
         logger.debug("[QUOTA DEBUG] Mode %s does NOT require quota", persona)
+
+    if is_surface_device:
+        # Per-tile quota is enforced inside each generate_and_render call; avoid blocking
+        # the whole mosaic on the rotation persona's LLM classification.
+        llm_mode_requires_quota = False
 
     # translated API key（translated，translated）
     # translated：API key translated（user_llm_config translated）Get ，translated
@@ -845,6 +862,59 @@ async def build_image(
                 last_refresh_at=datetime.now().isoformat(),
             )
             return img, persona, False, True, quota_exhausted, False, False, usage_source
+
+    if is_surface_device and mac and config:
+        from core.surface_engine import resolve_device_surface
+        from core.surface_preview_render import render_surface_preview_image
+
+        surface, _surf_reason = resolve_device_surface(mac.upper(), config)
+        sid = str(surface.get("id") or "").strip() if surface and isinstance(surface, dict) else ""
+        persona_tag = f"SURFACE:{sid}" if sid else "SURFACE"
+
+        if intent_only:
+            return (
+                None,
+                persona_tag,
+                cache_hit,
+                False,
+                False,
+                False,
+                llm_mode_requires_quota,
+                usage_source,
+            )
+
+        try:
+            if surface:
+                img = await render_surface_preview_image(
+                    surface,
+                    screen_w=screen_w,
+                    screen_h=screen_h,
+                    device_config=config,
+                    mac=mac,
+                )
+            else:
+                img = render_error(mac=mac or "surface", screen_w=screen_w, screen_h=screen_h)
+        except Exception:
+            logger.exception("[BUILD_IMAGE] Surface mosaic render failed mac=%s", mac)
+            img = render_error(mac=mac or "surface", screen_w=screen_w, screen_h=screen_h)
+
+        if mac:
+            await update_device_state(
+                mac,
+                last_persona=persona_tag,
+                last_refresh_at=datetime.now().isoformat(),
+            )
+
+        return (
+            img,
+            persona_tag,
+            False,
+            False,
+            quota_exhausted,
+            False,
+            False,
+            usage_source,
+        )
 
     if intent_only:
         return img, persona, cache_hit, content_fallback, quota_exhausted, False, llm_mode_requires_quota, usage_source

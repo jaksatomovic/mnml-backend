@@ -87,6 +87,7 @@ async def generate_and_render(
     mac: str = "",
     colors: int = 2,
     omit_chrome: bool = False,
+    slot_type: str | None = None,
 ) -> tuple[Image.Image, dict | None]:
     """Generate content for a persona and render to an e-ink image.
 
@@ -98,7 +99,6 @@ async def generate_and_render(
     Returns:
         Tuple of (rendered image, content dict).
     """
-    time_str = date_ctx.get("time_str", "")
     weather_str = weather["weather_str"]
     weather_code = weather.get("weather_code", -1)
     cfg = get_effective_mode_config(config, persona)
@@ -111,6 +111,7 @@ async def generate_and_render(
         mac=mac,
         screen_w=screen_w,
         screen_h=screen_h,
+        slot_type=slot_type,
     )
 
     eff_cfg = get_effective_mode_config(config, persona)
@@ -124,7 +125,6 @@ async def generate_and_render(
         weather_str=weather_str,
         battery_pct=battery_pct,
         weather_code=weather_code,
-        time_str=time_str,
         date_ctx=date_ctx,
         screen_w=screen_w,
         screen_h=screen_h,
@@ -132,6 +132,7 @@ async def generate_and_render(
         colors=colors,
         language=_eff_lang,
         omit_chrome=omit_chrome,
+        slot_type=slot_type,
     )
     return img, content
 
@@ -166,6 +167,7 @@ async def _generate_content_for_persona(
     mac: str = "",
     screen_w: int = SCREEN_WIDTH,
     screen_h: int = SCREEN_HEIGHT,
+    slot_type: str | None = None,
 ) -> dict:
     """Dispatch content generation to the appropriate handler."""
     from .mode_registry import ContentContext, get_registry
@@ -262,6 +264,7 @@ async def _generate_content_for_persona(
             screen_h=screen_h,
             api_key=device_api_key,
             image_api_key=device_image_api_key,
+            slot_type=slot_type,
         )
 
     # Builtin Python mode - use specialized content functions
@@ -280,7 +283,6 @@ def _render_for_persona(
     weather_str: str,
     battery_pct: float,
     weather_code: int = -1,
-    time_str: str = "",
     date_ctx: dict | None = None,
     screen_w: int = SCREEN_WIDTH,
     screen_h: int = SCREEN_HEIGHT,
@@ -288,6 +290,7 @@ def _render_for_persona(
     colors: int = 2,
     language: str = "zh",
     omit_chrome: bool = False,
+    slot_type: str | None = None,
 ) -> Image.Image:
     """Dispatch rendering to the appropriate handler."""
     from .mode_registry import get_registry
@@ -309,16 +312,17 @@ def _render_for_persona(
         return render_json_mode(
             jm.definition, content,
             date_str=date_str, weather_str=weather_str_for_bar, battery_pct=battery_pct,
-            weather_code=weather_code_for_bar, time_str=time_str,
+            weather_code=weather_code_for_bar,
             screen_w=screen_w, screen_h=screen_h, colors=colors,
             language=language,
             omit_chrome=omit_chrome,
+            slot_type=slot_type,
         )
 
     # Builtin Python mode — always raises; kept for stack traces
     return render_mode(
         persona, content,
         date_str=date_str, weather_str=weather_str, battery_pct=battery_pct,
-        weather_code=weather_code, time_str=time_str, date_ctx=date_ctx,
+        weather_code=weather_code, date_ctx=date_ctx,
         screen_w=screen_w, screen_h=screen_h,
     )

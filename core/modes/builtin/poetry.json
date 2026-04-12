@@ -2,6 +2,7 @@
   "mode_id": "POETRY",
   "display_name": "translated",
   "icon": "star",
+  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": true,
   "description": "translated",
   "content": {

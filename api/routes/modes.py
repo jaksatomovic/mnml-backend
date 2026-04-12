@@ -140,6 +140,16 @@ async def mode_catalog(
         if mac:
             mac = mac.upper()
 
+        def _supported_slot_types_for_mode(mode_id: str) -> list[str] | None:
+            jm = registry.get_json_mode(mode_id.upper(), mac, language="zh")
+            if not jm or not isinstance(jm.definition, dict):
+                return None
+            sst = jm.definition.get("supported_slot_types")
+            if not isinstance(sst, list):
+                return None
+            out = [str(x).strip().upper() for x in sst if isinstance(x, str) and str(x).strip()]
+            return out or None
+
         # Reuse list_modes logic (including device isolation) by loading custom modes here.
         if user_id is not None and mac:
             from core.config_store import has_active_membership
@@ -151,26 +161,28 @@ async def mode_catalog(
                     if info.source == "custom":
                         continue
                     cat = catalog.get(info.mode_id)
-                    items.append(
-                        {
-                            "mode_id": info.mode_id,
-                            "source": info.source,
-                            "category": (cat.category if cat else "more"),
-                            "display_name": info.display_name,
-                            "description": info.description,
-                            "settings_schema": info.settings_schema or [],
-                            "i18n": {
-                                "zh": {
-                                    "name": (cat.zh.name if cat else info.display_name),
-                                    "tip": (cat.zh.tip if cat else info.description),
-                                },
-                                "en": {
-                                    "name": (cat.en.name if cat else info.display_name),
-                                    "tip": (cat.en.tip if cat else info.description),
-                                },
+                    row = {
+                        "mode_id": info.mode_id,
+                        "source": info.source,
+                        "category": (cat.category if cat else "more"),
+                        "display_name": info.display_name,
+                        "description": info.description,
+                        "settings_schema": info.settings_schema or [],
+                        "i18n": {
+                            "zh": {
+                                "name": (cat.zh.name if cat else info.display_name),
+                                "tip": (cat.zh.tip if cat else info.description),
                             },
-                        }
-                    )
+                            "en": {
+                                "name": (cat.en.name if cat else info.display_name),
+                                "tip": (cat.en.tip if cat else info.description),
+                            },
+                        },
+                    }
+                    sst = _supported_slot_types_for_mode(info.mode_id)
+                    if sst:
+                        row["supported_slot_types"] = sst
+                    items.append(row)
                 return {"items": items}
 
             # User has access: load their custom modes
@@ -180,7 +192,7 @@ async def mode_catalog(
         def _item_from_info(info):
             mid = info.mode_id
             if info.source == "custom":
-                return {
+                row = {
                     "mode_id": mid,
                     "source": info.source,
                     "category": "custom",
@@ -192,25 +204,30 @@ async def mode_catalog(
                         "en": {"name": info.display_name, "tip": info.description},
                     },
                 }
-            cat = catalog.get(mid)
-            return {
-                "mode_id": mid,
-                "source": info.source,
-                "category": (cat.category if cat else "more"),
-                "display_name": info.display_name,
-                "description": info.description,
-                "settings_schema": info.settings_schema or [],
-                "i18n": {
-                    "zh": {
-                        "name": (cat.zh.name if cat else info.display_name),
-                        "tip": (cat.zh.tip if cat else info.description),
+            else:
+                cat = catalog.get(mid)
+                row = {
+                    "mode_id": mid,
+                    "source": info.source,
+                    "category": (cat.category if cat else "more"),
+                    "display_name": info.display_name,
+                    "description": info.description,
+                    "settings_schema": info.settings_schema or [],
+                    "i18n": {
+                        "zh": {
+                            "name": (cat.zh.name if cat else info.display_name),
+                            "tip": (cat.zh.tip if cat else info.description),
+                        },
+                        "en": {
+                            "name": (cat.en.name if cat else info.display_name),
+                            "tip": (cat.en.tip if cat else info.description),
+                        },
                     },
-                    "en": {
-                        "name": (cat.en.name if cat else info.display_name),
-                        "tip": (cat.en.tip if cat else info.description),
-                    },
-                },
-            }
+                }
+            sst = _supported_slot_types_for_mode(mid)
+            if sst:
+                row["supported_slot_types"] = sst
+            return row
 
         items: list[dict] = []
 
@@ -263,20 +280,27 @@ async def mode_catalog(
                 display_name = str(definition.get("display_name") or mode_id)
                 description = str(definition.get("description") or "")
                 settings_schema = definition.get("settings_schema") or []
-                items.append(
-                    {
-                        "mode_id": mode_id,
-                        "source": "custom",
-                        "category": "custom",
-                        "display_name": display_name,
-                        "description": description,
-                        "settings_schema": settings_schema if isinstance(settings_schema, list) else [],
-                        "i18n": {
-                            "zh": {"name": display_name, "tip": description},
-                            "en": {"name": display_name, "tip": description},
-                        },
-                    }
+                sst_raw = definition.get("supported_slot_types")
+                sst_list = (
+                    [str(x).strip().upper() for x in sst_raw if isinstance(x, str) and str(x).strip()]
+                    if isinstance(sst_raw, list)
+                    else None
                 )
+                row = {
+                    "mode_id": mode_id,
+                    "source": "custom",
+                    "category": "custom",
+                    "display_name": display_name,
+                    "description": description,
+                    "settings_schema": settings_schema if isinstance(settings_schema, list) else [],
+                    "i18n": {
+                        "zh": {"name": display_name, "tip": description},
+                        "en": {"name": display_name, "tip": description},
+                    },
+                }
+                if sst_list:
+                    row["supported_slot_types"] = sst_list
+                items.append(row)
 
         return {"items": items}
     except Exception as e:

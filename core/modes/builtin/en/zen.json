@@ -2,6 +2,7 @@
   "mode_id": "ZEN",
   "display_name": "Daily Zen",
   "icon": "zen",
+  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": true,
   "description": "One word to contemplate, with a brief meaning",
   "content": {
@@ -71,6 +72,126 @@
       "label": "Zen",
       "attribution_template": "— ...",
       "dashed": true
+    }
+  },
+  "variants": {
+    "LARGE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "word",
+          "font": "noto_serif_regular",
+          "font_size": 72,
+          "max_width_ratio": 0.72,
+          "vertical_center": true
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "field": "source",
+          "font": "noto_serif_light",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1
+        }
+      ],
+      "footer": {
+        "label": "Zen",
+        "attribution_template": "— ...",
+        "dashed": true
+      }
+    },
+    "WIDE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "two_column",
+          "left_width": 148,
+          "gap": 10,
+          "left": [
+            {
+              "type": "centered_text",
+              "field": "word",
+              "font": "noto_serif_bold",
+              "font_size": 26,
+              "max_width_ratio": 0.95,
+              "vertical_center": true
+            }
+          ],
+          "right": [
+            {
+              "type": "text",
+              "field": "source",
+              "font": "noto_serif_light",
+              "font_size": 10,
+              "align": "left",
+              "margin_x": 4,
+              "max_lines": 3
+            }
+          ]
+        }
+      ],
+      "footer": {
+        "label": "Zen",
+        "attribution_template": "— ...",
+        "dashed": true,
+        "height": 18
+      }
+    },
+    "TALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "word",
+          "font": "noto_serif_regular",
+          "font_size": 40,
+          "max_width_ratio": 0.82,
+          "vertical_center": false
+        },
+        {
+          "type": "spacer",
+          "height": 12
+        },
+        {
+          "type": "text",
+          "field": "source",
+          "font": "noto_serif_light",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 3,
+          "margin_x": 8
+        }
+      ],
+      "footer": {
+        "label": "Zen",
+        "attribution_template": "— ...",
+        "dashed": true,
+        "height": 20
+      }
+    },
+    "SMALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "word",
+          "font": "noto_serif_regular",
+          "font_size": 36,
+          "max_width_ratio": 0.78,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "Zen",
+        "attribution_template": "— ...",
+        "dashed": true,
+        "height": 16
+      }
     }
   },
   "layout_overrides": {

@@ -22,7 +22,17 @@ from openai import OpenAIError
 from .config import DEFAULT_LLM_PROVIDER, DEFAULT_LLM_MODEL, DEFAULT_IMAGE_PROVIDER, DEFAULT_IMAGE_MODEL
 from .content import _build_context_str, _build_style_instructions, _call_llm, _clean_json_response
 from .errors import LLMKeyMissingError
-from .render_tiers import SLOT_TIER_FULL, classify_slot_tier
+from .render_tiers import (
+    SLOT_SHAPE_FULL,
+    SLOT_SHAPE_LARGE,
+    SLOT_SHAPE_SMALL,
+    SLOT_SHAPE_TALL,
+    SLOT_SHAPE_WIDE,
+    SLOT_TIER_FULL,
+    SLOT_TIER_LG,
+    classify_slot_shape,
+    classify_slot_tier,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -168,6 +178,7 @@ async def generate_json_mode_content(
     mac: str = "",
     screen_w: int = 400,
     screen_h: int = 300,
+    slot_type: str | None = None,
     api_key: str = "",
     image_api_key: str = "",
 ) -> dict:
@@ -220,6 +231,9 @@ async def generate_json_mode_content(
         date_ctx=date_ctx or {},
         api_key=api_key,
         image_api_key=image_api_key,
+        screen_w=screen_w,
+        screen_h=screen_h,
+        slot_type=slot_type,
     )
 
     # If override explicitly provides content fields, short-circuit LLM for llm_json.
@@ -957,14 +971,43 @@ async def _generate_external_data_content(mode_def: dict, content_cfg: dict, fal
         return result
 
     if provider == "weather_forecast":
+        from .config import SCREEN_HEIGHT, SCREEN_WIDTH
         from .context import extract_location_settings, get_weather_forecast
         try:
             config = kwargs.get("config") or {}
             mode_settings = config.get("mode_settings", {}) if isinstance(config.get("mode_settings", {}), dict) else {}
-            days = mode_settings.get("forecast_days", 4)
-            if not isinstance(days, int):
-                days = 4
-            days = max(1, min(7, days))
+            sw = int(kwargs.get("screen_w") or SCREEN_WIDTH)
+            sh = int(kwargs.get("screen_h") or SCREEN_HEIGHT)
+            tier = classify_slot_tier(sw, sh)
+            if tier == SLOT_TIER_FULL:
+                days = mode_settings.get("forecast_days", 4)
+                if not isinstance(days, int):
+                    days = 4
+                days = max(1, min(7, days))
+            else:
+                st_grid = str(kwargs.get("slot_type") or "").strip().upper()
+                if st_grid == "SMALL":
+                    days = 2
+                elif st_grid == "WIDE":
+                    days = 4
+                elif st_grid == "TALL":
+                    days = 3
+                elif st_grid in ("LARGE", "FULL"):
+                    days = 7
+                elif st_grid:
+                    days = 3
+                else:
+                    shape = classify_slot_shape(sw, sh)
+                    if shape == SLOT_SHAPE_LARGE or tier == SLOT_TIER_LG:
+                        days = 7
+                    elif shape == SLOT_SHAPE_WIDE:
+                        days = 4
+                    elif shape == SLOT_SHAPE_TALL:
+                        days = 3
+                    elif shape == SLOT_SHAPE_SMALL:
+                        days = 2
+                    else:
+                        days = 3
             data = await get_weather_forecast(
                 days=days,
                 language=kwargs.get("language", "zh") or "zh",

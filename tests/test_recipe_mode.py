@@ -62,7 +62,6 @@ async def main():
         weather_str="sunny 15°C",
         battery_pct=85,
         weather_code=0,
-        time_str="14:30",
     )
     
     img.save("test_recipe_output.png")

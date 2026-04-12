@@ -5,8 +5,9 @@ Provide request type and range validation for API endpoints
 from __future__ import annotations
 
 import re
-from typing import Optional
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from typing import Any, Optional
+
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .config import get_supported_modes
 
@@ -100,6 +101,27 @@ class ConfigRequest(BaseModel):
     assignedSurface: str = Field(default="", description="Assigned surface id")
     surfaces: list[dict] = Field(default_factory=list, max_length=50, description="Surface definitions")
     surfaceSchedule: list[dict] = Field(default_factory=list, max_length=48, description="Surface schedule rules")
+    renderMode: Optional[str] = Field(default=None, description="Alias for deviceMode (spec: render_mode)")
+    render_mode: Optional[str] = Field(default=None, description="Alias for deviceMode")
+    assigned: Optional[str] = Field(default=None, description="Alias: assignedSurface (surface) or assignedMode (mode)")
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_spec_aliases(cls, data: Any) -> Any:
+        """Accept render_mode / renderMode and assigned (spec) alongside deviceMode / assignedSurface."""
+        if not isinstance(data, dict):
+            return data
+        rm = data.get("renderMode") or data.get("render_mode")
+        if rm is not None and str(rm).strip():
+            data["deviceMode"] = str(rm).strip().lower()
+        asg = data.get("assigned")
+        if asg is not None and str(asg).strip():
+            dm = str(data.get("deviceMode") or data.get("device_mode") or "mode").strip().lower()
+            if dm == "surface" and not str(data.get("assignedSurface") or data.get("assigned_surface") or "").strip():
+                data["assignedSurface"] = str(asg).strip()
+            elif dm != "surface" and not str(data.get("assignedMode") or data.get("assigned_mode") or "").strip():
+                data["assignedMode"] = str(asg).strip().upper()
+        return data
 
     @field_validator("mac")
     @classmethod

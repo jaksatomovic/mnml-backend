@@ -1,8 +1,20 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from threading import Lock
 from typing import Optional
+
+from .surface_grid import (
+    build_legacy_layout_from_grid,
+    grid_dimensions,
+    parse_surface_grid,
+    sort_slots_reading_order,
+    validate_slots_for_grid,
+    validate_surface_slot_modes,
+)
+
+logger = logging.getLogger(__name__)
 
 _PRIORITY_ORDER = {"critical": 3, "high": 2, "normal": 1}
 _state_lock = Lock()
@@ -89,7 +101,7 @@ def evaluate_event_for_device(mac: str, config: dict, event_payload: dict) -> Op
             "event": event,
             "surface_id": str(surface.get("id") or "").strip(),
         }
-        if action == "override":
+        if action in ("override", "switch_surface"):
             with _state_lock:
                 _device_overrides[mac.upper()] = {
                     "target": result["target"],
@@ -130,12 +142,54 @@ def build_surface_render_payload(surface: Optional[dict], reason: Optional[dict]
             "layout": [{"type": "text", "content": "No active surface", "size": "medium"}],
             "meta": {"surface": "", "reason": reason or {"type": "none"}},
         }
-    layout = surface.get("layout") if isinstance(surface.get("layout"), list) else []
+    raw_layout = surface.get("layout") if isinstance(surface.get("layout"), list) else []
+    grid, slot_defs = parse_surface_grid(surface)
+    layout_out: list = list(raw_layout)
+    grid_meta = None
+    slots_meta = None
+    slot_compatibility_error: str | None = None
+    if grid and slot_defs:
+        cols, rows, _, _ = grid_dimensions(grid)
+        ok, err = validate_slots_for_grid(slot_defs, columns=cols, rows=rows)
+        if ok:
+            sorted_slots = sort_slots_reading_order(slot_defs)
+            layout_out = build_legacy_layout_from_grid(sorted_slots, raw_layout)
+            grid_meta = grid
+            slots_meta = slot_defs
+            try:
+                from .mode_registry import get_registry
+
+                reg = get_registry()
+
+                def _mode_def(mid: str):
+                    m = (mid or "").strip().upper()
+                    if not m:
+                        return None
+                    jm = reg.get_json_mode(m, None, language="zh")
+                    return jm.definition if jm else None
+
+                cok, cerr = validate_surface_slot_modes(surface, _mode_def)
+                if not cok:
+                    slot_compatibility_error = cerr
+                    logger.warning("[surface] slot/mode compatibility: %s", cerr)
+            except Exception:
+                logger.warning("[surface] slot/mode compatibility check failed", exc_info=True)
+        else:
+            logger.warning("[surface] grid/slots invalid (%s), using raw layout only", err)
+
+    meta = {
+        "surface": str(surface.get("id") or ""),
+        "refresh": surface.get("refresh") if isinstance(surface.get("refresh"), dict) else {"mode": "hybrid", "interval": 300},
+        "reason": reason or {"type": "assigned"},
+        "title": surface.get("name") or surface.get("title"),
+        "layout_id": str(surface.get("layout_id") or surface.get("layoutId") or "").strip() or None,
+        "grid": grid_meta,
+        "slots": slots_meta,
+        "slot_compatibility_error": slot_compatibility_error,
+    }
+    # Drop None values for compact JSON (keep explicit False/0)
+    meta = {k: v for k, v in meta.items() if v is not None}
     return {
-        "layout": layout,
-        "meta": {
-            "surface": str(surface.get("id") or ""),
-            "refresh": surface.get("refresh") if isinstance(surface.get("refresh"), dict) else {"mode": "hybrid", "interval": 300},
-            "reason": reason or {"type": "assigned"},
-        },
+        "layout": layout_out,
+        "meta": meta,
     }

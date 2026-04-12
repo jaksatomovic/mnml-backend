@@ -2,6 +2,7 @@
   "mode_id": "ROAST",
   "display_name": "Daily Roast",
   "icon": "electric_bolt",
+  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": true,
   "description": "Witty, sarcastic one-liners about your current moment",
   "content": {
@@ -52,6 +53,75 @@
       "label": "ROAST",
       "attribution_template": "— InkSight AI",
       "line_width": 2
+    }
+  },
+  "variants": {
+    "LARGE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font": "noto_serif_regular",
+          "font_size": 15,
+          "max_width_ratio": 0.86,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST"
+      }
+    },
+    "WIDE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font": "noto_serif_regular",
+          "font_size": 14,
+          "max_width_ratio": 0.9,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST",
+        "height": 18
+      }
+    },
+    "TALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font_name": "Lora-Regular.ttf",
+          "font_size": 16,
+          "max_width_ratio": 0.84,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST",
+        "height": 20
+      }
+    },
+    "SMALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "centered_text",
+          "field": "quote",
+          "font": "noto_serif_regular",
+          "font_size": 11,
+          "max_width_ratio": 0.93,
+          "vertical_center": true
+        }
+      ],
+      "footer": {
+        "label": "ROAST",
+        "height": 16
+      }
     }
   },
   "layout_overrides": {

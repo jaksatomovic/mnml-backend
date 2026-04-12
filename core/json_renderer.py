@@ -33,7 +33,11 @@ from .patterns.utils import (
     has_cjk,
 )
 from .mode_catalog import builtin_catalog_map
-from .render_tiers import merge_layout_for_screen
+from .render_tiers import (
+    SLOT_TIER_FULL,
+    classify_slot_tier,
+    merge_layout_for_screen,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -267,17 +271,19 @@ def render_json_mode(
     weather_str: str,
     battery_pct: float,
     weather_code: int = -1,
-    time_str: str = "",
     screen_w: int = SCREEN_WIDTH,
     screen_h: int = SCREEN_HEIGHT,
     colors: int = 2,
     language: str = "zh",
     omit_chrome: bool = False,
+    slot_type: str | None = None,
 ) -> Image.Image:
     """Render a JSON-defined mode to an e-ink image (1-bit or 4-color palette).
 
     When ``omit_chrome`` is False (default), status bar and footer are drawn in the bitmap.
     When True (e.g. surface tiles), only the body is drawn so a composite can add one global chrome.
+
+    ``slot_type`` (``SMALL`` / ``WIDE`` / …) selects ``variants`` when rendering a grid cell.
     """
     if colors >= 3:
         img = Image.new("P", (screen_w, screen_h), EINK_BG)
@@ -289,11 +295,14 @@ def render_json_mode(
     apply_text_fontmode(draw)
     base_layout = mode_def.get("layout", {})
     overrides = mode_def.get("layout_overrides", {})
+    _variants = mode_def.get("variants")
     layout = merge_layout_for_screen(
         base_layout if isinstance(base_layout, dict) else {},
         overrides if isinstance(overrides, dict) else None,
         screen_w=screen_w,
         screen_h=screen_h,
+        shape_variants=_variants if isinstance(_variants, dict) else None,
+        slot_type=slot_type,
     )
 
     if omit_chrome:
@@ -317,16 +326,19 @@ def render_json_mode(
             weather_code,
             int(sb_c.get("line_width", 1)),
             bool(sb_c.get("dashed", False)),
-            time_str,
             screen_w,
             screen_h,
             colors,
             language,
         )
 
-    # Body blocks
+    # Body blocks — mosaic tiles default to top alignment so content fills the slot
     body = layout.get("body", [])
-    body_align = layout.get("body_align", "center")
+    _slot_tier = classify_slot_tier(screen_w, screen_h)
+    _default_body_align = (
+        "top" if (omit_chrome and _slot_tier != SLOT_TIER_FULL) else "center"
+    )
+    body_align = layout.get("body_align", _default_body_align)
     _has_vcenter = any(
         b.get("type") == "centered_text" and b.get("vertical_center", True)
         for b in body
@@ -398,7 +410,6 @@ def render_json_mode(
             screen_w=screen_w,
             screen_h=screen_h,
             colors=colors,
-            time_str=time_str,
         )
 
     return img
@@ -1076,8 +1087,11 @@ def _render_forecast_cards(ctx: RenderContext, block: dict) -> None:
 
 
 def _render_two_column(ctx: RenderContext, block: dict) -> None:
-    # Auto-downgrade to single column on very short screens
-    if ctx.screen_h < 200:
+    # Wide-but-short mosaic slots need left|right; only stack when too narrow for two columns
+    left_width = int(block.get("left_width", 120) * ctx.scale)
+    gap = int(block.get("gap", 8) * ctx.scale)
+    min_split_w = left_width + gap + int(36 * ctx.scale)
+    if ctx.screen_w < min_split_w:
         for child in block.get("left", []):
             if ctx.y >= ctx.footer_top - 10:
                 break
@@ -1088,8 +1102,6 @@ def _render_two_column(ctx: RenderContext, block: dict) -> None:
             _render_block(ctx, child)
         return
 
-    left_width = int(block.get("left_width", 120) * ctx.scale)
-    gap = int(block.get("gap", 8) * ctx.scale)
     left_x = int(block.get("left_x", 0) * ctx.scale) + ctx.x_offset
     right_x = left_x + left_width + gap
     right_margin = int(block.get("right_margin", 0) * ctx.scale)
@@ -1372,6 +1384,8 @@ def _render_calendar_grid(ctx: RenderContext, block: dict) -> None:
 
     margin_x = int(block.get("margin_x", 12) * ctx.scale)
     cell_h = int(block.get("cell_height", 24) * ctx.scale)
+    show_sublabels = bool(block.get("show_sublabels", True))
+    sublabel_max_chars = block.get("sublabel_max_chars")
     grid_w = ctx.available_width - margin_x * 2
     cell_w = grid_w // 7
     x0 = ctx.x_offset + margin_x
@@ -1390,11 +1404,23 @@ def _render_calendar_grid(ctx: RenderContext, block: dict) -> None:
     ctx.y += header_font_size + int(3 * ctx.scale)
 
     date_line_h = font_size + int(1 * ctx.scale)
+    sub_pad = int(2 * ctx.scale)
+    sub_line_span = sub_font_size + sub_pad
 
     for row in rows:
         if not isinstance(row, list):
             continue
-        if ctx.y + cell_h > ctx.footer_top - 10:
+        row_has_sub = False
+        if show_sublabels:
+            for ds in row[:7]:
+                if ds and day_labels.get(ds):
+                    row_has_sub = True
+                    break
+        row_advance = max(
+            cell_h,
+            date_line_h + (sub_line_span if row_has_sub else 0),
+        )
+        if ctx.y + row_advance > ctx.footer_top - 10:
             break
         for ci, day_str in enumerate(row[:7]):
             if not day_str:
@@ -1416,9 +1442,17 @@ def _render_calendar_grid(ctx: RenderContext, block: dict) -> None:
                 color = weekend_color if ci >= 5 else EINK_FG
                 ctx.draw.text((tx, ty), day_str, fill=color, font=font)
 
-            sub = day_labels.get(day_str, "")
-            if sub:
-                sb = sub_font.getbbox(sub)
+            raw_sub = str(day_labels.get(day_str, "") or "")
+            if raw_sub and show_sublabels:
+                sub = raw_sub
+                if isinstance(sublabel_max_chars, int) and sublabel_max_chars > 0:
+                    if len(sub) > sublabel_max_chars:
+                        sub = sub[: sublabel_max_chars].rstrip() + "…"
+                max_sub_w = max(8, cell_w - 4)
+                fits, remainder = _fit_text(sub, sub_font, max_sub_w)
+                if remainder:
+                    fits = fits.rstrip() + "…"
+                sb = sub_font.getbbox(fits)
                 sw = sb[2] - sb[0]
                 sx = cx - sw // 2
                 sy = ty + date_line_h
@@ -1429,8 +1463,8 @@ def _render_calendar_grid(ctx: RenderContext, block: dict) -> None:
                     sub_color = festival_color
                 else:
                     sub_color = EINK_FG
-                ctx.draw.text((sx, sy), sub, fill=sub_color, font=sub_font)
-        ctx.y += cell_h
+                ctx.draw.text((sx, sy), fits, fill=sub_color, font=sub_font)
+        ctx.y += row_advance
 
 
 def _render_timetable_grid(ctx: RenderContext, block: dict) -> None:
@@ -1453,24 +1487,41 @@ def _render_timetable_daily(ctx: RenderContext, block: dict) -> None:
     small_font = load_font(font_key, max(8, font_size - 2))
 
     margin_x = int(block.get("margin_x", 12) * ctx.scale)
-    row_h = int(block.get("row_height", 28) * ctx.scale)
+    min_row_h = int(block.get("row_height", 28) * ctx.scale)
+    show_location = bool(block.get("show_location", True))
+    time_ratio = float(block.get("time_col_ratio", 0.22))
+    time_ratio = max(0.14, min(0.34, time_ratio))
+
     grid_w = ctx.available_width - margin_x * 2
-    time_col_w = int(grid_w * 0.22)
+    time_col_w = int(grid_w * time_ratio)
+    name_col_w = max(24, grid_w - time_col_w - 6)
     x0 = ctx.x_offset + margin_x
 
     highlight_color = ctx.color_index("red")
     accent_color = ctx.color_index("yellow")
 
+    gap_name_loc = max(1, int(1 * ctx.scale))
+
     for i, slot in enumerate(slots):
         if not isinstance(slot, dict):
             continue
-        if ctx.y + row_h > ctx.footer_top - 10:
-            break
 
         time_str = str(slot.get("time", ""))
         name = str(slot.get("name", ""))
         is_current = slot.get("current", False)
-        loc = str(slot.get("location", ""))
+        loc = str(slot.get("location", "")) if show_location else ""
+
+        time_disp, _ = _fit_text(time_str, small_font, max(12, time_col_w - 4))
+        name_disp, _ = _fit_text(name, font, name_col_w)
+        loc_disp = ""
+        if loc:
+            loc_disp, _ = _fit_text(loc, small_font, name_col_w)
+
+        text_block_h = font_size + (gap_name_loc + small_font if loc_disp else 2)
+        row_h = max(min_row_h, text_block_h + int(6 * ctx.scale))
+
+        if ctx.y + row_h > ctx.footer_top - 10:
+            break
 
         if is_current and ctx.colors >= 3:
             ctx.draw.rectangle(
@@ -1481,11 +1532,18 @@ def _render_timetable_daily(ctx: RenderContext, block: dict) -> None:
         else:
             text_color = EINK_FG
 
-        ctx.draw.text((x0 + 2, ctx.y + 4), time_str, fill=text_color, font=small_font)
-        ctx.draw.text((x0 + time_col_w, ctx.y + 2), name, fill=text_color, font=font)
-        if loc:
+        vy = ctx.y + max(2, (row_h - text_block_h) // 2)
+
+        ctx.draw.text((x0 + 2, vy), time_disp, fill=text_color, font=small_font)
+        ctx.draw.text((x0 + time_col_w, vy), name_disp, fill=text_color, font=font)
+        if loc_disp:
             loc_color = EINK_BG if is_current else accent_color
-            ctx.draw.text((x0 + time_col_w, ctx.y + font_size + 3), loc, fill=loc_color, font=small_font)
+            ctx.draw.text(
+                (x0 + time_col_w, vy + font_size + gap_name_loc),
+                loc_disp,
+                fill=loc_color,
+                font=small_font,
+            )
 
         ctx.y += row_h
 

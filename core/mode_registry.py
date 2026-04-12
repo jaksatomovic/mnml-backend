@@ -413,6 +413,23 @@ def _validate_mode_def(definition: dict) -> bool:
             if not isinstance(val, dict):
                 return False
 
+    # Optional slot-shape layout variants (SMALL / WIDE / TALL / LARGE)
+    variants = definition.get("variants")
+    if variants is not None:
+        if not isinstance(variants, dict):
+            return False
+        for _k, val in variants.items():
+            if not isinstance(val, dict):
+                return False
+
+    sst = definition.get("supported_slot_types")
+    if sst is not None:
+        if not isinstance(sst, list):
+            return False
+        for item in sst:
+            if not isinstance(item, str) or not item.strip():
+                return False
+
     return True
 
 

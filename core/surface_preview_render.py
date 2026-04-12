@@ -11,7 +11,16 @@ from PIL import Image, ImageDraw
 from core.context import extract_location_settings, get_date_context, get_weather
 from core.patterns.utils import apply_text_fontmode, draw_footer, draw_status_bar, load_font
 from core.pipeline import generate_and_render
+from core.render_tiers import surface_mosaic_inner_rect
 from core.surface_engine import build_surface_render_payload
+from core.surface_grid import (
+    body_slot_rects_px,
+    grid_dimensions,
+    parse_surface_grid,
+    resolve_slot_widget_block,
+    sort_slots_reading_order,
+    validate_slots_for_grid,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -45,12 +54,6 @@ _GENERIC_THREE: tuple[tuple[float, float, float, float], ...] = (
 def _preset_for_surface(surface_id: str) -> tuple[tuple[float, float, float, float], ...]:
     sid = (surface_id or "").strip().lower()
     return _MOSAIC_PRESETS.get(sid, _GENERIC_THREE)
-
-
-def _body_box(screen_w: int, screen_h: int) -> tuple[int, int, int, int]:
-    """Mosaic area inside padded margins; per-tile renders omit mode chrome."""
-    pad = max(5, min(10, screen_w // 48))
-    return (pad, pad, screen_w - pad, screen_h - pad)
 
 
 def _frac_to_rect(
@@ -126,7 +129,6 @@ def _draw_surface_chrome(
     from core.pipeline import _format_date_str
 
     date_str = _format_date_str(date_ctx, language)
-    time_str = str(date_ctx.get("time_str", "") or "")
     wstr = str(weather.get("weather_str", "") or "")
     wcode = int(weather.get("weather_code", -1) or -1)
     draw = ImageDraw.Draw(img)
@@ -140,7 +142,6 @@ def _draw_surface_chrome(
         wcode,
         1,
         False,
-        time_str,
         screen_w,
         screen_h,
         2,
@@ -157,7 +158,6 @@ def _draw_surface_chrome(
         screen_w=screen_w,
         screen_h=screen_h,
         colors=2,
-        time_str=time_str,
     )
 
 
@@ -199,16 +199,40 @@ async def render_surface_preview_image(
 
     img = Image.new("L", (screen_w, screen_h), 255)
 
-    body = _body_box(screen_w, screen_h)
+    # Tiles only in the band between where surface status bar & footer will draw
+    body = surface_mosaic_inner_rect(screen_w, screen_h)
     gutter = max(4, screen_w // 90)
+
+    grid, slot_defs = parse_surface_grid(normalized)
+    use_grid = False
+    sorted_slots: list[dict[str, Any]] = []
+    if grid and slot_defs:
+        cols, rows, _, _ = grid_dimensions(grid)
+        ok, _err = validate_slots_for_grid(slot_defs, columns=cols, rows=rows)
+        if ok:
+            use_grid = True
+            sorted_slots = sort_slots_reading_order(slot_defs)
 
     preset = _preset_for_surface(surface_id.lower())
     items: list[dict[str, Any] | None] = []
-    for pos in _POSITION_ORDER:
-        raw = next((x for x in layout if isinstance(x, dict) and str(x.get("position") or "") == pos), None)
-        items.append(raw if isinstance(raw, dict) else None)
+    if use_grid:
+        blocks = [x for x in layout if isinstance(x, dict)]
+        for i, _slot in enumerate(sorted_slots):
+            blk = resolve_slot_widget_block(_slot, blocks, i)
+            items.append(blk if isinstance(blk, dict) else None)
+    else:
+        for pos in _POSITION_ORDER:
+            raw = next(
+                (x for x in layout if isinstance(x, dict) and str(x.get("position") or "") == pos),
+                None,
+            )
+            items.append(raw if isinstance(raw, dict) else None)
 
-    async def _one_tile(persona: str, rect: tuple[int, int, int, int]) -> Image.Image:
+    async def _one_tile(
+        persona: str,
+        rect: tuple[int, int, int, int],
+        slot_type: str | None,
+    ) -> Image.Image:
         rx0, ry0, rx1, ry1 = rect
         tw = max(96, rx1 - rx0)
         th = max(72, ry1 - ry0)
@@ -224,6 +248,7 @@ async def render_surface_preview_image(
                 mac=mac or "",
                 colors=2,
                 omit_chrome=True,
+                slot_type=slot_type,
             )
             return _fit_tile(tile, tw, th)
         except Exception:
@@ -232,11 +257,22 @@ async def render_surface_preview_image(
 
     rects: list[tuple[int, int, int, int]] = []
     personas: list[str] = []
-    for i in range(min(len(items), len(preset))):
-        personas.append(_resolve_mode_for_block(items[i]))
-        rects.append(_frac_to_rect(body, preset[i], gutter))
+    slot_types: list[str | None] = []
+    if use_grid:
+        rects = body_slot_rects_px(body, grid, slot_defs)
+        for i in range(len(rects)):
+            personas.append(_resolve_mode_for_block(items[i] if i < len(items) else None))
+            st = str(sorted_slots[i].get("slot_type") or "").strip().upper() or None
+            slot_types.append(st)
+    else:
+        for i in range(min(len(items), len(preset))):
+            personas.append(_resolve_mode_for_block(items[i]))
+            rects.append(_frac_to_rect(body, preset[i], gutter))
+            slot_types.append(None)
 
-    tiles = await asyncio.gather(*[_one_tile(personas[i], rects[i]) for i in range(len(personas))])
+    tiles = await asyncio.gather(
+        *[_one_tile(personas[i], rects[i], slot_types[i]) for i in range(len(personas))]
+    )
 
     for i, rect in enumerate(rects):
         rx0, ry0, rx1, ry1 = rect

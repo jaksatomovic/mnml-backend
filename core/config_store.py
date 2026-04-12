@@ -1480,6 +1480,21 @@ async def save_config(mac: str, data: dict) -> int:
     )
     surfaces_json = json.dumps(data.get("surfaces", []), ensure_ascii=False)
     surface_schedule_json = json.dumps(data.get("surfaceSchedule", []), ensure_ascii=False)
+    _dm = (
+        data.get("renderMode")
+        or data.get("render_mode")
+        or data.get("deviceMode")
+        or "mode"
+    )
+    device_mode = str(_dm or "mode").strip().lower()
+    assigned_mode = str(data.get("assignedMode", "") or "").strip().upper()
+    assigned_surface = str(data.get("assignedSurface", "") or "").strip()
+    _asg_save = str(data.get("assigned", "") or "").strip()
+    if _asg_save:
+        if device_mode == "surface" and not assigned_surface:
+            assigned_surface = _asg_save
+        elif device_mode != "surface" and not assigned_mode:
+            assigned_mode = _asg_save.upper()
     # API keys are no longer stored in device configs.
     # They now live in the user-level user_llm_config table.
     # We rely on the configs table default for is_active=1 instead of writing it explicitly.
@@ -1515,9 +1530,9 @@ async def save_config(mac: str, data: dict) -> int:
             time_slot_rules_json,
             memo_text,
             mode_overrides_json,
-            str(data.get("deviceMode", "mode") or "mode").strip().lower(),
-            str(data.get("assignedMode", "") or "").strip().upper(),
-            str(data.get("assignedSurface", "") or "").strip(),
+            device_mode,
+            assigned_mode,
+            assigned_surface,
             surfaces_json,
             surface_schedule_json,
             1 if bool(data.get("is_focus_listening", False)) else 0,
@@ -1717,12 +1732,26 @@ def _row_to_dict(row, columns) -> dict:
         mo = {}
     d["mode_overrides"] = mo
     d["modeOverrides"] = mo
-    d["device_mode"] = str(d.get("device_mode", "mode") or "mode").strip().lower()
+    _dm = str(d.get("render_mode") or d.get("device_mode") or "mode") or "mode"
+    d["device_mode"] = _dm.strip().lower()
     d["deviceMode"] = d["device_mode"]
+    d["render_mode"] = d["device_mode"]
+    d["renderMode"] = d["device_mode"]
     d["assigned_mode"] = str(d.get("assigned_mode", "") or "").strip().upper()
     d["assignedMode"] = d["assigned_mode"]
     d["assigned_surface"] = str(d.get("assigned_surface", "") or "").strip()
     d["assignedSurface"] = d["assigned_surface"]
+    _asg = str(d.get("assigned") or "").strip()
+    if _asg:
+        if d["device_mode"] == "surface" and not d["assigned_surface"]:
+            d["assigned_surface"] = _asg
+            d["assignedSurface"] = _asg
+        elif d["device_mode"] != "surface" and not d.get("assigned_mode"):
+            d["assigned_mode"] = _asg.upper()
+            d["assignedMode"] = d["assigned_mode"]
+    d["assigned"] = (
+        d["assigned_surface"] if d["device_mode"] == "surface" else d["assigned_mode"]
+    )
     surfaces_raw = d.get("surfaces_json", "[]")
     try:
         surfaces = json.loads(surfaces_raw) if isinstance(surfaces_raw, str) else surfaces_raw

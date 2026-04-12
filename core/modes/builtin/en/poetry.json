@@ -2,6 +2,7 @@
   "mode_id": "POETRY",
   "display_name": "Classical Poetry",
   "icon": "star",
+  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": true,
   "description": "A classic poem matched to the current season and mood",
   "content": {
@@ -148,6 +149,173 @@
       "label": "Poetry",
       "attribution_template": "— {author}",
       "dashed": true
+    }
+  },
+  "variants": {
+    "LARGE": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 12,
+          "align": "center"
+        },
+        {
+          "type": "list",
+          "field": "lines",
+          "max_items": 5,
+          "item_template": "{_value}",
+          "font": "noto_serif_regular",
+          "font_size": 13,
+          "item_spacing": 14,
+          "margin_x": 16,
+          "align": "center"
+        }
+      ],
+      "footer": {
+        "label": "Poetry",
+        "attribution_template": "— {author}",
+        "dashed": true
+      }
+    },
+    "WIDE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "two_column",
+          "left_width": 132,
+          "gap": 8,
+          "left": [
+            {
+              "type": "text",
+              "field": "title",
+              "font": "noto_serif_bold",
+              "font_size": 11,
+              "align": "right",
+              "margin_x": 4,
+              "max_lines": 2
+            },
+            {
+              "type": "text",
+              "field": "author",
+              "font": "noto_serif_light",
+              "font_size": 9,
+              "align": "right",
+              "margin_x": 4,
+              "max_lines": 1
+            }
+          ],
+          "right": [
+            {
+              "type": "list",
+              "field": "lines",
+              "max_items": 3,
+              "item_template": "{_value}",
+              "font": "noto_serif_regular",
+              "font_size": 11,
+              "item_spacing": 12,
+              "margin_x": 4,
+              "align": "left"
+            }
+          ]
+        }
+      ],
+      "footer": {
+        "label": "Poetry",
+        "attribution_template": "— {author}",
+        "dashed": true,
+        "height": 18
+      }
+    },
+    "TALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 12,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 8
+        },
+        {
+          "type": "text",
+          "field": "author",
+          "font": "noto_serif_light",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 8
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "list",
+          "field": "lines",
+          "max_items": 6,
+          "item_template": "{_value}",
+          "font": "noto_serif_regular",
+          "font_size": 11,
+          "item_spacing": 13,
+          "margin_x": 10,
+          "align": "center"
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "field": "note",
+          "font": "noto_serif_light",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 8
+        }
+      ],
+      "footer": {
+        "label": "Poetry",
+        "attribution_template": "— {author}",
+        "dashed": true,
+        "height": 20
+      }
+    },
+    "SMALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font": "noto_serif_bold",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 6
+        },
+        {
+          "type": "list",
+          "field": "lines",
+          "max_items": 2,
+          "item_template": "{_value}",
+          "font": "noto_serif_regular",
+          "font_size": 10,
+          "item_spacing": 10,
+          "margin_x": 6,
+          "align": "center"
+        }
+      ],
+      "footer": {
+        "label": "Poetry",
+        "attribution_template": "— {author}",
+        "dashed": true,
+        "height": 16
+      }
     }
   },
   "layout_overrides": {

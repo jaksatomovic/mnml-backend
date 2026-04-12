@@ -2,6 +2,7 @@
   "mode_id": "TIMETABLE",
   "display_name": "translated",
   "icon": "school",
+  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": false,
   "description": "translated，translated",
   "content": {
@@ -114,6 +115,115 @@
       "attribution_template": "— InkSight"
     }
   },
+  "variants": {
+    "LARGE": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "timetable_grid",
+          "field": "slots",
+          "font_size": 11,
+          "margin_x": 5,
+          "row_height": 26,
+          "show_location": true,
+          "time_col_ratio": 0.2
+        }
+      ],
+      "footer": {
+        "label": "TIMETABLE",
+        "attribution_template": "— InkSight"
+      }
+    },
+    "WIDE": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "text",
+          "field": "timetable_title",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 8
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "timetable_grid",
+          "field": "slots",
+          "font_size": 10,
+          "margin_x": 6,
+          "row_height": 22,
+          "show_location": true,
+          "time_col_ratio": 0.18
+        }
+      ],
+      "footer": {
+        "label": "TIMETABLE",
+        "attribution_template": "— InkSight",
+        "height": 20
+      }
+    },
+    "TALL": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "text",
+          "field": "timetable_title",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 6
+        },
+        {
+          "type": "timetable_grid",
+          "field": "slots",
+          "font_size": 9,
+          "margin_x": 4,
+          "row_height": 20,
+          "show_location": true,
+          "time_col_ratio": 0.22
+        }
+      ],
+      "footer": {
+        "label": "TIMETABLE",
+        "attribution_template": "— InkSight",
+        "height": 18
+      }
+    },
+    "SMALL": {
+      "body_align": "center",
+      "body": [
+        {
+          "type": "text",
+          "field": "timetable_title",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 4
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "timetable_grid",
+          "field": "slots",
+          "font_size": 8,
+          "margin_x": 2,
+          "row_height": 16,
+          "show_location": false,
+          "time_col_ratio": 0.28
+        }
+      ],
+      "footer": {
+        "label": "TIME",
+        "attribution_template": "— InkSight",
+        "height": 16
+      }
+    }
+  },
   "layout_overrides": {
     "slot_lg": {
       "body_align": "top",
@@ -149,12 +259,12 @@
       }
     },
     "slot_sm": {
-      "body_align": "top",
+      "body_align": "center",
       "body": [
         {
           "type": "text",
           "field": "timetable_title",
-          "font_size": 11,
+          "font_size": 10,
           "align": "center",
           "max_lines": 1,
           "margin_x": 6
@@ -168,7 +278,9 @@
           "field": "slots",
           "font_size": 9,
           "margin_x": 4,
-          "row_height": 20
+          "row_height": 18,
+          "show_location": false,
+          "time_col_ratio": 0.26
         }
       ],
       "footer": {

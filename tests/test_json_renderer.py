@@ -322,7 +322,7 @@ def test_render_stoic_json():
     img = render_json_mode(
         mode_def, content,
         date_str="2/18 Tue", weather_str="sunny 15°C", battery_pct=85,
-        weather_code=0, time_str="14:30",
+        weather_code=0,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
     assert img.mode == "1"
@@ -349,7 +349,7 @@ def test_render_fitness_json():
     img = render_json_mode(
         mode_def, content,
         date_str="2/18 Tue", weather_str="cloudy 12°C", battery_pct=70,
-        weather_code=3, time_str="07:00",
+        weather_code=3,
     )
     assert img.size == (SCREEN_W, SCREEN_H)
 

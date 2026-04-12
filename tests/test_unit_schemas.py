@@ -137,3 +137,21 @@ class TestConfigRequest:
     def test_device_mode_rejects_invalid(self):
         with pytest.raises(ValidationError):
             ConfigRequest(mac="AA:BB:CC:DD:EE:FF", deviceMode="advanced")
+
+    def test_render_mode_alias_sets_device_mode(self):
+        body = ConfigRequest(
+            mac="AA:BB:CC:DD:EE:FF",
+            renderMode="surface",
+            assigned="morning",
+            surfaces=[{"id": "morning", "layout": []}],
+        )
+        assert body.deviceMode == "surface"
+        assert body.assignedSurface == "morning"
+
+    def test_assigned_alias_sets_mode_when_device_mode_mode(self):
+        body = ConfigRequest(
+            mac="AA:BB:CC:DD:EE:FF",
+            deviceMode="mode",
+            assigned="WEATHER",
+        )
+        assert body.assignedMode == "WEATHER"
