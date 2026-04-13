@@ -439,21 +439,31 @@
           "field": "city",
           "font_size": 9,
           "align": "center",
-          "margin_x": 6,
+          "margin_x": 8,
           "max_lines": 1
+        },
+        {
+          "type": "spacer",
+          "height": 2
         },
         {
           "type": "big_number",
           "field": "today_temp",
-          "font_size": 22,
+          "font_size": 28,
           "align": "center",
-          "margin_x": 8,
+          "margin_x": 6,
           "unit": "°C"
         },
         {
-          "type": "text",
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "weather_icon_text",
+          "code_field": "today_code",
           "field": "today_desc",
-          "font_size": 9,
+          "font_size": 10,
+          "icon_size": 14,
           "align": "center",
           "margin_x": 6,
           "max_lines": 1
@@ -597,13 +607,13 @@
       }
     },
     "slot_sm": {
-      "body_align": "top",
+      "body_align": "center",
       "body": [
         {
           "type": "text",
           "field": "city",
-          "font_size": 10,
-          "align": "left",
+          "font_size": 9,
+          "align": "center",
           "margin_x": 8,
           "max_lines": 1
         },
@@ -614,19 +624,24 @@
         {
           "type": "big_number",
           "field": "today_temp",
-          "font_size": 26,
-          "align": "left",
-          "margin_x": 8,
+          "font_size": 28,
+          "align": "center",
+          "margin_x": 6,
           "unit": "°C"
+        },
+        {
+          "type": "spacer",
+          "height": 1
         },
         {
           "type": "weather_icon_text",
           "code_field": "today_code",
           "field": "today_desc",
           "font_size": 10,
-          "icon_size": 16,
-          "align": "left",
-          "margin_x": 8
+          "icon_size": 14,
+          "align": "center",
+          "margin_x": 6,
+          "max_lines": 1
         }
       ],
       "footer": {
