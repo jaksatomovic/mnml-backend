@@ -46,6 +46,8 @@ from core.surface_engine import (
     build_surface_render_payload,
     evaluate_event_for_device,
     resolve_device_surface,
+    resolve_playlist_surface,
+    set_device_surface_override,
 )
 from core.surface_preview_render import render_surface_preview_image
 from core.stats_store import get_latest_heartbeat
@@ -68,6 +70,34 @@ def _configured_refresh_minutes(config: Optional[dict]) -> int:
     if refresh_minutes > 1440:
         return 1440
     return refresh_minutes
+
+
+def _infer_surface_playback_mode(config: dict) -> str:
+    explicit = str(config.get("surfacePlaybackMode") or config.get("surface_playback_mode") or "").strip().lower()
+    if explicit in ("single", "rotate", "scheduled"):
+        return explicit
+    schedule = config.get("surfaceSchedule") if isinstance(config.get("surfaceSchedule"), list) else []
+    if schedule:
+        return "scheduled"
+    playlist = config.get("surfacePlaylist") if isinstance(config.get("surfacePlaylist"), list) else []
+    enabled = [
+        p for p in playlist
+        if isinstance(p, dict) and p.get("enabled", True) and str(p.get("surface_id") or "").strip()
+    ]
+    return "rotate" if len(enabled) > 1 else "single"
+
+
+def _enabled_surface_ids(playlist: list[dict]) -> list[str]:
+    items = [p for p in playlist if isinstance(p, dict)]
+    items.sort(key=lambda x: int(x.get("order") or 0))
+    out: list[str] = []
+    for p in items:
+        if not p.get("enabled", True):
+            continue
+        sid = str(p.get("surface_id") or "").strip()
+        if sid:
+            out.append(sid)
+    return out
 
 
 @router.get("/render-json")
@@ -93,6 +123,89 @@ async def render_json(
         "layout": [{"type": "text", "content": f"Mode: {mode_fallback}", "size": "large"}],
         "meta": {"mode": "mode", "assigned": mode_fallback, "refresh": {"mode": "polling", "interval": _configured_refresh_minutes(cfg) * 60}},
     }
+
+
+@router.get("/device/{mac}/surface-playlist-snapshot")
+async def surface_playlist_snapshot(
+    mac: str,
+    x_device_token: Optional[str] = Header(default=None),
+):
+    mac = validate_mac_param(mac)
+    await require_device_token(mac, x_device_token)
+    cfg = await get_active_config(mac, log_load=False)
+    if not cfg:
+        return JSONResponse({"error": "no_config"}, status_code=404)
+
+    device_mode = str(cfg.get("device_mode") or cfg.get("deviceMode") or "mode").strip().lower()
+    if device_mode != "surface":
+        return JSONResponse({"error": "not_surface_mode"}, status_code=400)
+
+    playlist = cfg.get("surfacePlaylist") if isinstance(cfg.get("surfacePlaylist"), list) else []
+    enabled_ids = _enabled_surface_ids(playlist)
+    playback_mode = _infer_surface_playback_mode(cfg)
+    assigned_surface = str(cfg.get("assigned_surface") or cfg.get("assignedSurface") or "").strip()
+    active_surface, reason = resolve_device_surface(mac, cfg)
+    current_surface = str(active_surface.get("id") or "").strip() if isinstance(active_surface, dict) else ""
+
+    current_index = -1
+    if current_surface in enabled_ids:
+        current_index = enabled_ids.index(current_surface)
+    next_index = -1
+    next_surface = ""
+    if enabled_ids:
+        if current_index >= 0:
+            next_index = (current_index + 1) % len(enabled_ids)
+        else:
+            next_index = 0
+        next_surface = enabled_ids[next_index]
+
+    return {
+        "ok": True,
+        "render_mode": "surface",
+        "playback_mode": playback_mode,
+        "assigned_surface": assigned_surface,
+        "current_surface": current_surface,
+        "current_index": current_index,
+        "enabled_surface_ids": enabled_ids,
+        "next_index": next_index,
+        "next_surface": next_surface,
+        "reason": reason or {"type": "unknown"},
+    }
+
+
+@router.post("/device/{mac}/surface/select")
+async def select_surface_for_device(
+    mac: str,
+    payload: dict,
+    x_device_token: Optional[str] = Header(default=None),
+):
+    mac = validate_mac_param(mac)
+    await require_device_token(mac, x_device_token)
+    cfg = await get_active_config(mac, log_load=False)
+    if not cfg:
+        return JSONResponse({"error": "no_config"}, status_code=404)
+    device_mode = str(cfg.get("device_mode") or cfg.get("deviceMode") or "mode").strip().lower()
+    if device_mode != "surface":
+        return JSONResponse({"error": "not_surface_mode"}, status_code=400)
+
+    target = str((payload or {}).get("surface_id") or "").strip()
+    if not target:
+        return JSONResponse({"error": "surface_id_required"}, status_code=400)
+
+    surfaces = cfg.get("surfaces") if isinstance(cfg.get("surfaces"), list) else []
+    valid_ids = {str(s.get("id") or "").strip() for s in surfaces if isinstance(s, dict)}
+    if target not in valid_ids:
+        return JSONResponse({"error": "unknown_surface_id"}, status_code=400)
+
+    duration_sec = int((payload or {}).get("duration_sec") or 300)
+    set_device_surface_override(
+        mac,
+        target,
+        duration_sec=duration_sec,
+        event={"type": "manual_select", "priority": "high", "data": {"surface_id": target}},
+    )
+    await set_pending_refresh(mac, True)
+    return {"ok": True, "surface_id": target, "duration_sec": max(1, duration_sec)}
 
 
 @router.post("/render-json/preview")

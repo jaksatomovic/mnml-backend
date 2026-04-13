@@ -256,6 +256,19 @@ def resolve_device_surface(mac: str, config: dict) -> tuple[Optional[dict], Opti
     return by_id.get(active_id), reason
 
 
+def set_device_surface_override(mac: str, target_surface_id: str, duration_sec: int = 300, event: Optional[dict] = None) -> None:
+    target = str(target_surface_id or "").strip()
+    if not target:
+        return
+    ttl = max(1, int(duration_sec or 300))
+    with _state_lock:
+        _device_overrides[mac.upper()] = {
+            "target": target,
+            "expires_at": datetime.now().timestamp() + ttl,
+            "event": event or {"type": "manual_select", "priority": "high"},
+        }
+
+
 def build_surface_render_payload(surface: Optional[dict], reason: Optional[dict] = None) -> dict:
     if not surface:
         return {
