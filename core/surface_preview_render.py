@@ -297,7 +297,7 @@ def _draw_slot_chrome(
     draw = ImageDraw.Draw(img)
     apply_text_fontmode(draw)
 
-    r = 2
+    r = 3
     left = x0
     right = x1 - 1
     top = y0
@@ -311,15 +311,14 @@ def _draw_slot_chrome(
     _draw_dotted_line_h(draw, left + r, right - r, top, step=4, fill=0)
     _draw_dotted_line_v(draw, left, top + r, body_bottom, step=4, fill=0)
     _draw_dotted_line_v(draw, right, top + r, body_bottom, step=4, fill=0)
-    _draw_dotted_line_h(draw, left, right, body_bottom, step=4, fill=0)
     _draw_dotted_top_arc(draw, (left, top, left + 2 * r, top + 2 * r), 180, 270, fill=0)
     _draw_dotted_top_arc(draw, (right - 2 * r, top, right, top + 2 * r), 270, 360, fill=0)
 
     # Footer: black bar with rounded bottom corners only.
-    fr = 2
-    draw.rounded_rectangle([left + 1, footer_top + 1, right - 1, bottom - 1], radius=fr, fill=0)
+    fr = 3
+    draw.rounded_rectangle([left, footer_top + 1, right, bottom], radius=fr, fill=0)
     # Square the top edge back so only bottom corners remain rounded.
-    draw.rectangle([left + 1, footer_top + 1, right - 1, footer_top + fr], fill=0)
+    draw.rectangle([left, footer_top + 1, right, footer_top + fr], fill=0)
     _draw_dotted_line_h(draw, left + 3, right - 3, footer_top, step=3, fill=255)
 
     font = load_font("inter_medium", max(9, min(12, int(w / 16))))
