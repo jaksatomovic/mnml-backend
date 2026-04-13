@@ -228,7 +228,7 @@ def _draw_surface_chrome(
         draw,
         img,
         label,
-        "InkSight",
+        "",
         mode_id="SURFACE",
         weather_code=None,
         screen_w=screen_w,

@@ -100,17 +100,11 @@
     "slot_lg": {
       "body": [
         {
-          "type": "text",
-          "field": "artwork_title",
-          "font_size": 12,
-          "align": "center",
-          "max_lines": 1
-        },
-        {
           "type": "image",
           "field": "image_url",
-          "width": 220,
-          "height": 148
+          "fit_to_available": true,
+          "padding": 4,
+          "margin_bottom": 0
         }
       ],
       "footer": {
@@ -121,17 +115,11 @@
     "slot_md": {
       "body": [
         {
-          "type": "text",
-          "field": "artwork_title",
-          "font_size": 11,
-          "align": "center",
-          "max_lines": 1
-        },
-        {
           "type": "image",
           "field": "image_url",
-          "width": 180,
-          "height": 120
+          "fit_to_available": true,
+          "padding": 4,
+          "margin_bottom": 0
         }
       ],
       "footer": {
@@ -145,8 +133,9 @@
         {
           "type": "image",
           "field": "image_url",
-          "width": 148,
-          "height": 98
+          "fit_to_available": true,
+          "padding": 4,
+          "margin_bottom": 0
         }
       ],
       "footer": {
@@ -160,8 +149,9 @@
         {
           "type": "image",
           "field": "image_url",
-          "width": 120,
-          "height": 80
+          "fit_to_available": true,
+          "padding": 3,
+          "margin_bottom": 0
         }
       ],
       "footer": {

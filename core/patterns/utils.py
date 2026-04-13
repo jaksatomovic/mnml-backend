@@ -337,9 +337,7 @@ def draw_surface_footer_bar(
         return y0 + (bar_h - th) // 2 - bb[1]
 
     text_y = _footer_text_y(font_label, mode_upper)
-    # Faux-bold: Inter has no Bold in bundle; slight horizontal offset on dark fill.
-    for ox in (0, 1):
-        draw.text((label_x + ox, text_y), mode_upper, fill=on_dark, font=font_label)
+    draw.text((label_x, text_y), mode_upper, fill=on_dark, font=font_label)
 
     if attribution:
         bbox = draw.textbbox((0, 0), attribution, font=font_attr)

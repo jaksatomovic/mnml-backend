@@ -1270,10 +1270,19 @@ def _render_image(ctx: RenderContext, block: dict) -> None:
     image_url = str(ctx.get_field(field_name) or "")
     if not image_url:
         return
-    width = int(block.get("width", 220) * ctx.scale)
-    height = int(block.get("height", 140) * ctx.scale)
-    x = int(block.get("x", (ctx.screen_w - width) // 2))
-    y = int(block.get("y", ctx.y))
+    fit_to_available = bool(block.get("fit_to_available", False))
+    if fit_to_available:
+        pad = max(0, int(block.get("padding", 4) * ctx.scale))
+        x = ctx.x_offset + pad
+        y = ctx.y + pad
+        width = max(8, ctx.available_width - pad * 2)
+        height = max(8, ctx.footer_top - y - pad)
+    else:
+        width = int(block.get("width", 220) * ctx.scale)
+        height = int(block.get("height", 140) * ctx.scale)
+        x = int(block.get("x", (ctx.screen_w - width) // 2))
+        y = int(block.get("y", ctx.y))
+    margin_bottom = int(block.get("margin_bottom", 0 if fit_to_available else 6))
     # Try pre-fetched data first (async download from json_content.py)
     prefetched = ctx.content.get(f"_prefetched_{field_name}")
     if prefetched:
@@ -1283,7 +1292,7 @@ def _render_image(ctx: RenderContext, block: dict) -> None:
             ctx.img.paste(img, (x, y))
         else:
             ctx.paste_icon(img, (x, y))
-        ctx.y = y + height + int(block.get("margin_bottom", 6))
+        ctx.y = y + height + margin_bottom
         return
     local_path = _resolve_local_asset(image_url)
     if local_path:
@@ -1293,7 +1302,7 @@ def _render_image(ctx: RenderContext, block: dict) -> None:
                 ctx.img.paste(img, (x, y))
             else:
                 ctx.paste_icon(img, (x, y))
-            ctx.y = y + height + int(block.get("margin_bottom", 6))
+            ctx.y = y + height + margin_bottom
             return
         except (OSError, UnidentifiedImageError):
             logger.warning("[JSONRenderer] Failed to load local asset %s", local_path, exc_info=True)
@@ -1326,7 +1335,7 @@ def _render_image(ctx: RenderContext, block: dict) -> None:
             ctx.img.paste(img, (x, y))
         else:
             ctx.paste_icon(img, (x, y))
-        ctx.y = y + height + int(block.get("margin_bottom", 6))
+        ctx.y = y + height + margin_bottom
     except (httpx.HTTPError, ValueError, OSError, UnidentifiedImageError):
         logger.warning("[JSONRenderer] Failed to render image block", exc_info=True)
         ctx.draw.rectangle([x, y, x + width, y + height], outline=EINK_FG, width=1)
@@ -1338,7 +1347,7 @@ def _render_image(ctx: RenderContext, block: dict) -> None:
         tx = x + (width - tw) // 2
         ty = y + (height - th) // 2
         ctx.draw.text((tx, ty), placeholder_text, fill=EINK_FG, font=placeholder_font)
-        ctx.y = y + height + int(block.get("margin_bottom", 6) * ctx.scale)
+        ctx.y = y + height + margin_bottom
 
 
 # ── Helpers ──────────────────────────────────────────────────
@@ -1350,6 +1359,20 @@ def _pick_cjk_font(font_key: str) -> str:
         return font_key
     if font_key in ("lora_regular", "lora_bold", "inter_medium"):
         return "noto_serif_light"
+    return font_key
+
+
+def _pick_bold_font(font_key: str) -> str:
+    """Best-effort bold counterpart for a font key."""
+    if font_key.startswith("noto_serif"):
+        return "noto_serif_bold"
+    if font_key == "lora_regular":
+        return "lora_bold"
+    if font_key == "lora_bold":
+        return "lora_bold"
+    # Inter Bold isn't bundled; keep medium and rely on size/offset if needed elsewhere.
+    if font_key == "inter_medium":
+        return "inter_medium"
     return font_key
 
 
@@ -1379,8 +1402,9 @@ def _render_calendar_grid(ctx: RenderContext, block: dict) -> None:
     sub_font_size = max(int(block.get("sub_font_size", 7) * ctx.scale), 6)
     font_key = _pick_cjk_font(block.get("font", "noto_serif_regular"))
     font = load_font(font_key, font_size)
-    header_font = load_font(font_key, header_font_size)
+    header_font = load_font(_pick_bold_font(font_key), header_font_size)
     sub_font = load_font(font_key, sub_font_size)
+    today_font = load_font(_pick_bold_font(font_key), font_size)
 
     margin_x = int(block.get("margin_x", 12) * ctx.scale)
     cell_h = int(block.get("cell_height", 24) * ctx.scale)
@@ -1400,8 +1424,11 @@ def _render_calendar_grid(ctx: RenderContext, block: dict) -> None:
         bbox = header_font.getbbox(hdr)
         tw = bbox[2] - bbox[0]
         color = weekend_color if ci >= 5 else EINK_FG
-        ctx.draw.text((cx - tw // 2, ctx.y), hdr, fill=color, font=header_font)
-    ctx.y += header_font_size + int(3 * ctx.scale)
+        hx = cx - tw // 2
+        for ox in (0, 1):
+            ctx.draw.text((hx + ox, ctx.y), hdr, fill=color, font=header_font)
+    # Extra breathing room between weekday headers and first week row.
+    ctx.y += header_font_size + int(7 * ctx.scale)
 
     date_line_h = font_size + int(1 * ctx.scale)
     sub_pad = int(2 * ctx.scale)
@@ -1433,14 +1460,29 @@ def _render_calendar_grid(ctx: RenderContext, block: dict) -> None:
             ty = ctx.y
 
             if day_str == today:
-                r = max(tw, th) // 2 + int(1 * ctx.scale)
+                r = max(tw, th) // 2 + int(3 * ctx.scale)
                 cy = ty + th // 2 + int(2 * ctx.scale)
                 ec = (cx - r, cy - r, cx + r, cy + r)
                 ctx.draw.ellipse(ec, fill=today_bg)
-                ctx.draw.text((tx, ty), day_str, fill=EINK_BG, font=font)
+                # Center today text optically inside the circle.
+                tb = today_font.getbbox(day_str)
+                ttw = tb[2] - tb[0]
+                tth = tb[3] - tb[1]
+                ttx = cx - ttw // 2 - tb[0]
+                tty = cy - tth // 2 - tb[1]
+                ctx.draw.text((ttx, tty), day_str, fill=EINK_BG, font=today_font)
             else:
                 color = weekend_color if ci >= 5 else EINK_FG
-                ctx.draw.text((tx, ty), day_str, fill=color, font=font)
+                label_type = day_label_types.get(day_str, "")
+                is_holiday = label_type in ("festival", "solar_term")
+                if is_holiday:
+                    hb = today_font.getbbox(day_str)
+                    htw = hb[2] - hb[0]
+                    htx = cx - htw // 2
+                    for ox in (0, 1):
+                        ctx.draw.text((htx + ox, ty), day_str, fill=color, font=today_font)
+                else:
+                    ctx.draw.text((tx, ty), day_str, fill=color, font=font)
 
             raw_sub = str(day_labels.get(day_str, "") or "")
             if raw_sub and show_sublabels:
