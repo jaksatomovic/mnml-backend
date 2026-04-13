@@ -11,11 +11,10 @@ from PIL import Image, ImageDraw
 from core.context import extract_location_settings, get_date_context, get_weather
 from core.patterns.utils import (
     apply_text_fontmode,
-    draw_dashed_line,
-    draw_dashed_line_vertical,
     draw_status_bar,
-    draw_surface_footer_bar,
     load_font,
+    get_mode_icon,
+    paste_icon_onto,
 )
 from core.pipeline import generate_and_render
 from core.render_tiers import surface_mosaic_inner_rect
@@ -199,9 +198,9 @@ def _draw_surface_chrome(
     screen_w: int,
     screen_h: int,
     language: str,
-    surface_label: str,
+    suppress_center_weather: bool,
 ) -> None:
-    """One status bar + footer for the full surface (tiles are body-only)."""
+    """One status bar for the full surface (tiles have local chrome)."""
     from core.pipeline import _format_date_str
 
     date_str = _format_date_str(date_ctx, language)
@@ -222,18 +221,7 @@ def _draw_surface_chrome(
         screen_h,
         2,
         language,
-    )
-    label = (surface_label or "SURFACE").strip().upper() or "SURFACE"
-    draw_surface_footer_bar(
-        draw,
-        img,
-        label,
-        "",
-        mode_id="SURFACE",
-        weather_code=None,
-        screen_w=screen_w,
-        screen_h=screen_h,
-        colors=2,
+        suppress_center_weather=suppress_center_weather,
     )
 
 
@@ -244,6 +232,122 @@ def _draw_error_tile(tw: int, th: int, msg: str) -> Image.Image:
     f = load_font("noto_serif_light", max(9, min(12, tw // 12)))
     d.text((4, 4), msg[:80], fill=0, font=f)
     return im
+
+
+def _draw_dotted_line_h(
+    draw: ImageDraw.ImageDraw,
+    x0: int,
+    x1: int,
+    y: int,
+    *,
+    step: int = 4,
+    fill: int = 0,
+) -> None:
+    for x in range(x0, x1 + 1, step):
+        draw.point((x, y), fill=fill)
+
+
+def _draw_dotted_line_v(
+    draw: ImageDraw.ImageDraw,
+    x: int,
+    y0: int,
+    y1: int,
+    *,
+    step: int = 4,
+    fill: int = 0,
+) -> None:
+    for y in range(y0, y1 + 1, step):
+        draw.point((x, y), fill=fill)
+
+
+def _draw_dotted_top_arc(
+    draw: ImageDraw.ImageDraw,
+    bbox: tuple[int, int, int, int],
+    start_deg: int,
+    end_deg: int,
+    *,
+    step_deg: int = 12,
+    fill: int = 0,
+) -> None:
+    import math
+
+    x0, y0, x1, y1 = bbox
+    rx = (x1 - x0) / 2.0
+    ry = (y1 - y0) / 2.0
+    cx = x0 + rx
+    cy = y0 + ry
+    for deg in range(start_deg, end_deg + 1, step_deg):
+        rad = math.radians(deg)
+        x = int(round(cx + rx * math.cos(rad)))
+        y = int(round(cy + ry * math.sin(rad)))
+        draw.point((x, y), fill=fill)
+
+
+def _draw_slot_chrome(
+    img: Image.Image,
+    rect: tuple[int, int, int, int],
+    mode_label: str,
+) -> None:
+    x0, y0, x1, y1 = rect
+    w = max(1, x1 - x0)
+    h = max(1, y1 - y0)
+    if w < 32 or h < 28:
+        return
+
+    draw = ImageDraw.Draw(img)
+    apply_text_fontmode(draw)
+
+    r = 2
+    left = x0
+    right = x1 - 1
+    top = y0
+    bottom = y1 - 1
+
+    footer_h = min(22, max(14, int(h * 0.14)))
+    footer_top = max(top + 8, bottom - footer_h + 1)
+    body_bottom = max(top + r + 2, footer_top - 1)
+
+    # Dotted border belongs to content area only (stops before footer).
+    _draw_dotted_line_h(draw, left + r, right - r, top, step=4, fill=0)
+    _draw_dotted_line_v(draw, left, top + r, body_bottom, step=4, fill=0)
+    _draw_dotted_line_v(draw, right, top + r, body_bottom, step=4, fill=0)
+    _draw_dotted_line_h(draw, left, right, body_bottom, step=4, fill=0)
+    _draw_dotted_top_arc(draw, (left, top, left + 2 * r, top + 2 * r), 180, 270, fill=0)
+    _draw_dotted_top_arc(draw, (right - 2 * r, top, right, top + 2 * r), 270, 360, fill=0)
+
+    # Footer: black bar with rounded bottom corners only.
+    fr = 2
+    draw.rounded_rectangle([left + 1, footer_top + 1, right - 1, bottom - 1], radius=fr, fill=0)
+    # Square the top edge back so only bottom corners remain rounded.
+    draw.rectangle([left + 1, footer_top + 1, right - 1, footer_top + fr], fill=0)
+    _draw_dotted_line_h(draw, left + 3, right - 3, footer_top, step=3, fill=255)
+
+    font = load_font("inter_medium", max(9, min(12, int(w / 16))))
+    raw_label = (mode_label or "WIDGET").strip()
+    label = raw_label.replace("_", " ").lower().title()
+    bbox = draw.textbbox((0, 0), label, font=font)
+    tw = bbox[2] - bbox[0]
+    icon = get_mode_icon(raw_label.upper())
+    icon_size = 12
+    icon_x = left + 8
+    text_left_padding = 8
+    if icon:
+        if icon.size != (icon_size, icon_size):
+            icon = icon.resize((icon_size, icon_size), Image.Resampling.LANCZOS)
+        text_left_padding = icon_size + 6
+    tx = left + 8 + text_left_padding
+    if tw > w - (tx - left) - 8:
+        while label and tw > w - (tx - left) - 10:
+            label = label[:-1]
+            bbox = draw.textbbox((0, 0), f"{label}...", font=font)
+            tw = bbox[2] - bbox[0]
+        label = f"{label}..." if label else "..."
+    text_h = bbox[3] - bbox[1]
+    ty = footer_top + max(1, (bottom - footer_top - text_h) // 2) - 1
+    if icon:
+        icon_y = footer_top + max(1, (bottom - footer_top - icon_size) // 2) - 1
+        paste_icon_onto(img, icon, (icon_x, icon_y), fill=255)
+    draw.text((tx, ty), label, fill=255, font=font)
 
 
 async def render_surface_preview_image(
@@ -356,27 +460,15 @@ async def render_surface_preview_image(
         tile = tiles[i]
         tile = _fit_tile(tile, tw, th)
         img.paste(tile, (rx0, ry0))
+        _draw_slot_chrome(img, rect, personas[i])
 
-    border_draw = ImageDraw.Draw(img)
-    apply_text_fontmode(border_draw)
-    if use_grid and grid and sorted_slots:
-        _draw_slot_boundary_dashed(
-            border_draw,
-            body,
-            grid,
-            sorted_slots,
-            outline=0,
-            dash_len=3,
-            gap_len=3,
-        )
+    # Grid separators between cells are intentionally omitted.
+    # Each tile now draws its own border chrome.
 
     lang = "zh"
     if isinstance(cfg, dict):
         lang = str(cfg.get("mode_language") or cfg.get("modeLanguage") or "zh").strip() or "zh"
-    title = (
-        str(meta.get("title") or normalized.get("name") or surface_id or "Surface").strip()
-        or "Surface"
-    )
+    has_weather_tile = any((p or "").upper() == "WEATHER" for p in personas)
     _draw_surface_chrome(
         img,
         date_ctx=date_ctx,
@@ -385,7 +477,7 @@ async def render_surface_preview_image(
         screen_w=screen_w,
         screen_h=screen_h,
         language=lang,
-        surface_label=title,
+        suppress_center_weather=has_weather_tile,
     )
 
     # 1-bit threshold: L≤135 → black. Footer uses L=0 (bar) and L>135 (white text/icons).

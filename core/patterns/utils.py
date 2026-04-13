@@ -359,6 +359,7 @@ def draw_status_bar(
     screen_h: int = SCREEN_HEIGHT,
     colors: int = 2,
     language: str = "zh",
+    suppress_center_weather: bool = False,
 ):
     """translated"""
     def _strip_time_tokens(text: str) -> str:
@@ -408,12 +409,13 @@ def draw_status_bar(
 
     # Weather icon only in the bar center — omit temperature text (e.g. "22°C"), which on
     # 1-bit panels is often misread as a clock; full detail stays in WEATHER mode body, etc.
-    weather_icon = get_weather_icon(weather_code) if weather_code >= 0 else None
-    if weather_icon:
-        icon_fill = EINK_COLOR_NAME_MAP.get("red", EINK_FG) if colors >= 3 else EINK_FG
-        paste_icon_onto(img, weather_icon, (wx, y - 1), fill=icon_fill)
-    elif (weather_str or "").strip():
-        draw.text((wx, y), weather_str, fill=EINK_FG, font=font_date)
+    if not suppress_center_weather:
+        weather_icon = get_weather_icon(weather_code) if weather_code >= 0 else None
+        if weather_icon:
+            icon_fill = EINK_COLOR_NAME_MAP.get("red", EINK_FG) if colors >= 3 else EINK_FG
+            paste_icon_onto(img, weather_icon, (wx, y - 1), fill=icon_fill)
+        elif (weather_str or "").strip():
+            draw.text((wx, y), weather_str, fill=EINK_FG, font=font_date)
 
     batt_text = f"{battery_pct}%"
     bbox = draw.textbbox((0, 0), batt_text, font=font_en)
@@ -438,11 +440,7 @@ def draw_status_bar(
 
     draw.text((bx + batt_box_w + int(6 * scale), y), batt_text, fill=batt_fill, font=font_en)
 
-    line_y = int(screen_h * 0.11)
-    if dashed:
-        draw_dashed_line(draw, (0, line_y), (screen_w, line_y), fill=EINK_FG, width=line_width)
-    else:
-        draw.line([(0, line_y), (screen_w, line_y)], fill=EINK_FG, width=line_width)
+    # Intentionally omit the full-width bottom divider line for the top bar.
 
 
 def has_cjk(text: str) -> bool:

@@ -69,19 +69,18 @@ _GEOMETRY_SHAPE_VARIANT_FALLBACK: dict[str, tuple[str, ...]] = {
 def surface_mosaic_inner_rect(screen_w: int, screen_h: int) -> tuple[int, int, int, int]:
     """Pixel rect ``(x0, y0, x1, y1)`` for pasting surface tiles between global chrome.
 
-    Uses the same vertical proportions as :func:`draw_status_bar` / :func:`draw_footer`
-    in ``patterns.utils`` (status line ~11% of height; footer band ~8–10%).
+    Uses a compact top inset (status bar only) and extends close to the bottom edge
+    because surface tiles now draw their own local footer chrome.
     ``y1`` is exclusive (tile rows use ``y < y1``).
     """
     w = max(1, int(screen_w))
     h = max(1, int(screen_h))
-    footer_pct = 0.08 if h < 200 else 0.10
-    footer_line_y = h - int(h * footer_pct)
     status_line_y = int(h * 0.11)
     pad_x = max(4, min(10, w // 48))
-    # A few pixels below the status separator so tile content never kisses the line
-    y0 = min(status_line_y + 3, footer_line_y - 8)
-    y1 = footer_line_y
+    # Status separator line is removed; allow tiles to start slightly higher.
+    y0 = max(0, status_line_y - 10)
+    # No global surface footer anymore; allow tiles almost to panel bottom.
+    y1 = h
     x0 = pad_x
     x1 = w - pad_x
     if y1 <= y0 + 16:
