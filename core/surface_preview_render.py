@@ -14,6 +14,7 @@ from core.patterns.utils import (
     draw_status_bar,
     load_font,
     get_mode_icon,
+    get_weather_icon,
     paste_icon_onto,
 )
 from core.pipeline import generate_and_render
@@ -327,6 +328,9 @@ def _draw_slot_chrome(
     bbox = draw.textbbox((0, 0), label, font=font)
     tw = bbox[2] - bbox[0]
     icon = get_mode_icon(raw_label.upper())
+    if icon is None and raw_label.upper() == "WEATHER":
+        # Surface footer has no per-tile weather code; use a generic weather glyph.
+        icon = get_weather_icon(1)
     icon_size = 12
     icon_x = left + 8
     text_left_padding = 8
@@ -342,9 +346,12 @@ def _draw_slot_chrome(
             tw = bbox[2] - bbox[0]
         label = f"{label}..." if label else "..."
     text_h = bbox[3] - bbox[1]
-    ty = footer_top + max(1, (bottom - footer_top - text_h) // 2) - 1
+    footer_inner_top = footer_top + 1
+    footer_inner_bottom = bottom
+    footer_inner_h = max(1, footer_inner_bottom - footer_inner_top + 1)
+    ty = footer_inner_top + max(0, (footer_inner_h - text_h) // 2)
     if icon:
-        icon_y = footer_top + max(1, (bottom - footer_top - icon_size) // 2) - 1
+        icon_y = footer_inner_top + max(0, (footer_inner_h - icon_size) // 2)
         paste_icon_onto(img, icon, (icon_x, icon_y), fill=255)
     draw.text((tx, ty), label, fill=255, font=font)
 

@@ -76,7 +76,11 @@ def surface_mosaic_inner_rect(screen_w: int, screen_h: int) -> tuple[int, int, i
     w = max(1, int(screen_w))
     h = max(1, int(screen_h))
     status_line_y = int(h * 0.11)
-    pad_x = max(4, min(10, w // 48))
+    # Match status bar horizontal insets exactly:
+    # - left starts at date text x
+    # - right ends where battery percentage text ends
+    pad_pct = 0.02 if h < 200 else 0.03
+    pad_x = int(w * pad_pct)
     # Status separator line is removed; allow tiles to start slightly higher.
     y0 = max(0, status_line_y - 10)
     # No global surface footer anymore; allow tiles almost to panel bottom.
