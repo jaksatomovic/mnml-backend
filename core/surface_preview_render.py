@@ -9,12 +9,21 @@ from typing import Any
 from PIL import Image, ImageDraw
 
 from core.context import extract_location_settings, get_date_context, get_weather
-from core.patterns.utils import apply_text_fontmode, draw_footer, draw_status_bar, load_font
+from core.patterns.utils import (
+    apply_text_fontmode,
+    draw_dashed_line,
+    draw_dashed_line_vertical,
+    draw_status_bar,
+    draw_surface_footer_bar,
+    load_font,
+)
 from core.pipeline import generate_and_render
 from core.render_tiers import surface_mosaic_inner_rect
 from core.surface_engine import build_surface_render_payload
 from core.surface_grid import (
     body_slot_rects_px,
+    cell_rect_px,
+    cell_slot_occupy_ids,
     grid_dimensions,
     parse_surface_grid,
     resolve_slot_widget_block,
@@ -114,6 +123,73 @@ def _fit_tile(tile: Image.Image, tw: int, th: int) -> Image.Image:
     return tile.resize((tw, th), Image.Resampling.LANCZOS)
 
 
+def _cell_slot_id_equal(a: str | None, b: str | None) -> bool:
+    return (a or "") == (b or "")
+
+
+def _draw_slot_boundary_dashed(
+    draw: ImageDraw.ImageDraw,
+    body: tuple[int, int, int, int],
+    grid: dict,
+    slots_sorted: list[dict[str, Any]],
+    *,
+    outline: int = 0,
+    dash_len: int = 3,
+    gap_len: int = 3,
+) -> None:
+    """Dashed lines only where two adjacent cells belong to different slots (follows real layout)."""
+    cols, rows, _, _ = grid_dimensions(grid)
+    if cols < 2 and rows < 2:
+        return
+    occ = cell_slot_occupy_ids(slots_sorted, columns=cols, rows=rows)
+
+    # Vertical: boundary between columns c-1 and c
+    for c in range(1, cols):
+        ry = 0
+        while ry < rows:
+            if _cell_slot_id_equal(occ[ry][c - 1], occ[ry][c]):
+                ry += 1
+                continue
+            r0 = ry
+            while ry < rows and not _cell_slot_id_equal(occ[ry][c - 1], occ[ry][c]):
+                ry += 1
+            r1 = ry - 1
+            top = cell_rect_px(body, grid, c - 1, r0)[1]
+            bot = cell_rect_px(body, grid, c - 1, r1)[3]
+            lc = cell_rect_px(body, grid, c - 1, r0)
+            rc = cell_rect_px(body, grid, c, r0)
+            xv = (lc[2] + rc[0]) // 2
+            draw_dashed_line_vertical(
+                draw, xv, top, bot, fill=outline, width=1, dash_len=dash_len, gap_len=gap_len
+            )
+
+    # Horizontal: boundary between rows r-1 and r
+    for r in range(1, rows):
+        rx = 0
+        while rx < cols:
+            if _cell_slot_id_equal(occ[r - 1][rx], occ[r][rx]):
+                rx += 1
+                continue
+            c0 = rx
+            while rx < cols and not _cell_slot_id_equal(occ[r - 1][rx], occ[r][rx]):
+                rx += 1
+            c1 = rx - 1
+            top_cell = cell_rect_px(body, grid, c0, r - 1)
+            bot_cell = cell_rect_px(body, grid, c0, r)
+            yh = (top_cell[3] + bot_cell[1]) // 2
+            x_left = cell_rect_px(body, grid, c0, r - 1)[0]
+            x_right = cell_rect_px(body, grid, c1, r - 1)[2]
+            draw_dashed_line(
+                draw,
+                (x_left, yh),
+                (x_right, yh),
+                fill=outline,
+                width=1,
+                dash_len=dash_len,
+                gap_len=gap_len,
+            )
+
+
 def _draw_surface_chrome(
     img: Image.Image,
     *,
@@ -148,7 +224,7 @@ def _draw_surface_chrome(
         language,
     )
     label = (surface_label or "SURFACE").strip().upper() or "SURFACE"
-    draw_footer(
+    draw_surface_footer_bar(
         draw,
         img,
         label,
@@ -281,6 +357,19 @@ async def render_surface_preview_image(
         tile = _fit_tile(tile, tw, th)
         img.paste(tile, (rx0, ry0))
 
+    border_draw = ImageDraw.Draw(img)
+    apply_text_fontmode(border_draw)
+    if use_grid and grid and sorted_slots:
+        _draw_slot_boundary_dashed(
+            border_draw,
+            body,
+            grid,
+            sorted_slots,
+            outline=0,
+            dash_len=3,
+            gap_len=3,
+        )
+
     lang = "zh"
     if isinstance(cfg, dict):
         lang = str(cfg.get("mode_language") or cfg.get("modeLanguage") or "zh").strip() or "zh"
@@ -299,4 +388,5 @@ async def render_surface_preview_image(
         surface_label=title,
     )
 
+    # 1-bit threshold: L≤135 → black. Footer uses L=0 (bar) and L>135 (white text/icons).
     return img.point(lambda p: 255 if p > 135 else 0).convert("1")

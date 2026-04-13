@@ -65,18 +65,119 @@ def _pick_rule(rules: list[dict], event: dict) -> Optional[dict]:
     return None
 
 
-def resolve_scheduled_surface(schedule: list[dict], now: Optional[datetime] = None) -> Optional[str]:
+_WEEKDAY_CODES = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
+
+
+def _playlist_entries_from_nested(raw: list) -> list[dict]:
+    out: list[dict] = []
+    for i, p in enumerate(raw or []):
+        if not isinstance(p, dict):
+            continue
+        sid = str(p.get("surface_id") or "").strip()
+        if not sid:
+            continue
+        out.append(
+            {
+                "surface_id": sid,
+                "enabled": True,
+                "duration_sec": int(p.get("duration_sec") or 300),
+                "order": i,
+            }
+        )
+    return out
+
+
+def resolve_playlist_surface(playlist: list[dict] | None, now: Optional[datetime] = None) -> Optional[str]:
+    """Pick active surface_id from a rotation list using duration_sec windows (wall-clock modulo)."""
+    if not playlist:
+        return None
+    items = [p for p in playlist if isinstance(p, dict)]
+    items.sort(key=lambda x: int(x.get("order") or 0))
+    enabled: list[dict] = []
+    for p in items:
+        if not p.get("enabled", True):
+            continue
+        sid = str(p.get("surface_id") or "").strip()
+        if not sid:
+            continue
+        enabled.append(p)
+    if not enabled:
+        return None
+    total = 0
+    durations: list[int] = []
+    for p in enabled:
+        d = max(10, int(p.get("duration_sec") or 300))
+        durations.append(d)
+        total += d
+    if total <= 0:
+        return str(enabled[0].get("surface_id") or "").strip() or None
+    ts = now or datetime.now()
+    sec = int(ts.timestamp()) % total
+    acc = 0
+    for p, d in zip(enabled, durations):
+        if sec < acc + d:
+            return str(p.get("surface_id") or "").strip() or None
+        acc += d
+    return str(enabled[0].get("surface_id") or "").strip() or None
+
+
+def resolve_scheduled_surface(
+    schedule: list[dict],
+    now: Optional[datetime] = None,
+) -> Optional[str]:
+    """Time-of-day + optional weekday rules. Supports legacy ``surface`` or ``surface_id``."""
     ts = now or datetime.now()
     hhmm = ts.strftime("%H:%M")
+    wd = _WEEKDAY_CODES[ts.weekday()]
     for item in schedule:
         if not isinstance(item, dict):
             continue
+        days = item.get("days")
+        if isinstance(days, list) and len(days) > 0:
+            dayset = {str(d).strip().lower() for d in days if isinstance(d, str)}
+            if dayset and wd not in dayset:
+                continue
         start = str(item.get("from") or "").strip()
         end = str(item.get("to") or "").strip()
-        target = str(item.get("surface") or "").strip()
-        if start and end and target and start <= hhmm < end:
+        if not start or not end:
+            continue
+        if not (start <= hhmm < end):
+            continue
+        typ = str(item.get("type") or "surface").strip().lower()
+        if typ == "playlist":
+            nested = item.get("playlist")
+            if isinstance(nested, list) and nested:
+                pl = _playlist_entries_from_nested(nested)
+                picked = resolve_playlist_surface(pl, now=ts)
+                if picked:
+                    return picked
+            continue
+        target = str(item.get("surface_id") or item.get("surface") or "").strip()
+        if target:
             return target
     return None
+
+
+def _effective_surface_playback_mode(config: dict) -> str:
+    explicit = str(
+        config.get("surfacePlaybackMode") or config.get("surface_playback_mode") or ""
+    ).strip().lower()
+    if explicit in ("single", "rotate", "scheduled"):
+        return explicit
+    schedule = config.get("surfaceSchedule") if isinstance(config.get("surfaceSchedule"), list) else []
+    if schedule and len(schedule) > 0:
+        return "scheduled"
+    playlist = config.get("surfacePlaylist") if isinstance(config.get("surfacePlaylist"), list) else []
+    enabled = [
+        p
+        for p in playlist
+        if isinstance(p, dict)
+        and p.get("enabled", True)
+        and str(p.get("surface_id") or "").strip()
+    ]
+    if len(enabled) > 1:
+        return "rotate"
+    return "single"
 
 
 def evaluate_event_for_device(mac: str, config: dict, event_payload: dict) -> Optional[dict]:
@@ -131,9 +232,28 @@ def resolve_device_surface(mac: str, config: dict) -> tuple[Optional[dict], Opti
         return by_id.get(target), {"type": "override", "event": override.get("event") or {}}
 
     assigned_surface = str(config.get("assigned_surface") or config.get("assignedSurface") or "").strip()
-    scheduled_surface = resolve_scheduled_surface(schedule, now=now)
-    active_id = scheduled_surface or assigned_surface
-    return by_id.get(active_id), {"type": "schedule" if scheduled_surface else "assigned"}
+    playlist = config.get("surfacePlaylist") if isinstance(config.get("surfacePlaylist"), list) else []
+    playback = _effective_surface_playback_mode(config)
+
+    scheduled_surface: Optional[str] = None
+    playlist_pick: Optional[str] = None
+
+    if playback == "single":
+        active_id = assigned_surface or None
+        reason = {"type": "assigned"}
+    elif playback == "rotate":
+        playlist_pick = resolve_playlist_surface(playlist, now=now)
+        active_id = playlist_pick or assigned_surface or None
+        reason = {"type": "playlist", "playlist_surface": playlist_pick}
+    elif playback == "scheduled":
+        scheduled_surface = resolve_scheduled_surface(schedule, now=now)
+        active_id = scheduled_surface or assigned_surface or None
+        reason = {"type": "schedule" if scheduled_surface else "assigned", "scheduled_surface": scheduled_surface}
+    else:
+        active_id = assigned_surface or None
+        reason = {"type": "assigned"}
+
+    return by_id.get(active_id), reason
 
 
 def build_surface_render_payload(surface: Optional[dict], reason: Optional[dict] = None) -> dict:

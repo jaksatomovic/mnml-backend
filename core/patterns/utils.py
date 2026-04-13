@@ -40,6 +40,9 @@ def paste_icon_onto(target: Image.Image, icon: Image.Image, pos: tuple[int, int]
     if target.mode == "P":
         mask = icon.convert("L").point(lambda p: 255 - p)
         target.paste(fill, pos, mask)
+    elif target.mode == "L":
+        mask = icon.convert("L").point(lambda p: 255 - p)
+        target.paste(fill, pos, mask)
     else:
         target.paste(icon, pos)
 
@@ -242,6 +245,107 @@ def draw_dashed_line(
         seg_end = min(x + dash_len, x1)
         draw.line([(x, y0), (seg_end, y0)], fill=fill, width=width)
         x += dash_len + gap_len
+
+
+def draw_dashed_line_vertical(
+    draw: ImageDraw.ImageDraw,
+    x: int,
+    y0: int,
+    y1: int,
+    *,
+    fill=0,
+    width: int = 1,
+    dash_len: int = 3,
+    gap_len: int = 3,
+) -> None:
+    """Short vertical dashes (internal grid / TRMNL-style dividers)."""
+    y = y0
+    while y < y1:
+        seg_end = min(y + dash_len, y1)
+        draw.line([(x, y), (x, seg_end)], fill=fill, width=width)
+        y += dash_len + gap_len
+
+
+def draw_surface_footer_bar(
+    draw: ImageDraw.ImageDraw,
+    img: Image.Image,
+    mode: str,
+    attribution: str,
+    *,
+    mode_id: str = "",
+    weather_code: int | None = None,
+    screen_w: int = SCREEN_WIDTH,
+    screen_h: int = SCREEN_HEIGHT,
+    colors: int = 2,
+) -> None:
+    """Inset rounded bar, solid black fill; white label + attribution; icon left."""
+    scale = screen_w / 400.0
+    # Narrower side margins → wider bar (still clear of panel edge)
+    margin_x = max(4, int(screen_w * 0.014))
+    margin_b = max(6, int(screen_h * 0.026))
+    bar_h = max(26, int(screen_h * 0.092))
+
+    x0 = margin_x
+    y0 = screen_h - margin_b - bar_h
+    x1 = screen_w - margin_x
+    y1 = screen_h - margin_b
+    w = max(1, x1 - x0)
+    h = max(1, y1 - y0)
+    # Modest corner radius (not full pill)
+    r = min(max(4, h // 5), w // 2, 10)
+
+    mask = Image.new("L", (w, h), 0)
+    md = ImageDraw.Draw(mask)
+    md.rounded_rectangle((0, 0, w - 1, h - 1), radius=r, fill=255)
+    # Solid black bar (L=0); surface preview threshold maps L≤135 → black ink.
+    patch = Image.new("L", (w, h), 0)
+    img.paste(patch, (x0, y0), mask)
+
+    on_dark = 255  # white on black footer (L; survives 1-bit threshold in surface preview)
+
+    label_px = int(FONT_SIZES["footer"]["label"] * scale * 1.12)
+    font_label = load_font("inter_medium", label_px)
+    attr_font_size = int(FONT_SIZES["footer"]["attribution"] * scale * 1.08)
+    if attribution and has_cjk(attribution):
+        font_attr = load_font("noto_serif_bold", attr_font_size)
+    else:
+        font_attr = load_font("lora_bold", attr_font_size)
+
+    pad_in = int(10 * scale)
+    icon_x = x0 + pad_in
+    _icon_sz = int(14 * scale)
+    icon_y = y0 + (bar_h - _icon_sz) // 2
+    icon_key = str(mode_id or mode)
+    mode_icon = None
+    if icon_key.upper() == "WEATHER" and weather_code is not None:
+        try:
+            mode_icon = get_weather_icon(int(weather_code))
+        except (TypeError, ValueError):
+            mode_icon = None
+    if mode_icon is None:
+        mode_icon = get_mode_icon(icon_key)
+    label_x = icon_x
+    if mode_icon:
+        paste_icon_onto(img, mode_icon, (icon_x, icon_y), fill=on_dark)
+        label_x = icon_x + int(15 * scale)
+
+    mode_upper = (mode or "").upper()
+
+    def _footer_text_y(font, text: str) -> int:
+        bb = draw.textbbox((0, 0), text, font=font)
+        th = bb[3] - bb[1]
+        return y0 + (bar_h - th) // 2 - bb[1]
+
+    text_y = _footer_text_y(font_label, mode_upper)
+    # Faux-bold: Inter has no Bold in bundle; slight horizontal offset on dark fill.
+    for ox in (0, 1):
+        draw.text((label_x + ox, text_y), mode_upper, fill=on_dark, font=font_label)
+
+    if attribution:
+        bbox = draw.textbbox((0, 0), attribution, font=font_attr)
+        tw = bbox[2] - bbox[0]
+        attr_y = _footer_text_y(font_attr, attribution)
+        draw.text((x1 - pad_in - tw, attr_y), attribution, fill=on_dark, font=font_attr)
 
 
 def draw_status_bar(

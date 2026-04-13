@@ -182,6 +182,8 @@ async def init_db():
             "assigned_surface": "TEXT DEFAULT ''",
             "surfaces_json": "TEXT DEFAULT '[]'",
             "surface_schedule_json": "TEXT DEFAULT '[]'",
+            "surface_playlist_json": "TEXT DEFAULT '[]'",
+            "surface_playback_mode": "TEXT DEFAULT 'single'",
             "focus_listening": "INTEGER DEFAULT 0",
             "always_active": "INTEGER DEFAULT 0",
             "latitude": "REAL",
@@ -1480,6 +1482,12 @@ async def save_config(mac: str, data: dict) -> int:
     )
     surfaces_json = json.dumps(data.get("surfaces", []), ensure_ascii=False)
     surface_schedule_json = json.dumps(data.get("surfaceSchedule", []), ensure_ascii=False)
+    surface_playlist_json = json.dumps(data.get("surfacePlaylist", []), ensure_ascii=False)
+    surface_playback_mode = str(
+        data.get("surfacePlaybackMode") or data.get("surface_playback_mode") or "single"
+    ).strip().lower()
+    if surface_playback_mode not in ("single", "rotate", "scheduled"):
+        surface_playback_mode = "single"
     _dm = (
         data.get("renderMode")
         or data.get("render_mode")
@@ -1504,8 +1512,8 @@ async def save_config(mac: str, data: dict) -> int:
            (mac, nickname, modes, refresh_strategy, character_tones,
             language, mode_language, content_tone, city, latitude, longitude, timezone, admin1, country,
             refresh_interval, llm_provider, llm_model, image_provider, image_model,
-            countdown_events, time_slot_rules, memo_text, mode_overrides, device_mode, assigned_mode, assigned_surface, surfaces_json, surface_schedule_json, focus_listening, always_active, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            countdown_events, time_slot_rules, memo_text, mode_overrides, device_mode, assigned_mode, assigned_surface, surfaces_json, surface_schedule_json, surface_playlist_json, surface_playback_mode, focus_listening, always_active, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             mac,
             data.get("nickname", ""),
@@ -1535,6 +1543,8 @@ async def save_config(mac: str, data: dict) -> int:
             assigned_surface,
             surfaces_json,
             surface_schedule_json,
+            surface_playlist_json,
+            surface_playback_mode,
             1 if bool(data.get("is_focus_listening", False)) else 0,
             1 if bool(data.get("always_active", False)) else 0,
             now,
@@ -1592,6 +1602,13 @@ async def update_focus_listening(mac: str, enabled: bool) -> bool:
     surfaces_json = surfaces_val if isinstance(surfaces_val, str) else json.dumps(surfaces_val, ensure_ascii=False)
     schedule_val = prev.get("surface_schedule_json", "[]")
     schedule_json = schedule_val if isinstance(schedule_val, str) else json.dumps(schedule_val, ensure_ascii=False)
+    playlist_val = prev.get("surface_playlist_json", "[]")
+    if not playlist_val and isinstance(prev.get("surfacePlaylist"), list):
+        playlist_val = json.dumps(prev.get("surfacePlaylist"), ensure_ascii=False)
+    surface_playlist_json = playlist_val if isinstance(playlist_val, str) else json.dumps(playlist_val, ensure_ascii=False)
+    surface_playback_mode = str(prev.get("surface_playback_mode") or prev.get("surfacePlaybackMode") or "single").strip().lower()
+    if surface_playback_mode not in ("single", "rotate", "scheduled"):
+        surface_playback_mode = "single"
 
     for attempt in range(5):
         try:
@@ -1599,8 +1616,8 @@ async def update_focus_listening(mac: str, enabled: bool) -> bool:
                 """INSERT INTO configs
                    (mac, nickname, modes, refresh_strategy, character_tones,
                     language, mode_language, content_tone, city, refresh_interval, llm_provider, llm_model, image_provider, image_model,
-                    countdown_events, time_slot_rules, memo_text, mode_overrides, device_mode, assigned_mode, assigned_surface, surfaces_json, surface_schedule_json, focus_listening, always_active, is_active, created_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)""",
+                    countdown_events, time_slot_rules, memo_text, mode_overrides, device_mode, assigned_mode, assigned_surface, surfaces_json, surface_schedule_json, surface_playlist_json, surface_playback_mode, focus_listening, always_active, is_active, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)""",
                 (
                     normalized_mac,
                     prev.get("nickname", "") or "",
@@ -1625,6 +1642,8 @@ async def update_focus_listening(mac: str, enabled: bool) -> bool:
                     str(prev.get("assigned_surface", "") or "").strip(),
                     surfaces_json,
                     schedule_json,
+                    surface_playlist_json,
+                    surface_playback_mode,
                     1 if enabled else 0,
                     1 if bool(prev.get("always_active", False)) else 0,
                     datetime.now().isoformat(),
@@ -1768,6 +1787,19 @@ def _row_to_dict(row, columns) -> dict:
     if not isinstance(schedule, list):
         schedule = []
     d["surfaceSchedule"] = schedule
+    playlist_raw = d.get("surface_playlist_json", "[]")
+    try:
+        playlist = json.loads(playlist_raw) if isinstance(playlist_raw, str) else playlist_raw
+    except (json.JSONDecodeError, TypeError):
+        playlist = []
+    if not isinstance(playlist, list):
+        playlist = []
+    d["surfacePlaylist"] = playlist
+    spm = str(d.get("surface_playback_mode") or "single").strip().lower()
+    if spm not in ("single", "rotate", "scheduled"):
+        spm = "single"
+    d["surface_playback_mode"] = spm
+    d["surfacePlaybackMode"] = spm
     d["focus_listening"] = int(d.get("focus_listening", 0) or 0)
     d["is_focus_listening"] = bool(d["focus_listening"])
     d["always_active"] = int(d.get("always_active", 0) or 0)

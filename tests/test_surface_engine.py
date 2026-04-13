@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from core.surface_engine import (
     build_surface_render_payload,
     evaluate_event_for_device,
     resolve_device_surface,
+    resolve_playlist_surface,
     resolve_scheduled_surface,
 )
 
@@ -78,6 +81,55 @@ def test_rule_override_event():
     assert matched is not None
     assert matched["action"] == "override"
     assert matched["target"] == "alert_view"
+
+
+def test_resolve_playlist_surface_picks_window():
+    pl = [
+        {"surface_id": "a", "enabled": True, "duration_sec": 100, "order": 0},
+        {"surface_id": "b", "enabled": True, "duration_sec": 100, "order": 1},
+    ]
+    t0 = datetime(2026, 4, 11, 12, 0, 0)
+    assert resolve_playlist_surface(pl, now=t0) in {"a", "b"}
+
+
+def test_resolve_scheduled_surface_legacy_surface_key():
+    schedule = [{"from": "07:00", "to": "09:00", "surface": "morning"}]
+    t = datetime(2026, 4, 11, 8, 30, 0)
+    assert resolve_scheduled_surface(schedule, now=t) == "morning"
+
+
+def test_resolve_scheduled_surface_respects_weekdays():
+    schedule = [
+        {
+            "from": "08:00",
+            "to": "10:00",
+            "days": ["sat", "sun"],
+            "type": "surface",
+            "surface_id": "home",
+        }
+    ]
+    # 2026-04-11 is Saturday
+    t = datetime(2026, 4, 11, 9, 0, 0)
+    assert resolve_scheduled_surface(schedule, now=t) == "home"
+    t_mon = datetime(2026, 4, 13, 9, 0, 0)  # Monday
+    assert resolve_scheduled_surface(schedule, now=t_mon) is None
+
+
+def test_resolve_device_surface_rotate_mode():
+    config = {
+        "surfacePlaybackMode": "rotate",
+        "assignedSurface": "work",
+        "surfacePlaylist": [
+            {"surface_id": "work", "enabled": True, "duration_sec": 60, "order": 0},
+        ],
+        "surfaces": [
+            {"id": "work", "layout": [{"type": "text", "content": "W"}]},
+        ],
+    }
+    active, reason = resolve_device_surface("AA:BB:CC:DD:EE:03", config)
+    assert active is not None
+    assert active.get("id") == "work"
+    assert reason.get("type") == "playlist"
 
 
 def test_resolve_device_surface_with_assigned():

@@ -381,6 +381,54 @@ def body_slot_rects_px(
     return rects
 
 
+def cell_rect_px(
+    body: tuple[int, int, int, int],
+    grid: dict[str, Any],
+    rx: int,
+    ry: int,
+) -> tuple[int, int, int, int]:
+    """Pixel rectangle of one discrete grid cell ``(rx, ry)`` (same geometry as ``body_slot_rects_px`` for 1×1)."""
+    x0, y0, x1, y1 = body
+    bw, bh = x1 - x0, y1 - y0
+    cols, rows, gap, pad = grid_dimensions(grid)
+    if rx < 0 or ry < 0 or rx >= cols or ry >= rows:
+        return (x0, y0, x0, y0)
+    usable_w = max(1, bw - 2 * pad)
+    usable_h = max(1, bh - 2 * pad)
+    cell_w = (usable_w - gap * (cols - 1)) // cols
+    cell_h = (usable_h - gap * (rows - 1)) // rows
+    cell_w = max(8, cell_w)
+    cell_h = max(8, cell_h)
+    sx0 = x0 + pad + rx * (cell_w + gap)
+    sy0 = y0 + pad + ry * (cell_h + gap)
+    sx1 = sx0 + cell_w
+    sy1 = sy0 + cell_h
+    sx1 = min(x1, max(sx0 + 8, sx1))
+    sy1 = min(y1, max(sy0 + 8, sy1))
+    return (sx0, sy0, sx1, sy1)
+
+
+def cell_slot_occupy_ids(
+    slots: list[dict[str, Any]],
+    *,
+    columns: int,
+    rows: int,
+) -> list[list[str | None]]:
+    """Map each cell to owning slot ``id`` (invalid overlaps: last write wins)."""
+    occ: list[list[str | None]] = [[None] * columns for _ in range(rows)]
+    for s in slots:
+        sx = _as_int(s.get("x"), 0)
+        sy = _as_int(s.get("y"), 0)
+        sw = _as_int(s.get("w"), 1)
+        sh = _as_int(s.get("h"), 1)
+        sid = str(s.get("id") or "").strip() or "?"
+        for gy in range(sy, sy + sh):
+            for gx in range(sx, sx + sw):
+                if 0 <= gx < columns and 0 <= gy < rows:
+                    occ[gy][gx] = sid
+    return occ
+
+
 def resolve_slot_widget_block(
     slot: dict[str, Any],
     layout_blocks: list[dict[str, Any]] | None,

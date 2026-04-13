@@ -100,6 +100,15 @@ class ConfigRequest(BaseModel):
     assignedMode: str = Field(default="", description="Assigned legacy mode id")
     assignedSurface: str = Field(default="", description="Assigned surface id")
     surfaces: list[dict] = Field(default_factory=list, max_length=50, description="Surface definitions")
+    surfacePlaylist: list[dict] = Field(
+        default_factory=list,
+        max_length=48,
+        description="Ordered surface rotation: surface_id, enabled, duration_sec, order",
+    )
+    surfacePlaybackMode: str = Field(
+        default="single",
+        description="single | rotate | scheduled — how the device picks the active surface",
+    )
     surfaceSchedule: list[dict] = Field(default_factory=list, max_length=48, description="Surface schedule rules")
     renderMode: Optional[str] = Field(default=None, description="Alias for deviceMode (spec: render_mode)")
     render_mode: Optional[str] = Field(default=None, description="Alias for deviceMode")
@@ -275,6 +284,14 @@ class ConfigRequest(BaseModel):
         if mode not in _VALID_DEVICE_RENDER_MODES:
             raise ValueError("deviceMode must be 'mode' or 'surface'")
         return mode
+
+    @field_validator("surfacePlaybackMode")
+    @classmethod
+    def validate_surface_playback_mode(cls, v: str) -> str:
+        s = str(v or "single").strip().lower()
+        if s not in ("single", "rotate", "scheduled"):
+            return "single"
+        return s
 
     @field_validator("surfaces")
     @classmethod
