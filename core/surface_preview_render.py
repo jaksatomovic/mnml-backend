@@ -13,9 +13,6 @@ from core.patterns.utils import (
     apply_text_fontmode,
     draw_status_bar,
     load_font,
-    get_mode_icon,
-    get_weather_icon,
-    paste_icon_onto,
 )
 from core.pipeline import generate_and_render
 from core.render_tiers import surface_mosaic_inner_rect
@@ -223,6 +220,7 @@ def _draw_surface_chrome(
         2,
         language,
         suppress_center_weather=suppress_center_weather,
+        draw_bottom_divider=False,
     )
 
 
@@ -327,18 +325,7 @@ def _draw_slot_chrome(
     label = raw_label.replace("_", " ").lower().title()
     bbox = draw.textbbox((0, 0), label, font=font)
     tw = bbox[2] - bbox[0]
-    icon = get_mode_icon(raw_label.upper())
-    if icon is None and raw_label.upper() == "WEATHER":
-        # Surface footer has no per-tile weather code; use a generic weather glyph.
-        icon = get_weather_icon(1)
-    icon_size = 12
-    icon_x = left + 8
-    text_left_padding = 8
-    if icon:
-        if icon.size != (icon_size, icon_size):
-            icon = icon.resize((icon_size, icon_size), Image.Resampling.LANCZOS)
-        text_left_padding = icon_size + 6
-    tx = left + 8 + text_left_padding
+    tx = left + 10
     if tw > w - (tx - left) - 8:
         while label and tw > w - (tx - left) - 10:
             label = label[:-1]
@@ -349,10 +336,7 @@ def _draw_slot_chrome(
     footer_inner_top = footer_top + 1
     footer_inner_bottom = bottom
     footer_inner_h = max(1, footer_inner_bottom - footer_inner_top + 1)
-    ty = footer_inner_top + max(0, (footer_inner_h - text_h) // 2)
-    if icon:
-        icon_y = footer_inner_top + max(0, (footer_inner_h - icon_size) // 2)
-        paste_icon_onto(img, icon, (icon_x, icon_y), fill=255)
+    ty = footer_inner_top + max(0, (footer_inner_h - text_h) // 2) - 3
     draw.text((tx, ty), label, fill=255, font=font)
 
 
@@ -390,6 +374,11 @@ async def render_surface_preview_image(
     gutter = max(4, screen_w // 90)
 
     grid, slot_defs = parse_surface_grid(normalized)
+    render_grid = dict(grid) if isinstance(grid, dict) else None
+    if isinstance(render_grid, dict):
+        # Align first/last cell edges with status-bar text anchors.
+        # Surface cards still keep spacing via `gap`; only inner grid padding is removed.
+        render_grid["padding"] = 0
     use_grid = False
     sorted_slots: list[dict[str, Any]] = []
     if grid and slot_defs:
@@ -445,7 +434,7 @@ async def render_surface_preview_image(
     personas: list[str] = []
     slot_types: list[str | None] = []
     if use_grid:
-        rects = body_slot_rects_px(body, grid, slot_defs)
+        rects = body_slot_rects_px(body, render_grid or grid, slot_defs)
         for i in range(len(rects)):
             personas.append(_resolve_mode_for_block(items[i] if i < len(items) else None))
             st = str(sorted_slots[i].get("slot_type") or "").strip().upper() or None

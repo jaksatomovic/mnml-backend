@@ -360,6 +360,7 @@ def draw_status_bar(
     colors: int = 2,
     language: str = "zh",
     suppress_center_weather: bool = False,
+    draw_bottom_divider: bool = True,
 ):
     """translated"""
     def _strip_time_tokens(text: str) -> str:
@@ -440,7 +441,12 @@ def draw_status_bar(
 
     draw.text((bx + batt_box_w + int(6 * scale), y), batt_text, fill=batt_fill, font=font_en)
 
-    # Intentionally omit the full-width bottom divider line for the top bar.
+    if draw_bottom_divider:
+        line_y = int(screen_h * 0.11)
+        if dashed:
+            draw_dashed_line(draw, (0, line_y), (screen_w, line_y), fill=EINK_FG, width=line_width)
+        else:
+            draw.line([(0, line_y), (screen_w, line_y)], fill=EINK_FG, width=line_width)
 
 
 def has_cjk(text: str) -> bool:
