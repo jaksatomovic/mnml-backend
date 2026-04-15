@@ -427,7 +427,7 @@ def draw_status_bar(
             icon_fill = EINK_COLOR_NAME_MAP.get("red", EINK_FG) if colors >= 3 else EINK_FG
             paste_icon_onto(img, weather_icon, (wx, y - 1), fill=icon_fill)
             if temp_text:
-                icon_text_x = wx + int(15 * scale)
+                icon_text_x = wx + int(19 * scale)
                 draw.text((icon_text_x, y), temp_text, fill=EINK_FG, font=font_en)
         elif (weather_str or "").strip():
             draw.text((wx, y), temp_text or weather_str, fill=EINK_FG, font=font_date)
