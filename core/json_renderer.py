@@ -2077,14 +2077,20 @@ def _render_image(ctx: RenderContext, block: dict) -> None:
     image_url = str(ctx.get_field(field_name) or "")
     if not image_url:
         return
-    width = int(block.get("width", 220) * ctx.scale)
-    height = int(block.get("height", 140) * ctx.scale)
+    pixel_exact = bool(block.get("pixel_exact", False))
+    if pixel_exact:
+        width = int(block.get("width", 220))
+        height = int(block.get("height", 140))
+        margin_bottom = int(block.get("margin_bottom", 6))
+    else:
+        width = int(block.get("width", 220) * ctx.scale)
+        height = int(block.get("height", 140) * ctx.scale)
+        margin_bottom = int(block.get("margin_bottom", 6) * ctx.scale)
     x = int(block.get("x", (ctx.screen_w - width) // 2))
     y = int(block.get("y", ctx.y))
     fit = str(block.get("fit", "fill") or "fill")
     align_x = str(block.get("align_x", "center") or "center")
     align_y = str(block.get("align_y", "center") or "center")
-    margin_bottom = int(block.get("margin_bottom", 6) * ctx.scale)
     # Try pre-fetched data first (async download from json_content.py)
     prefetched = ctx.content.get(f"_prefetched_{field_name}")
     if prefetched:

@@ -60,6 +60,7 @@
       {
         "type": "image",
         "field": "image_url",
+          "pixel_exact": true,
         "width": 248,
         "height": 166,
         "fit": "cover",
@@ -78,6 +79,7 @@
         {
           "type": "image",
           "field": "image_url",
+          "pixel_exact": true,
           "width": 272,
           "height": 86,
           "fit": "cover",
@@ -102,6 +104,7 @@
         {
           "type": "image",
           "field": "image_url",
+          "pixel_exact": true,
           "width": 428,
           "height": 300,
           "fit": "cover",
@@ -116,6 +119,7 @@
         {
           "type": "image",
           "field": "image_url",
+          "pixel_exact": true,
           "x": 1,
           "width": 398,
           "height": 232,
@@ -135,6 +139,7 @@
         {
           "type": "image",
           "field": "image_url",
+          "pixel_exact": true,
           "x": 1,
           "width": 378,
           "height": 52,
@@ -154,6 +159,7 @@
         {
           "type": "image",
           "field": "image_url",
+          "pixel_exact": true,
           "x": 1,
           "width": 143,
           "height": 44,
@@ -170,6 +176,7 @@
         {
           "type": "image",
           "field": "image_url",
+          "pixel_exact": true,
           "x": 1,
           "y": 1,
           "width": 374,
@@ -187,6 +194,7 @@
         {
           "type": "image",
           "field": "image_url",
+          "pixel_exact": true,
           "x": 1,
           "y": 1,
           "width": 374,
@@ -204,6 +212,7 @@
         {
           "type": "image",
           "field": "image_url",
+          "pixel_exact": true,
           "x": 1,
           "y": 1,
           "width": 183,
@@ -221,6 +230,7 @@
         {
           "type": "image",
           "field": "image_url",
+          "pixel_exact": true,
           "x": 1,
           "y": 1,
           "width": 183,
