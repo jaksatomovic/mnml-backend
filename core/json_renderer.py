@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import logging
 import re
+import inspect
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -42,6 +43,7 @@ from .render_tiers import (
 )
 
 logger = logging.getLogger(__name__)
+_DRAW_FOOTER_SUPPORTS_HEIGHT = "footer_height" in inspect.signature(draw_footer).parameters
 
 _BACKEND_ROOT = Path(__file__).resolve().parent.parent
 _UPLOAD_DIR = _BACKEND_ROOT / "runtime_uploads"
@@ -1000,15 +1002,33 @@ def render_json_mode(
     draw = ImageDraw.Draw(img)
     apply_text_fontmode(draw)
     base_layout = mode_def.get("layout", {})
-    overrides = mode_def.get("layout_overrides", {})
+    overrides_raw = mode_def.get("layout_overrides", {})
+    if overrides_raw is not None and not isinstance(overrides_raw, dict):
+        logger.warning(
+            "[JSONRenderer] layout_overrides is not an object; mode=%s type=%s",
+            mode_def.get("mode_id", ""),
+            type(overrides_raw).__name__,
+        )
+    overrides = overrides_raw if isinstance(overrides_raw, dict) else {}
     _variants = mode_def.get("variants")
+    size_key = f"{screen_w}x{screen_h}"
+    exact_override_found = isinstance(overrides.get(size_key), dict)
     layout = merge_layout_for_screen(
         base_layout if isinstance(base_layout, dict) else {},
-        overrides if isinstance(overrides, dict) else None,
+        overrides,
         screen_w=screen_w,
         screen_h=screen_h,
         shape_variants=_variants if isinstance(_variants, dict) else None,
         slot_type=slot_type,
+    )
+    logger.debug(
+        "[JSONRenderer] layout resolved: mode=%s size=%sx%s key=%s override_found=%s slot_type=%s",
+        mode_def.get("mode_id", ""),
+        screen_w,
+        screen_h,
+        size_key,
+        exact_override_found,
+        str(slot_type or "").strip().upper() or "None",
     )
     layout = expand_layout_presets(layout)
 
@@ -1034,8 +1054,8 @@ def render_json_mode(
         status_bar_pct = 0.10 if screen_h < 200 else 0.12
         status_bar_bottom = int(screen_h * status_bar_pct)
         scale = screen_w / 400.0
-        min_scale = min(scale, screen_h / 300.0)
-        footer_height = int(ft_layout.get("height", 30) * min_scale)
+        footer_height = int(ft_layout.get("height", 30))
+        footer_height = max(1, min(screen_h - 1, footer_height))
         footer_top = screen_h - footer_height
 
     body = layout.get("body", [])
@@ -1131,16 +1151,19 @@ def render_json_mode(
     _attr_font_size = ft.get("font_size")
     if _attr_font_size is not None:
         _attr_font_size = int(_attr_font_size * scale)
-    draw_footer(
-        draw, img, label, attribution,
-        mode_id=mode_id,
-        weather_code=content.get("today_code", content.get("code")),
-        line_width=ft.get("line_width", 1),
-        dashed=ft.get("dashed", False),
-        attr_font_size=_attr_font_size,
-        screen_w=screen_w, screen_h=screen_h,
-        colors=colors,
-    )
+    footer_kwargs = {
+        "mode_id": mode_id,
+        "weather_code": content.get("today_code", content.get("code")),
+        "line_width": ft.get("line_width", 1),
+        "dashed": ft.get("dashed", False),
+        "attr_font_size": _attr_font_size,
+        "screen_w": screen_w,
+        "screen_h": screen_h,
+        "colors": colors,
+    }
+    if _DRAW_FOOTER_SUPPORTS_HEIGHT:
+        footer_kwargs["footer_height"] = footer_height
+    draw_footer(draw, img, label, attribution, **footer_kwargs)
 
     return img
 

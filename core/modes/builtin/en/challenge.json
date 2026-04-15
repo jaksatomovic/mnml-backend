@@ -103,6 +103,105 @@
         "note_max_lines": 3,
         "note_divider_margin_x": 80
       }
+    },
+    "376x252": {
+      "preset_props": {
+        "padding_x": 18,
+        "padding_y": 8,
+        "justify": "center",
+        "gap": 8,
+        "title_template": "Today's Challenge",
+        "title_font": "noto_serif_bold",
+        "title_font_size": 14,
+        "meta_template": "{difficulty}  ·  {time}",
+        "meta_font_size": 11,
+        "separator_width": 60,
+        "hero_inset_x": 40,
+        "hero_field": "challenge",
+        "hero_font": "noto_serif_bold",
+        "hero_font_size": 18,
+        "hero_max_lines": 3,
+        "note_field": "why",
+        "note_font": "noto_serif_light",
+        "note_font_size": 11,
+        "note_max_lines": 2,
+        "note_divider_margin_x": 50
+      }
+    },
+    "376x123": {
+      "preset_props": {
+        "padding_x": 16,
+        "padding_y": 7,
+        "justify": "center",
+        "gap": 7,
+        "title_template": "Today's Challenge",
+        "title_font": "noto_serif_bold",
+        "title_font_size": 13,
+        "meta_template": "{difficulty}  ·  {time}",
+        "meta_font_size": 10,
+        "separator_width": 54,
+        "hero_inset_x": 36,
+        "hero_field": "challenge",
+        "hero_font": "noto_serif_bold",
+        "hero_font_size": 16,
+        "hero_max_lines": 3,
+        "note_field": "why",
+        "note_font": "noto_serif_light",
+        "note_font_size": 10,
+        "note_max_lines": 2,
+        "note_divider_margin_x": 45,
+        "variant": "compact"
+      }
+    },
+    "185x252": {
+      "preset_props": {
+        "padding_x": 16,
+        "padding_y": 7,
+        "justify": "center",
+        "gap": 7,
+        "title_template": "Today's Challenge",
+        "title_font": "noto_serif_bold",
+        "title_font_size": 12,
+        "meta_template": "{difficulty}  ·  {time}",
+        "meta_font_size": 10,
+        "separator_width": 53,
+        "hero_inset_x": 35,
+        "hero_field": "challenge",
+        "hero_font": "noto_serif_bold",
+        "hero_font_size": 16,
+        "hero_max_lines": 3,
+        "note_field": "why",
+        "note_font": "noto_serif_light",
+        "note_font_size": 10,
+        "note_max_lines": 2,
+        "note_divider_margin_x": 44,
+        "variant": "compact"
+      }
+    },
+    "185x123": {
+      "preset_props": {
+        "padding_x": 14,
+        "padding_y": 6,
+        "justify": "center",
+        "gap": 6,
+        "title_template": "Today's Challenge",
+        "title_font": "noto_serif_bold",
+        "title_font_size": 11,
+        "meta_template": "{difficulty}  ·  {time}",
+        "meta_font_size": 9,
+        "separator_width": 47,
+        "hero_inset_x": 31,
+        "hero_field": "challenge",
+        "hero_font": "noto_serif_bold",
+        "hero_font_size": 14,
+        "hero_max_lines": 2,
+        "note_field": "why",
+        "note_font": "noto_serif_light",
+        "note_font_size": 9,
+        "note_max_lines": 2,
+        "note_divider_margin_x": 39,
+        "variant": "compact"
+      }
     }
   }
 }

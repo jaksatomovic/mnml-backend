@@ -97,6 +97,53 @@
         "quote_font_size": 28,
         "quote_max_lines": 4
       }
+    },
+    "376x252": {
+      "preset_props": {
+        "padding_x": 18,
+        "justify": "center",
+        "quote_inset_x": 24,
+        "quote_field": "quote",
+        "quote_font": "noto_serif_regular",
+        "quote_font_size": 20,
+        "quote_max_lines": 4
+      }
+    },
+    "376x123": {
+      "preset_props": {
+        "padding_x": 16,
+        "justify": "center",
+        "quote_inset_x": 22,
+        "quote_field": "quote",
+        "quote_font": "noto_serif_regular",
+        "quote_font_size": 18,
+        "quote_max_lines": 4,
+        "variant": "compact"
+      }
+    },
+    "185x252": {
+      "preset_props": {
+        "padding_x": 16,
+        "justify": "center",
+        "quote_inset_x": 21,
+        "quote_field": "quote",
+        "quote_font": "noto_serif_regular",
+        "quote_font_size": 18,
+        "quote_max_lines": 4,
+        "variant": "compact"
+      }
+    },
+    "185x123": {
+      "preset_props": {
+        "padding_x": 14,
+        "justify": "center",
+        "quote_inset_x": 19,
+        "quote_field": "quote",
+        "quote_font": "noto_serif_regular",
+        "quote_font_size": 16,
+        "quote_max_lines": 3,
+        "variant": "compact"
+      }
     }
   }
 }

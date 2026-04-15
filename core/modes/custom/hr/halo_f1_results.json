@@ -162,5 +162,453 @@
       "label": "F1 REZULTATI",
       "attribution_template": "— Otvori F1"
     }
+  },
+  "layout_overrides": {
+    "376x252": {
+      "body": [
+        {
+          "type": "text",
+          "field": "session_label",
+          "font_size": 16,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Najnovija snimka klasifikacije",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "line_width": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "group",
+          "title": "Pobjednik",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 176,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "text",
+                  "field": "leader_name",
+                  "font_size": 15,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ],
+              "right": [
+                {
+                  "type": "text",
+                  "field": "leader_detail",
+                  "font_size": 11,
+                  "align": "right",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "group",
+          "title": "Klasifikacija",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 176,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "list",
+                  "field": "result_rows_left",
+                  "item_template": "{line}",
+                  "font_size": 9,
+                  "item_spacing": 10,
+                  "margin_x": 0,
+                  "max_items": 10
+                }
+              ],
+              "right": [
+                {
+                  "type": "list",
+                  "field": "result_rows_right",
+                  "item_template": "{line}",
+                  "font_size": 9,
+                  "item_spacing": 10,
+                  "margin_x": 0,
+                  "max_items": 10
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "376x123": {
+      "body": [
+        {
+          "type": "text",
+          "field": "session_label",
+          "font_size": 15,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Najnovija snimka klasifikacije",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "line_width": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "group",
+          "title": "Pobjednik",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 176,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "text",
+                  "field": "leader_name",
+                  "font_size": 14,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ],
+              "right": [
+                {
+                  "type": "text",
+                  "field": "leader_detail",
+                  "font_size": 10,
+                  "align": "right",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "group",
+          "title": "Klasifikacija",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 176,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "list",
+                  "field": "result_rows_left",
+                  "item_template": "{line}",
+                  "font_size": 9,
+                  "item_spacing": 10,
+                  "margin_x": 0,
+                  "max_items": 3
+                }
+              ],
+              "right": [
+                {
+                  "type": "list",
+                  "field": "result_rows_right",
+                  "item_template": "{line}",
+                  "font_size": 9,
+                  "item_spacing": 10,
+                  "margin_x": 0,
+                  "max_items": 3
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "185x252": {
+      "body": [
+        {
+          "type": "text",
+          "field": "session_label",
+          "font_size": 15,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Najnovija snimka klasifikacije",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "line_width": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 5
+        },
+        {
+          "type": "group",
+          "title": "Pobjednik",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 176,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "text",
+                  "field": "leader_name",
+                  "font_size": 14,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ],
+              "right": [
+                {
+                  "type": "text",
+                  "field": "leader_detail",
+                  "font_size": 10,
+                  "align": "right",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "group",
+          "title": "Klasifikacija",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 176,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "list",
+                  "field": "result_rows_left",
+                  "item_template": "{line}",
+                  "font_size": 8,
+                  "item_spacing": 10,
+                  "margin_x": 0,
+                  "max_items": 2
+                }
+              ],
+              "right": [
+                {
+                  "type": "list",
+                  "field": "result_rows_right",
+                  "item_template": "{line}",
+                  "font_size": 8,
+                  "item_spacing": 10,
+                  "margin_x": 0,
+                  "max_items": 2
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "185x123": {
+      "body": [
+        {
+          "type": "text",
+          "field": "session_label",
+          "font_size": 14,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Najnovija snimka klasifikacije",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "group",
+          "title": "Pobjednik",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "vertical_stack",
+              "spacing": 1,
+              "children": [
+                {
+                  "type": "text",
+                  "field": "leader_name",
+                  "font_size": 11,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                },
+                {
+                  "type": "text",
+                  "field": "leader_detail",
+                  "font_size": 8,
+                  "align": "right",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "group",
+          "title": "Klasifikacija",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "vertical_stack",
+              "spacing": 1,
+              "children": [
+                {
+                  "type": "list",
+                  "field": "result_rows_left",
+                  "item_template": "{line}",
+                  "font_size": 7,
+                  "item_spacing": 10,
+                  "margin_x": 0,
+                  "max_items": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   }
 }

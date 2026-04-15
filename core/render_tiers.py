@@ -13,6 +13,8 @@ Exact pixel keys ``{w}x{h}`` still win over everything else.
 
 from __future__ import annotations
 
+from copy import deepcopy
+
 from .config import SCREEN_HEIGHT, SCREEN_WIDTH
 
 SLOT_TIER_FULL = "full"
@@ -217,13 +219,36 @@ def _merge_tier_layout_overrides(
         for key in _SLOT_TIER_FALLBACK.get(tier, ()):
             tier_ov = layout_overrides.get(key)
             if isinstance(tier_ov, dict):
-                out = {**out, **tier_ov}
+                out = _deep_merge_layout(out, tier_ov)
                 break
     else:
         tier_ov = layout_overrides.get(tier)
         if isinstance(tier_ov, dict):
-            out = {**out, **tier_ov}
+            out = _deep_merge_layout(out, tier_ov)
     return out
+
+
+def _deep_merge_layout(base: object, override: object) -> object:
+    """Deep merge for layout resolution.
+
+    Rules:
+    - dict + dict => recursive merge
+    - list => replace (never concatenate)
+    - scalar/mismatched => override wins
+    """
+    if override is None:
+        return deepcopy(base)
+    if isinstance(base, dict) and isinstance(override, dict):
+        merged = deepcopy(base)
+        for key, value in override.items():
+            if key in merged:
+                merged[key] = _deep_merge_layout(merged[key], value)
+            else:
+                merged[key] = deepcopy(value)
+        return merged
+    if isinstance(override, list):
+        return deepcopy(override)
+    return deepcopy(override)
 
 
 def merge_layout_for_screen(
@@ -248,12 +273,12 @@ def merge_layout_for_screen(
     ``slot_type`` (``SMALL`` / ``WIDE`` / …) should be set when rendering a surface grid cell
     so variants match the spec; otherwise pixel geometry is used.
     """
-    merged = dict(base_layout) if isinstance(base_layout, dict) else {}
+    merged = deepcopy(base_layout) if isinstance(base_layout, dict) else {}
     shape_layout = merge_shape_variant_layout(
         shape_variants, screen_w, screen_h, slot_type=slot_type
     )
     if shape_layout:
-        merged = {**merged, **shape_layout}
+        merged = _deep_merge_layout(merged, shape_layout)
     else:
         merged = _merge_tier_layout_overrides(
             merged, layout_overrides, screen_w, screen_h, slot_type=slot_type
@@ -263,5 +288,5 @@ def merge_layout_for_screen(
         size_key = f"{screen_w}x{screen_h}"
         exact_ov = layout_overrides.get(size_key)
         if isinstance(exact_ov, dict):
-            merged = {**merged, **exact_ov}
+            merged = _deep_merge_layout(merged, exact_ov)
     return merged

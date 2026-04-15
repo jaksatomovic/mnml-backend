@@ -4,7 +4,10 @@
   "icon": "art",
   "cacheable": false,
   "description": "AI-generated minimalist line art",
-  "supported_slot_types": ["FULL", "SMALL"],
+  "supported_slot_types": [
+    "FULL",
+    "SMALL"
+  ],
   "content": {
     "type": "image_gen",
     "provider": "text2image",
@@ -104,6 +107,74 @@
           "fit": "cover",
           "align_x": "center",
           "align_y": "center"
+        }
+      ]
+    },
+    "376x252": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "x": 1,
+          "y": 1,
+          "width": 374,
+          "height": 250,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
+          "margin_bottom": 0
+        }
+      ]
+    },
+    "376x123": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "x": 1,
+          "y": 1,
+          "width": 374,
+          "height": 121,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
+          "margin_bottom": 0
+        }
+      ]
+    },
+    "185x252": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "x": 1,
+          "y": 1,
+          "width": 183,
+          "height": 250,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
+          "margin_bottom": 0
+        }
+      ]
+    },
+    "185x123": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "x": 1,
+          "y": 1,
+          "width": 183,
+          "height": 121,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
+          "margin_bottom": 0
         }
       ]
     }

@@ -154,5 +154,423 @@
       "label": "F1 SIGURNO",
       "attribution_template": "— Samo raspored"
     }
+  },
+  "layout_overrides": {
+    "376x252": {
+      "body": [
+        {
+          "type": "text",
+          "field": "race_name",
+          "font_size": 16,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Vikend pogled bez spojlera",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "{circuit_name} · {country}",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "line_width": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "text": "Pogled siguran od spojlera",
+          "font_size": 12,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Rezultati i poredak skriveni dok ne budete spremni.",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 18
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "group",
+          "title": "Sljedeća sesija",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 176,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "text",
+                  "field": "next_session_label",
+                  "font_size": 14,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ],
+              "right": [
+                {
+                  "type": "text",
+                  "field": "next_session_time",
+                  "font_size": 14,
+                  "align": "right",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "group",
+          "title": "Vikend raspored",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "list",
+              "field": "weekend_rows",
+              "item_template": "{line}",
+              "font_size": 9,
+              "item_spacing": 11,
+              "margin_x": 14,
+              "max_items": 8
+            }
+          ]
+        }
+      ]
+    },
+    "376x123": {
+      "body": [
+        {
+          "type": "text",
+          "field": "race_name",
+          "font_size": 15,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Vikend pogled bez spojlera",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "{circuit_name} · {country}",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "line_width": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "text",
+          "text": "Pogled siguran od spojlera",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Rezultati i poredak skriveni dok ne budete spremni.",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 18
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "group",
+          "title": "Sljedeća sesija",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 176,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "text",
+                  "field": "next_session_label",
+                  "font_size": 13,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ],
+              "right": [
+                {
+                  "type": "text",
+                  "field": "next_session_time",
+                  "font_size": 13,
+                  "align": "right",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "group",
+          "title": "Vikend raspored",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "list",
+              "field": "weekend_rows",
+              "item_template": "{line}",
+              "font_size": 9,
+              "item_spacing": 11,
+              "margin_x": 14,
+              "max_items": 3
+            }
+          ]
+        }
+      ]
+    },
+    "185x252": {
+      "body": [
+        {
+          "type": "text",
+          "field": "race_name",
+          "font_size": 15,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Vikend pogled bez spojlera",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "{circuit_name} · {country}",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "line_width": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 5
+        },
+        {
+          "type": "text",
+          "text": "Pogled siguran od spojlera",
+          "font_size": 11,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Rezultati i poredak skriveni dok ne budete spremni.",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 18
+        },
+        {
+          "type": "spacer",
+          "height": 5
+        },
+        {
+          "type": "group",
+          "title": "Sljedeća sesija",
+          "title_font_size": 11,
+          "margin_x": 14,
+          "children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 176,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "text",
+                  "field": "next_session_label",
+                  "font_size": 13,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ],
+              "right": [
+                {
+                  "type": "text",
+                  "field": "next_session_time",
+                  "font_size": 13,
+                  "align": "right",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "separator",
+          "style": "dashed",
+          "margin_x": 14
+        }
+      ]
+    },
+    "185x123": {
+      "body": [
+        {
+          "type": "text",
+          "field": "race_name",
+          "font_size": 14,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Vikend pogled bez spojlera",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "{circuit_name} · {country}",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "text",
+          "text": "Pogled siguran od spojlera",
+          "font_size": 10,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Rezultati i poredak skriveni dok ne budete spremni.",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 2,
+          "margin_x": 18
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        }
+      ]
+    }
   }
 }

@@ -466,6 +466,7 @@ def draw_footer(
     dashed: bool = False,
     attr_font: str | None = None,
     attr_font_size: int | None = None,
+    footer_height: int | None = None,
     screen_w: int = SCREEN_WIDTH,
     screen_h: int = SCREEN_HEIGHT,
     colors: int = 2,
@@ -475,9 +476,12 @@ def draw_footer(
     if attr_font_size is None:
         attr_font_size = int(FONT_SIZES["footer"]["attribution"] * scale)
 
-    # Smaller footer on short screens
-    footer_pct = 0.08 if screen_h < 200 else 0.10
-    y_line = screen_h - int(screen_h * footer_pct)
+    if footer_height is None:
+        # Legacy fallback for non-JSON callers
+        footer_pct = 0.08 if screen_h < 200 else 0.10
+        footer_height = int(screen_h * footer_pct)
+    footer_height = max(1, min(screen_h - 1, int(footer_height)))
+    y_line = screen_h - footer_height
     if dashed:
         draw_dashed_line(
             draw, (0, y_line), (screen_w, y_line), fill=EINK_FG, width=line_width

@@ -3,7 +3,9 @@
   "display_name": "相框",
   "description": "上传本地照片，自适应墨水屏显示",
   "icon": "my_adaptive",
-  "supported_slot_types": ["FULL"],
+  "supported_slot_types": [
+    "FULL"
+  ],
   "cacheable": false,
   "content": {
     "type": "static",
@@ -62,6 +64,74 @@
           "height": 375,
           "x": 0,
           "y": 57,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
+          "margin_bottom": 0
+        }
+      ]
+    },
+    "376x252": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "x": 1,
+          "y": 1,
+          "width": 374,
+          "height": 250,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
+          "margin_bottom": 0
+        }
+      ]
+    },
+    "376x123": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "x": 1,
+          "y": 1,
+          "width": 374,
+          "height": 121,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
+          "margin_bottom": 0
+        }
+      ]
+    },
+    "185x252": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "x": 1,
+          "y": 1,
+          "width": 183,
+          "height": 250,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
+          "margin_bottom": 0
+        }
+      ]
+    },
+    "185x123": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "x": 1,
+          "y": 1,
+          "width": 183,
+          "height": 121,
           "fit": "cover",
           "align_x": "center",
           "align_y": "center",

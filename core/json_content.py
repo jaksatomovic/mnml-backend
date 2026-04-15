@@ -176,15 +176,24 @@ def _resolve_uploaded_image_bytes(url: str) -> bytes | None:
     except OSError:
         return None
 
-def _collect_image_fields(blocks: list, fields: set):
-    """Recursively collect image field names from layout blocks."""
-    for block in blocks:
+def _collect_image_fields(blocks: object, fields: set[str]) -> None:
+    """Recursively collect image field names from layout blocks.
+
+    Layout body can be:
+    - list[dict] (classic block renderer)
+    - dict (component-tree root)
+    This walker tolerates mixed/invalid nodes to avoid crashing preview generation.
+    """
+    if isinstance(blocks, dict):
+        block = blocks
         if block.get("type") == "image":
-            fields.add(block.get("field", "image_url"))
-        for child_key in ("children", "left", "right"):
-            children = block.get(child_key, [])
-            if isinstance(children, list):
-                _collect_image_fields(children, fields)
+            fields.add(str(block.get("field", "image_url")))
+        for child_key in ("children", "left", "right", "body", "item"):
+            _collect_image_fields(block.get(child_key), fields)
+        return
+    if isinstance(blocks, list):
+        for block in blocks:
+            _collect_image_fields(block, fields)
 
 
 async def _prefetch_images(content: dict, mode_def: dict) -> dict:

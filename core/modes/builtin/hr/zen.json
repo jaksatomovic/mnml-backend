@@ -88,6 +88,65 @@
         "word_font_size": 72,
         "source_font_size": 14
       }
+    },
+    "376x252": {
+      "preset_props": {
+        "padding_x": 18,
+        "justify": "center",
+        "gap": 10,
+        "word_inset_x": 60,
+        "word_field": "word",
+        "word_font": "noto_serif_regular",
+        "word_font_size": 48,
+        "source_field": "source",
+        "source_font": "noto_serif_light",
+        "source_font_size": 9
+      }
+    },
+    "376x123": {
+      "preset_props": {
+        "padding_x": 16,
+        "justify": "center",
+        "gap": 9,
+        "word_inset_x": 54,
+        "word_field": "word",
+        "word_font": "noto_serif_regular",
+        "word_font_size": 43,
+        "source_field": "source",
+        "source_font": "noto_serif_light",
+        "source_font_size": 8,
+        "variant": "compact"
+      }
+    },
+    "185x252": {
+      "preset_props": {
+        "padding_x": 16,
+        "justify": "center",
+        "gap": 9,
+        "word_inset_x": 53,
+        "word_field": "word",
+        "word_font": "noto_serif_regular",
+        "word_font_size": 42,
+        "source_field": "source",
+        "source_font": "noto_serif_light",
+        "source_font_size": 8,
+        "variant": "compact"
+      }
+    },
+    "185x123": {
+      "preset_props": {
+        "padding_x": 14,
+        "justify": "center",
+        "gap": 8,
+        "word_inset_x": 47,
+        "word_field": "word",
+        "word_font": "noto_serif_regular",
+        "word_font_size": 37,
+        "source_field": "source",
+        "source_font": "noto_serif_light",
+        "source_font_size": 7,
+        "variant": "compact"
+      }
     }
   }
 }

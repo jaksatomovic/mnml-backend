@@ -95,6 +95,105 @@
         "definition_font_size": 22,
         "example_font_size": 16
       }
+    },
+    "376x252": {
+      "preset_props": {
+        "padding_x": 18,
+        "justify": "center",
+        "gap": 8,
+        "word_inset_x": 20,
+        "word_field": "word",
+        "word_font": "noto_serif_bold",
+        "word_font_size": 52,
+        "phonetic_field": "phonetic",
+        "phonetic_font": "noto_serif_light",
+        "phonetic_font_name": "GentiumPlus-Regular.ttf",
+        "phonetic_font_size": 13,
+        "separator_width": 40,
+        "definition_field": "definition",
+        "definition_font": "noto_serif_regular",
+        "definition_font_size": 16,
+        "definition_max_lines": 2,
+        "example_field": "example",
+        "example_font": "noto_serif_light",
+        "example_font_size": 12,
+        "example_max_lines": 2
+      }
+    },
+    "376x123": {
+      "preset_props": {
+        "padding_x": 16,
+        "justify": "center",
+        "gap": 7,
+        "word_inset_x": 18,
+        "word_field": "word",
+        "word_font": "noto_serif_bold",
+        "word_font_size": 47,
+        "phonetic_field": "phonetic",
+        "phonetic_font": "noto_serif_light",
+        "phonetic_font_name": "GentiumPlus-Regular.ttf",
+        "phonetic_font_size": 12,
+        "separator_width": 36,
+        "definition_field": "definition",
+        "definition_font": "noto_serif_regular",
+        "definition_font_size": 14,
+        "definition_max_lines": 2,
+        "example_field": "example",
+        "example_font": "noto_serif_light",
+        "example_font_size": 11,
+        "example_max_lines": 2,
+        "variant": "compact"
+      }
+    },
+    "185x252": {
+      "preset_props": {
+        "padding_x": 16,
+        "justify": "center",
+        "gap": 7,
+        "word_inset_x": 18,
+        "word_field": "word",
+        "word_font": "noto_serif_bold",
+        "word_font_size": 46,
+        "phonetic_field": "phonetic",
+        "phonetic_font": "noto_serif_light",
+        "phonetic_font_name": "GentiumPlus-Regular.ttf",
+        "phonetic_font_size": 11,
+        "separator_width": 35,
+        "definition_field": "definition",
+        "definition_font": "noto_serif_regular",
+        "definition_font_size": 14,
+        "definition_max_lines": 2,
+        "example_field": "example",
+        "example_font": "noto_serif_light",
+        "example_font_size": 11,
+        "example_max_lines": 2,
+        "variant": "compact"
+      }
+    },
+    "185x123": {
+      "preset_props": {
+        "padding_x": 14,
+        "justify": "center",
+        "gap": 6,
+        "word_inset_x": 16,
+        "word_field": "word",
+        "word_font": "noto_serif_bold",
+        "word_font_size": 41,
+        "phonetic_field": "phonetic",
+        "phonetic_font": "noto_serif_light",
+        "phonetic_font_name": "GentiumPlus-Regular.ttf",
+        "phonetic_font_size": 10,
+        "separator_width": 31,
+        "definition_field": "definition",
+        "definition_font": "noto_serif_regular",
+        "definition_font_size": 12,
+        "definition_max_lines": 2,
+        "example_field": "example",
+        "example_font": "noto_serif_light",
+        "example_font_size": 9,
+        "example_max_lines": 2,
+        "variant": "compact"
+      }
     }
   }
 }

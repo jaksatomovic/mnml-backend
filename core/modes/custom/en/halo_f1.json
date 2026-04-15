@@ -21,9 +21,18 @@
       "type": "select",
       "default": "both",
       "options": [
-        { "value": "both", "label": "Drivers + Constructors" },
-        { "value": "drivers", "label": "Drivers only" },
-        { "value": "constructors", "label": "Constructors only" }
+        {
+          "value": "both",
+          "label": "Drivers + Constructors"
+        },
+        {
+          "value": "drivers",
+          "label": "Drivers only"
+        },
+        {
+          "value": "constructors",
+          "label": "Constructors only"
+        }
       ],
       "description": "Choose whether the main Halo F1 screen shows both tables or focuses on a single championship."
     }
@@ -355,6 +364,1058 @@
     "footer": {
       "label": "F1",
       "attribution_template": "— Jolpica"
+    }
+  },
+  "layout_overrides": {
+    "376x252": {
+      "body": [
+        {
+          "type": "text",
+          "field": "race_name",
+          "font_size": 14,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Championship snapshot",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Round {round} · {country}",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "line_width": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "two_column",
+          "left_x": 14,
+          "left_width": 150,
+          "gap": 8,
+          "right_margin": 14,
+          "left": [
+            {
+              "type": "text",
+              "text": "Next Session",
+              "font_size": 8,
+              "align": "left",
+              "margin_x": 0,
+              "max_lines": 1
+            },
+            {
+              "type": "big_number",
+              "field": "next_session_time",
+              "font_size": 18,
+              "align": "left"
+            },
+            {
+              "type": "text",
+              "field": "next_session_label",
+              "font_size": 9,
+              "align": "left",
+              "margin_x": 0,
+              "max_lines": 1
+            }
+          ],
+          "right": [
+            {
+              "type": "text",
+              "field": "next_session_date",
+              "font_size": 9,
+              "align": "right",
+              "margin_x": 0,
+              "max_lines": 1
+            },
+            {
+              "type": "spacer",
+              "height": 1
+            },
+            {
+              "type": "text",
+              "field": "circuit_name",
+              "font_size": 8,
+              "align": "right",
+              "margin_x": 0,
+              "max_lines": 2
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "conditional",
+          "field": "standings_view",
+          "conditions": [
+            {
+              "op": "eq",
+              "value": "drivers",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Drivers Championship",
+                  "font_size": 11,
+                  "align": "left",
+                  "margin_x": 14,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 2
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 14,
+                  "left_width": 182,
+                  "gap": 8,
+                  "right_margin": 14,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 9,
+                      "item_spacing": 8,
+                      "margin_x": 0,
+                      "max_items": 20
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 9,
+                      "item_spacing": 8,
+                      "margin_x": 0,
+                      "max_items": 20
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "op": "eq",
+              "value": "constructors",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Constructors Championship",
+                  "font_size": 11,
+                  "align": "left",
+                  "margin_x": 14,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 2
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 14,
+                  "left_width": 182,
+                  "gap": 8,
+                  "right_margin": 14,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 9,
+                      "item_spacing": 9,
+                      "margin_x": 0,
+                      "max_items": 10
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 9,
+                      "item_spacing": 9,
+                      "margin_x": 0,
+                      "max_items": 10
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "fallback_children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 182,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "text",
+                  "text": "Drivers",
+                  "font_size": 11,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 2
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 0,
+                  "left_width": 86,
+                  "gap": 2,
+                  "right_margin": 0,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 20
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 20
+                    }
+                  ]
+                }
+              ],
+              "right": [
+                {
+                  "type": "text",
+                  "text": "Constructors",
+                  "font_size": 11,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 2
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 0,
+                  "left_width": 86,
+                  "gap": 2,
+                  "right_margin": 0,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 10
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 10
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "376x123": {
+      "body": [
+        {
+          "type": "text",
+          "field": "race_name",
+          "font_size": 13,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Championship snapshot",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Round {round} · {country}",
+          "font_size": 9,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "line_width": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "two_column",
+          "left_x": 14,
+          "left_width": 150,
+          "gap": 8,
+          "right_margin": 14,
+          "left": [
+            {
+              "type": "text",
+              "text": "Next Session",
+              "font_size": 8,
+              "align": "left",
+              "margin_x": 0,
+              "max_lines": 1
+            },
+            {
+              "type": "big_number",
+              "field": "next_session_time",
+              "font_size": 17,
+              "align": "left"
+            },
+            {
+              "type": "text",
+              "field": "next_session_label",
+              "font_size": 9,
+              "align": "left",
+              "margin_x": 0,
+              "max_lines": 1
+            }
+          ],
+          "right": [
+            {
+              "type": "text",
+              "field": "next_session_date",
+              "font_size": 9,
+              "align": "right",
+              "margin_x": 0,
+              "max_lines": 1
+            },
+            {
+              "type": "spacer",
+              "height": 1
+            },
+            {
+              "type": "text",
+              "field": "circuit_name",
+              "font_size": 8,
+              "align": "right",
+              "margin_x": 0,
+              "max_lines": 2
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "conditional",
+          "field": "standings_view",
+          "conditions": [
+            {
+              "op": "eq",
+              "value": "drivers",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Drivers Championship",
+                  "font_size": 10,
+                  "align": "left",
+                  "margin_x": 14,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 1
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 14,
+                  "left_width": 182,
+                  "gap": 8,
+                  "right_margin": 14,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 9,
+                      "item_spacing": 8,
+                      "margin_x": 0,
+                      "max_items": 3
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 9,
+                      "item_spacing": 8,
+                      "margin_x": 0,
+                      "max_items": 3
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "op": "eq",
+              "value": "constructors",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Constructors Championship",
+                  "font_size": 10,
+                  "align": "left",
+                  "margin_x": 14,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 1
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 14,
+                  "left_width": 182,
+                  "gap": 8,
+                  "right_margin": 14,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 9,
+                      "item_spacing": 9,
+                      "margin_x": 0,
+                      "max_items": 3
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 9,
+                      "item_spacing": 9,
+                      "margin_x": 0,
+                      "max_items": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "fallback_children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 182,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "text",
+                  "text": "Drivers",
+                  "font_size": 10,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 1
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 0,
+                  "left_width": 86,
+                  "gap": 2,
+                  "right_margin": 0,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 3
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 3
+                    }
+                  ]
+                }
+              ],
+              "right": [
+                {
+                  "type": "text",
+                  "text": "Constructors",
+                  "font_size": 10,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 1
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 0,
+                  "left_width": 86,
+                  "gap": 2,
+                  "right_margin": 0,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 3
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "185x252": {
+      "body": [
+        {
+          "type": "text",
+          "field": "race_name",
+          "font_size": 13,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Championship snapshot",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Round {round} · {country}",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "line_width": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "two_column",
+          "left_x": 14,
+          "left_width": 150,
+          "gap": 8,
+          "right_margin": 14,
+          "left": [
+            {
+              "type": "text",
+              "text": "Next Session",
+              "font_size": 8,
+              "align": "left",
+              "margin_x": 0,
+              "max_lines": 1
+            },
+            {
+              "type": "big_number",
+              "field": "next_session_time",
+              "font_size": 17,
+              "align": "left"
+            },
+            {
+              "type": "text",
+              "field": "next_session_label",
+              "font_size": 8,
+              "align": "left",
+              "margin_x": 0,
+              "max_lines": 1
+            }
+          ],
+          "right": [
+            {
+              "type": "text",
+              "field": "next_session_date",
+              "font_size": 8,
+              "align": "right",
+              "margin_x": 0,
+              "max_lines": 1
+            },
+            {
+              "type": "spacer",
+              "height": 1
+            },
+            {
+              "type": "text",
+              "field": "circuit_name",
+              "font_size": 8,
+              "align": "right",
+              "margin_x": 0,
+              "max_lines": 2
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "conditional",
+          "field": "standings_view",
+          "conditions": [
+            {
+              "op": "eq",
+              "value": "drivers",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Drivers Championship",
+                  "font_size": 10,
+                  "align": "left",
+                  "margin_x": 14,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 2
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 14,
+                  "left_width": 182,
+                  "gap": 8,
+                  "right_margin": 14,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 8,
+                      "margin_x": 0,
+                      "max_items": 2
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 8,
+                      "margin_x": 0,
+                      "max_items": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "op": "eq",
+              "value": "constructors",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Constructors Championship",
+                  "font_size": 10,
+                  "align": "left",
+                  "margin_x": 14,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 2
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 14,
+                  "left_width": 182,
+                  "gap": 8,
+                  "right_margin": 14,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 9,
+                      "margin_x": 0,
+                      "max_items": 2
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 9,
+                      "margin_x": 0,
+                      "max_items": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "fallback_children": [
+            {
+              "type": "two_column",
+              "left_x": 14,
+              "left_width": 182,
+              "gap": 8,
+              "right_margin": 14,
+              "left": [
+                {
+                  "type": "text",
+                  "text": "Drivers",
+                  "font_size": 10,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 2
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 0,
+                  "left_width": 86,
+                  "gap": 2,
+                  "right_margin": 0,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 2
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 2
+                    }
+                  ]
+                }
+              ],
+              "right": [
+                {
+                  "type": "text",
+                  "text": "Constructors",
+                  "font_size": 10,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 2
+                },
+                {
+                  "type": "two_column",
+                  "left_x": 0,
+                  "left_width": 86,
+                  "gap": 2,
+                  "right_margin": 0,
+                  "left": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 2
+                    }
+                  ],
+                  "right": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_right",
+                      "item_template": "{line}",
+                      "font_size": 8,
+                      "item_spacing": 7,
+                      "margin_x": 0,
+                      "max_items": 2
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "185x123": {
+      "body": [
+        {
+          "type": "text",
+          "field": "race_name",
+          "font_size": 12,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Championship snapshot",
+          "font_size": 7,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Round {round} · {country}",
+          "font_size": 8,
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "vertical_stack",
+          "spacing": 1,
+          "children": [
+            {
+              "type": "text",
+              "text": "Next Session",
+              "font_size": 7,
+              "align": "left",
+              "margin_x": 0,
+              "max_lines": 1
+            },
+            {
+              "type": "big_number",
+              "field": "next_session_time",
+              "font_size": 13,
+              "align": "left"
+            },
+            {
+              "type": "text",
+              "field": "next_session_date",
+              "font_size": 7,
+              "align": "right",
+              "margin_x": 0,
+              "max_lines": 1
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "conditional",
+          "field": "standings_view",
+          "conditions": [
+            {
+              "op": "eq",
+              "value": "drivers",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Drivers Championship",
+                  "font_size": 9,
+                  "align": "left",
+                  "margin_x": 14,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 1
+                },
+                {
+                  "type": "vertical_stack",
+                  "spacing": 1,
+                  "children": [
+                    {
+                      "type": "list",
+                      "field": "driver_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 7,
+                      "item_spacing": 8,
+                      "margin_x": 0,
+                      "max_items": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "op": "eq",
+              "value": "constructors",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Constructors Championship",
+                  "font_size": 9,
+                  "align": "left",
+                  "margin_x": 14,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 1
+                },
+                {
+                  "type": "vertical_stack",
+                  "spacing": 1,
+                  "children": [
+                    {
+                      "type": "list",
+                      "field": "constructor_rows_left",
+                      "item_template": "{line}",
+                      "font_size": 7,
+                      "item_spacing": 9,
+                      "margin_x": 0,
+                      "max_items": 1
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "fallback_children": [
+            {
+              "type": "vertical_stack",
+              "spacing": 1,
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Drivers",
+                  "font_size": 8,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                },
+                {
+                  "type": "spacer",
+                  "height": 1
+                },
+                {
+                  "type": "text",
+                  "text": "Constructors",
+                  "font_size": 8,
+                  "align": "left",
+                  "margin_x": 0,
+                  "max_lines": 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   }
 }

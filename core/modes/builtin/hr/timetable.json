@@ -113,5 +113,51 @@
       "label": "TIMETABLE",
       "attribution_template": "— InkSight"
     }
+  },
+  "layout_overrides": {
+    "376x252": {
+      "body": [
+        {
+          "type": "timetable_grid",
+          "field": "slots",
+          "font_size": 12,
+          "margin_x": 6,
+          "row_height": 30
+        }
+      ]
+    },
+    "376x123": {
+      "body": [
+        {
+          "type": "timetable_grid",
+          "field": "slots",
+          "font_size": 11,
+          "margin_x": 6,
+          "row_height": 30
+        }
+      ]
+    },
+    "185x252": {
+      "body": [
+        {
+          "type": "timetable_grid",
+          "field": "slots",
+          "font_size": 11,
+          "margin_x": 6,
+          "row_height": 30
+        }
+      ]
+    },
+    "185x123": {
+      "body": [
+        {
+          "type": "timetable_grid",
+          "field": "slots",
+          "font_size": 10,
+          "margin_x": 6,
+          "row_height": 30
+        }
+      ]
+    }
   }
 }

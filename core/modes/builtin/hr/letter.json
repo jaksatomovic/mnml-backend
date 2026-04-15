@@ -100,6 +100,81 @@
         "postscript_font_size": 14,
         "postscript_max_lines": 2
       }
+    },
+    "376x252": {
+      "preset_props": {
+        "padding_x": 32,
+        "padding_y": 10,
+        "justify": "center",
+        "gap": 8,
+        "greeting_font": "noto_serif_regular",
+        "greeting_font_size": 12,
+        "body_font": "noto_serif_regular",
+        "body_font_size": 13,
+        "body_max_lines": 6,
+        "closing_font": "noto_serif_light",
+        "closing_font_size": 12,
+        "postscript_font": "noto_serif_light",
+        "postscript_font_size": 10,
+        "postscript_max_lines": 1
+      }
+    },
+    "376x123": {
+      "preset_props": {
+        "padding_x": 29,
+        "padding_y": 9,
+        "justify": "center",
+        "gap": 7,
+        "greeting_font": "noto_serif_regular",
+        "greeting_font_size": 11,
+        "body_font": "noto_serif_regular",
+        "body_font_size": 12,
+        "body_max_lines": 5,
+        "closing_font": "noto_serif_light",
+        "closing_font_size": 11,
+        "postscript_font": "noto_serif_light",
+        "postscript_font_size": 9,
+        "postscript_max_lines": 1,
+        "variant": "compact"
+      }
+    },
+    "185x252": {
+      "preset_props": {
+        "padding_x": 28,
+        "padding_y": 9,
+        "justify": "center",
+        "gap": 7,
+        "greeting_font": "noto_serif_regular",
+        "greeting_font_size": 11,
+        "body_font": "noto_serif_regular",
+        "body_font_size": 11,
+        "body_max_lines": 5,
+        "closing_font": "noto_serif_light",
+        "closing_font_size": 11,
+        "postscript_font": "noto_serif_light",
+        "postscript_font_size": 9,
+        "postscript_max_lines": 1,
+        "variant": "compact"
+      }
+    },
+    "185x123": {
+      "preset_props": {
+        "padding_x": 25,
+        "padding_y": 8,
+        "justify": "center",
+        "gap": 6,
+        "greeting_font": "noto_serif_regular",
+        "greeting_font_size": 9,
+        "body_font": "noto_serif_regular",
+        "body_font_size": 10,
+        "body_max_lines": 5,
+        "closing_font": "noto_serif_light",
+        "closing_font_size": 9,
+        "postscript_font": "noto_serif_light",
+        "postscript_font_size": 8,
+        "postscript_max_lines": 1,
+        "variant": "compact"
+      }
     }
   }
 }

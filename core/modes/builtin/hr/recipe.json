@@ -125,6 +125,93 @@
         "tip_font_size": 16,
         "tip_divider_margin_x": 48
       }
+    },
+    "376x252": {
+      "preset_props": {
+        "season_field": "season",
+        "season_font": "noto_serif_bold",
+        "season_font_size": 16,
+        "separator_width": 70,
+        "section_font_size": 13,
+        "meal_font": "noto_serif_regular",
+        "meal_font_size": 13,
+        "meal_max_lines": 2,
+        "meal_inset_x": 0,
+        "breakfast_title": "Doručak",
+        "lunch_title": "Ručak",
+        "dinner_title": "Večera",
+        "tip_field": "tip",
+        "tip_font": "noto_serif_light",
+        "tip_font_size": 12,
+        "tip_max_lines": 2,
+        "tip_divider_margin_x": 30
+      }
+    },
+    "376x123": {
+      "preset_props": {
+        "season_field": "season",
+        "season_font": "noto_serif_bold",
+        "season_font_size": 14,
+        "separator_width": 63,
+        "section_font_size": 12,
+        "meal_font": "noto_serif_regular",
+        "meal_font_size": 12,
+        "meal_max_lines": 2,
+        "meal_inset_x": 0,
+        "breakfast_title": "Doručak",
+        "lunch_title": "Ručak",
+        "dinner_title": "Večera",
+        "tip_field": "tip",
+        "tip_font": "noto_serif_light",
+        "tip_font_size": 11,
+        "tip_max_lines": 2,
+        "tip_divider_margin_x": 27,
+        "variant": "compact"
+      }
+    },
+    "185x252": {
+      "preset_props": {
+        "season_field": "season",
+        "season_font": "noto_serif_bold",
+        "season_font_size": 14,
+        "separator_width": 62,
+        "section_font_size": 11,
+        "meal_font": "noto_serif_regular",
+        "meal_font_size": 11,
+        "meal_max_lines": 2,
+        "meal_inset_x": 0,
+        "breakfast_title": "Doručak",
+        "lunch_title": "Ručak",
+        "dinner_title": "Večera",
+        "tip_field": "tip",
+        "tip_font": "noto_serif_light",
+        "tip_font_size": 11,
+        "tip_max_lines": 2,
+        "tip_divider_margin_x": 26,
+        "variant": "compact"
+      }
+    },
+    "185x123": {
+      "preset_props": {
+        "season_field": "season",
+        "season_font": "noto_serif_bold",
+        "season_font_size": 12,
+        "separator_width": 55,
+        "section_font_size": 10,
+        "meal_font": "noto_serif_regular",
+        "meal_font_size": 10,
+        "meal_max_lines": 2,
+        "meal_inset_x": 0,
+        "breakfast_title": "Doručak",
+        "lunch_title": "Ručak",
+        "dinner_title": "Večera",
+        "tip_field": "tip",
+        "tip_font": "noto_serif_light",
+        "tip_font_size": 9,
+        "tip_max_lines": 2,
+        "tip_divider_margin_x": 23,
+        "variant": "compact"
+      }
     }
   }
 }

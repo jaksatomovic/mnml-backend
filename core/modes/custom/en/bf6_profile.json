@@ -18,13 +18,34 @@
       "type": "select",
       "default": "pc",
       "options": [
-        { "value": "pc", "label": "PC" },
-        { "value": "xbox", "label": "Xbox (generic)" },
-        { "value": "xboxseries", "label": "Xbox Series" },
-        { "value": "xboxone", "label": "Xbox One" },
-        { "value": "psn", "label": "PlayStation (generic)" },
-        { "value": "ps5", "label": "PlayStation 5" },
-        { "value": "ps4", "label": "PlayStation 4" }
+        {
+          "value": "pc",
+          "label": "PC"
+        },
+        {
+          "value": "xbox",
+          "label": "Xbox (generic)"
+        },
+        {
+          "value": "xboxseries",
+          "label": "Xbox Series"
+        },
+        {
+          "value": "xboxone",
+          "label": "Xbox One"
+        },
+        {
+          "value": "psn",
+          "label": "PlayStation (generic)"
+        },
+        {
+          "value": "ps5",
+          "label": "PlayStation 5"
+        },
+        {
+          "value": "ps4",
+          "label": "PlayStation 4"
+        }
       ],
       "description": "Choose the platform where the player account is active."
     }
@@ -48,16 +69,32 @@
       "headshots": "-",
       "headshot_rate": "-",
       "summary_left": [
-        { "line": "Kills   -" },
-        { "line": "Deaths  -" },
-        { "line": "K/D     -" },
-        { "line": "Assists -" }
+        {
+          "line": "Kills   -"
+        },
+        {
+          "line": "Deaths  -"
+        },
+        {
+          "line": "K/D     -"
+        },
+        {
+          "line": "Assists -"
+        }
       ],
       "summary_right": [
-        { "line": "Score     -" },
-        { "line": "Headshots -" },
-        { "line": "HS Rate   -" },
-        { "line": "Revives   -" }
+        {
+          "line": "Score     -"
+        },
+        {
+          "line": "Headshots -"
+        },
+        {
+          "line": "HS Rate   -"
+        },
+        {
+          "line": "Revives   -"
+        }
       ],
       "error": ""
     }
@@ -183,6 +220,416 @@
     "footer": {
       "label": "BF6",
       "attribution_template": "— GameTools"
+    }
+  },
+  "layout_overrides": {
+    "376x252": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font_size": 17,
+          "font": "lora_bold",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "{username}",
+          "font_size": 12,
+          "font": "lora_regular",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Platform {platform}",
+          "font_size": 9,
+          "font": "lora_regular",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "image",
+          "field": "avatar_url",
+          "width": 74,
+          "height": 74,
+          "x": 308,
+          "y": 44,
+          "margin_bottom": 0,
+          "fallback_text": "RANK"
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "big_number",
+          "field": "rank",
+          "font_size": 30,
+          "align": "left"
+        },
+        {
+          "type": "text",
+          "text": "Rank level",
+          "font_size": 9,
+          "font": "lora_regular",
+          "align": "left",
+          "margin_x": 88,
+          "max_lines": 1
+        },
+        {
+          "type": "big_number",
+          "field": "score_total",
+          "font_size": 20,
+          "align": "left"
+        },
+        {
+          "type": "text",
+          "text": "Total score",
+          "font_size": 9,
+          "font": "lora_regular",
+          "align": "left",
+          "margin_x": 150,
+          "max_lines": 1
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "two_column",
+          "left_x": 18,
+          "left_width": 184,
+          "gap": 12,
+          "right_margin": 18,
+          "left": [
+            {
+              "type": "list",
+              "field": "summary_left",
+              "item_template": "{line}",
+              "font_size": 12,
+              "font": "lora_regular",
+              "item_spacing": 15,
+              "margin_x": 0,
+              "max_items": 5
+            }
+          ],
+          "right": [
+            {
+              "type": "list",
+              "field": "summary_right",
+              "item_template": "{line}",
+              "font_size": 12,
+              "font": "lora_regular",
+              "item_spacing": 15,
+              "margin_x": 0,
+              "max_items": 5
+            }
+          ]
+        }
+      ]
+    },
+    "376x123": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font_size": 16,
+          "font": "lora_bold",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "{username}",
+          "font_size": 11,
+          "font": "lora_regular",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Platform {platform}",
+          "font_size": 9,
+          "font": "lora_regular",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "image",
+          "field": "avatar_url",
+          "width": 74,
+          "height": 74,
+          "x": 308,
+          "y": 44,
+          "margin_bottom": 0,
+          "fallback_text": "RANK"
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "big_number",
+          "field": "rank",
+          "font_size": 28,
+          "align": "left"
+        },
+        {
+          "type": "text",
+          "text": "Rank level",
+          "font_size": 9,
+          "font": "lora_regular",
+          "align": "left",
+          "margin_x": 88,
+          "max_lines": 1
+        },
+        {
+          "type": "big_number",
+          "field": "score_total",
+          "font_size": 19,
+          "align": "left"
+        },
+        {
+          "type": "text",
+          "text": "Total score",
+          "font_size": 9,
+          "font": "lora_regular",
+          "align": "left",
+          "margin_x": 150,
+          "max_lines": 1
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "two_column",
+          "left_x": 18,
+          "left_width": 184,
+          "gap": 12,
+          "right_margin": 18,
+          "left": [
+            {
+              "type": "list",
+              "field": "summary_left",
+              "item_template": "{line}",
+              "font_size": 11,
+              "font": "lora_regular",
+              "item_spacing": 15,
+              "margin_x": 0,
+              "max_items": 3
+            }
+          ],
+          "right": [
+            {
+              "type": "list",
+              "field": "summary_right",
+              "item_template": "{line}",
+              "font_size": 11,
+              "font": "lora_regular",
+              "item_spacing": 15,
+              "margin_x": 0,
+              "max_items": 3
+            }
+          ]
+        }
+      ]
+    },
+    "185x252": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font_size": 16,
+          "font": "lora_bold",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "{username}",
+          "font_size": 11,
+          "font": "lora_regular",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Platform {platform}",
+          "font_size": 8,
+          "font": "lora_regular",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "image",
+          "field": "avatar_url",
+          "width": 74,
+          "height": 74,
+          "x": 308,
+          "y": 44,
+          "margin_bottom": 0,
+          "fallback_text": "RANK"
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "big_number",
+          "field": "rank",
+          "font_size": 28,
+          "align": "left"
+        },
+        {
+          "type": "text",
+          "text": "Rank level",
+          "font_size": 8,
+          "font": "lora_regular",
+          "align": "left",
+          "margin_x": 88,
+          "max_lines": 1
+        },
+        {
+          "type": "big_number",
+          "field": "score_total",
+          "font_size": 19,
+          "align": "left"
+        },
+        {
+          "type": "text",
+          "text": "Total score",
+          "font_size": 8,
+          "font": "lora_regular",
+          "align": "left",
+          "margin_x": 150,
+          "max_lines": 1
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "two_column",
+          "left_x": 18,
+          "left_width": 184,
+          "gap": 12,
+          "right_margin": 18,
+          "left": [
+            {
+              "type": "list",
+              "field": "summary_left",
+              "item_template": "{line}",
+              "font_size": 11,
+              "font": "lora_regular",
+              "item_spacing": 15,
+              "margin_x": 0,
+              "max_items": 2
+            }
+          ],
+          "right": [
+            {
+              "type": "list",
+              "field": "summary_right",
+              "item_template": "{line}",
+              "font_size": 11,
+              "font": "lora_regular",
+              "item_spacing": 15,
+              "margin_x": 0,
+              "max_items": 2
+            }
+          ]
+        }
+      ]
+    },
+    "185x123": {
+      "body": [
+        {
+          "type": "text",
+          "field": "title",
+          "font_size": 14,
+          "font": "lora_bold",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "{username}",
+          "font_size": 10,
+          "font": "lora_regular",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "text",
+          "text": "Platform {platform}",
+          "font_size": 8,
+          "font": "lora_regular",
+          "align": "center",
+          "max_lines": 1,
+          "margin_x": 14
+        },
+        {
+          "type": "image",
+          "field": "avatar_url",
+          "width": 74,
+          "height": 74,
+          "x": 308,
+          "y": 44,
+          "margin_bottom": 0,
+          "fallback_text": "RANK"
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "big_number",
+          "field": "rank",
+          "font_size": 26,
+          "align": "left"
+        },
+        {
+          "type": "text",
+          "text": "Rank level",
+          "font_size": 8,
+          "font": "lora_regular",
+          "align": "left",
+          "margin_x": 88,
+          "max_lines": 1
+        },
+        {
+          "type": "big_number",
+          "field": "score_total",
+          "font_size": 17,
+          "align": "left"
+        }
+      ]
     }
   }
 }

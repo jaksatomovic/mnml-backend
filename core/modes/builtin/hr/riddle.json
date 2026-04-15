@@ -99,6 +99,101 @@
         "answer_divider_margin_x": 90,
         "answer_font_size": 18
       }
+    },
+    "376x252": {
+      "preset_props": {
+        "top_gap": 10,
+        "meta_field": "category",
+        "meta_font": "noto_serif_light",
+        "meta_font_size": 11,
+        "separator_width": 60,
+        "question_inset_x": 26,
+        "question_field": "question",
+        "question_font": "noto_serif_bold",
+        "question_font_size": 18,
+        "question_max_lines": 4,
+        "hint_field": "hint",
+        "hint_template": "Savjet: {hint}",
+        "hint_font": "noto_serif_light",
+        "hint_font_size": 11,
+        "hint_max_lines": 2,
+        "answer_divider_margin_x": 60,
+        "answer_field": "answer",
+        "answer_font": "noto_serif_regular",
+        "answer_font_size": 12
+      }
+    },
+    "376x123": {
+      "preset_props": {
+        "top_gap": 9,
+        "meta_field": "category",
+        "meta_font": "noto_serif_light",
+        "meta_font_size": 10,
+        "separator_width": 54,
+        "question_inset_x": 23,
+        "question_field": "question",
+        "question_font": "noto_serif_bold",
+        "question_font_size": 16,
+        "question_max_lines": 4,
+        "hint_field": "hint",
+        "hint_template": "Savjet: {hint}",
+        "hint_font": "noto_serif_light",
+        "hint_font_size": 10,
+        "hint_max_lines": 2,
+        "answer_divider_margin_x": 54,
+        "answer_field": "answer",
+        "answer_font": "noto_serif_regular",
+        "answer_font_size": 11,
+        "variant": "compact"
+      }
+    },
+    "185x252": {
+      "preset_props": {
+        "top_gap": 9,
+        "meta_field": "category",
+        "meta_font": "noto_serif_light",
+        "meta_font_size": 10,
+        "separator_width": 53,
+        "question_inset_x": 23,
+        "question_field": "question",
+        "question_font": "noto_serif_bold",
+        "question_font_size": 16,
+        "question_max_lines": 4,
+        "hint_field": "hint",
+        "hint_template": "Savjet: {hint}",
+        "hint_font": "noto_serif_light",
+        "hint_font_size": 10,
+        "hint_max_lines": 2,
+        "answer_divider_margin_x": 53,
+        "answer_field": "answer",
+        "answer_font": "noto_serif_regular",
+        "answer_font_size": 11,
+        "variant": "compact"
+      }
+    },
+    "185x123": {
+      "preset_props": {
+        "top_gap": 8,
+        "meta_field": "category",
+        "meta_font": "noto_serif_light",
+        "meta_font_size": 9,
+        "separator_width": 47,
+        "question_inset_x": 20,
+        "question_field": "question",
+        "question_font": "noto_serif_bold",
+        "question_font_size": 14,
+        "question_max_lines": 3,
+        "hint_field": "hint",
+        "hint_template": "Savjet: {hint}",
+        "hint_font": "noto_serif_light",
+        "hint_font_size": 9,
+        "hint_max_lines": 2,
+        "answer_divider_margin_x": 47,
+        "answer_field": "answer",
+        "answer_font": "noto_serif_regular",
+        "answer_font_size": 9,
+        "variant": "compact"
+      }
     }
   }
 }

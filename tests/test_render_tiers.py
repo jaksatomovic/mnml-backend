@@ -48,9 +48,9 @@ def test_merge_layout_prefers_shape_variants_over_tier():
 def test_surface_mosaic_inner_rect_below_status_above_footer():
     x0, y0, x1, y1 = surface_mosaic_inner_rect(400, 300)
     assert x0 > 0 and x1 < 400
-    # Status band ~11% → tiles start below ~33px; footer band ~10% → y1 ~270
+    # Status band ~11% → tiles start below ~33px; body should extend close to bottom edge.
     assert y0 >= 30
-    assert y1 <= 280
+    assert y1 <= 290
     assert y1 > y0 + 50
 
 

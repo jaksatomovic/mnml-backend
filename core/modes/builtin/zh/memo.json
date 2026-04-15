@@ -15,17 +15,32 @@
   "content": {
     "type": "computed",
     "provider": "memo",
-    "fallback": {"memo_text": "在配置页面设置你的便签内容"},
+    "fallback": {
+      "memo_text": "在配置页面设置你的便签内容"
+    },
     "fallback_pool": [
-      {"memo_text": "在配置页面设置你的便签内容"},
-      {"memo_text": "今天也要元气满满"},
-      {"memo_text": "专注当下，做好眼前事"},
-      {"memo_text": "记得多喝水"},
-      {"memo_text": "休息一下，眺望远方"}
+      {
+        "memo_text": "在配置页面设置你的便签内容"
+      },
+      {
+        "memo_text": "今天也要元气满满"
+      },
+      {
+        "memo_text": "专注当下，做好眼前事"
+      },
+      {
+        "memo_text": "记得多喝水"
+      },
+      {
+        "memo_text": "休息一下，眺望远方"
+      }
     ]
   },
   "layout": {
-    "status_bar": {"line_width": 1, "dashed": false},
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
     "layout_engine": "component_tree",
     "body_preset": "quote_focus_card",
     "preset_props": {
@@ -37,7 +52,9 @@
       "quote_font_size": 16,
       "quote_max_lines": 4
     },
-    "footer": {"label": "MEMO"}
+    "footer": {
+      "label": "MEMO"
+    }
   },
   "layout_overrides": {
     "296x128": {
@@ -47,7 +64,10 @@
         "quote_font_size": 13,
         "quote_max_lines": 3
       },
-      "footer": { "label": "MEMO", "height": 18 }
+      "footer": {
+        "label": "MEMO",
+        "height": 18
+      }
     },
     "800x480": {
       "preset_props": {
@@ -55,6 +75,53 @@
         "quote_inset_x": 72,
         "quote_font_size": 26,
         "quote_max_lines": 4
+      }
+    },
+    "376x252": {
+      "preset_props": {
+        "padding_x": 18,
+        "justify": "center",
+        "quote_inset_x": 30,
+        "quote_field": "memo_text",
+        "quote_font": "noto_serif_light",
+        "quote_font_size": 16,
+        "quote_max_lines": 4
+      }
+    },
+    "376x123": {
+      "preset_props": {
+        "padding_x": 16,
+        "justify": "center",
+        "quote_inset_x": 27,
+        "quote_field": "memo_text",
+        "quote_font": "noto_serif_light",
+        "quote_font_size": 14,
+        "quote_max_lines": 4,
+        "variant": "compact"
+      }
+    },
+    "185x252": {
+      "preset_props": {
+        "padding_x": 16,
+        "justify": "center",
+        "quote_inset_x": 26,
+        "quote_field": "memo_text",
+        "quote_font": "noto_serif_light",
+        "quote_font_size": 14,
+        "quote_max_lines": 4,
+        "variant": "compact"
+      }
+    },
+    "185x123": {
+      "preset_props": {
+        "padding_x": 14,
+        "justify": "center",
+        "quote_inset_x": 23,
+        "quote_field": "memo_text",
+        "quote_font": "noto_serif_light",
+        "quote_font_size": 12,
+        "quote_max_lines": 3,
+        "variant": "compact"
       }
     }
   }

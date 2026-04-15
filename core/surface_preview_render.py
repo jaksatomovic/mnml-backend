@@ -36,24 +36,6 @@ def _as_int(v: Any, default: int = 0) -> int:
         return default
 
 
-def _is_single_full_grid_canvas(
-    sorted_slots: list[dict[str, Any]],
-    grid: dict[str, Any],
-) -> bool:
-    """True when the surface is one slot covering the entire grid (FULL) — same as standalone full-frame."""
-    if len(sorted_slots) != 1:
-        return False
-    cols, rows, _, _ = grid_dimensions(grid)
-    s0 = sorted_slots[0]
-    gw = _as_int(s0.get("w"), 0)
-    gh = _as_int(s0.get("h"), 0)
-    if gw != cols or gh != rows:
-        return False
-    st = str(s0.get("slot_type") or "").strip().upper()
-    if st == "LARGE":
-        st = "FULL"
-    return st == "FULL"
-
 logger = logging.getLogger(__name__)
 
 _POSITION_ORDER = ("top", "middle", "bottom")
@@ -422,33 +404,6 @@ async def render_surface_preview_image(
                 None,
             )
             items.append(raw if isinstance(raw, dict) else None)
-
-    # One FULL slot covering the whole grid: same visual as standalone / widget FULL preview
-    # (integrated status bar, body, mode footer). Avoids per-tile omit_chrome + dotted slot chrome.
-    if use_grid and grid and _is_single_full_grid_canvas(sorted_slots, grid):
-        persona = _resolve_mode_for_block(items[0] if items else None)
-        try:
-            full_img, _c = await generate_and_render(
-                persona,
-                cfg,
-                date_ctx,
-                weather,
-                battery_pct,
-                screen_w=screen_w,
-                screen_h=screen_h,
-                mac=mac or "",
-                colors=2,
-                omit_chrome=False,
-                slot_type=None,
-            )
-            return full_img.point(lambda p: 255 if p > 135 else 0).convert("1")
-        except Exception:
-            logger.exception(
-                "[surface_preview] full-canvas surface render failed persona=%s",
-                persona,
-            )
-            err_img = _draw_error_tile(screen_w, screen_h, persona[:12])
-            return err_img.point(lambda p: 255 if p > 135 else 0).convert("1")
 
     async def _one_tile(
         persona: str,

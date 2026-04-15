@@ -37,7 +37,7 @@ async def test_render_surface_preview_uses_generate_and_render():
 
 @pytest.mark.asyncio
 async def test_single_full_grid_slot_renders_standalone_full_frame():
-    """FULL surface covering the entire grid uses one full-frame render (like inksight-main / widget FULL)."""
+    """FULL surface slot still renders as a tile using inner-canvas dimensions."""
     with patch("core.surface_preview_render.generate_and_render", new_callable=AsyncMock) as gr:
         gr.side_effect = lambda *_a, **_k: (Image.new("L", (400, 300), 200), {})
         await render_surface_preview_image(
@@ -63,9 +63,10 @@ async def test_single_full_grid_slot_renders_standalone_full_frame():
             mac="",
         )
     assert gr.await_count == 1
-    assert gr.call_args.kwargs["omit_chrome"] is False
-    assert gr.call_args.kwargs["screen_w"] == 400
-    assert gr.call_args.kwargs["screen_h"] == 300
+    assert gr.call_args.kwargs["omit_chrome"] is True
+    # 400x300 panel -> inner body FULL slot is 376x252 on default 2x2 grid.
+    assert gr.call_args.kwargs["screen_w"] == 376
+    assert gr.call_args.kwargs["screen_h"] == 252
 
 
 @pytest.mark.asyncio
