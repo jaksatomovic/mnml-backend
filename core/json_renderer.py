@@ -37,7 +37,16 @@ from .layout_presets import expand_layout_presets
 from .mode_catalog import builtin_catalog_map
 from .render_tiers import (
     SLOT_SHAPE_FULL,
+    SLOT_SHAPE_LARGE,
+    SLOT_SHAPE_SMALL,
+    SLOT_SHAPE_TALL,
+    SLOT_SHAPE_WIDE,
     SLOT_TIER_FULL,
+    SLOT_TIER_LG,
+    SLOT_TIER_MD,
+    SLOT_TIER_SM,
+    SLOT_TIER_XS,
+    classify_slot_shape,
     classify_slot_tier,
     merge_layout_for_screen,
 )
@@ -230,6 +239,10 @@ class RenderContext:
     available_width: int = SCREEN_WIDTH
     footer_height: int = 30
     colors: int = 2
+    slot_type: str = ""
+    slot_tier: str = SLOT_TIER_FULL
+    slot_shape: str = SLOT_SHAPE_FULL
+    size_key: str = f"{SCREEN_WIDTH}x{SCREEN_HEIGHT}"
 
     @property
     def scale(self) -> float:
@@ -542,7 +555,7 @@ def _measure_component_separator(node: ComponentNode, available_width: int | Non
     node.draw_data = {"line_width": line_width}
 
 
-def _build_component_node(defn: dict, content: dict) -> ComponentNode:
+def _build_component_node(defn: dict, content: dict, *, render_ctx: RenderContext | None = None) -> ComponentNode:
     kind = defn.get("type", "")
     if kind == "repeat":
         items = content.get(defn.get("field", ""), [])
@@ -559,12 +572,14 @@ def _build_component_node(defn: dict, content: dict) -> ComponentNode:
                 item_content["_value"] = item
                 if isinstance(item, dict):
                     item_content.update(item)
-                children.append(_build_component_node(item_def, item_content))
+                if render_ctx and not _should_render_block(render_ctx, item_def):
+                    continue
+                children.append(_build_component_node(item_def, item_content, render_ctx=render_ctx))
         return ComponentNode(kind=kind, props=defn, content=content, children=children)
     children = [
-        _build_component_node(child, content)
+        _build_component_node(child, content, render_ctx=render_ctx)
         for child in defn.get("children", [])
-        if isinstance(child, dict)
+        if isinstance(child, dict) and (not render_ctx or _should_render_block(render_ctx, child))
     ]
     return ComponentNode(kind=kind, props=defn, content=content, children=children)
 
@@ -941,6 +956,10 @@ def _render_component_tree_mode(
     status_bar_bottom: int,
     footer_height: int,
     colors: int,
+    slot_type: str,
+    slot_tier: str,
+    slot_shape: str,
+    size_key: str,
 ) -> RenderContext:
     ctx = RenderContext(
         draw=draw,
@@ -951,9 +970,13 @@ def _render_component_tree_mode(
         y=status_bar_bottom,
         footer_height=footer_height,
         colors=colors,
+        slot_type=slot_type,
+        slot_tier=slot_tier,
+        slot_shape=slot_shape,
+        size_key=size_key,
     )
     scale = ctx.scale
-    root = _build_component_node(body_tree, content)
+    root = _build_component_node(body_tree, content, render_ctx=ctx)
     available_height = max(0, ctx.footer_top - status_bar_bottom)
     _measure_component_node(root, screen_w, theme, scale)
     root_height = available_height if root.kind == "column" else min(available_height, root.measured_height)
@@ -1059,6 +1082,10 @@ def render_json_mode(
         footer_top = screen_h - footer_height
 
     body = layout.get("body", [])
+    slot_tier = classify_slot_tier(screen_w, screen_h)
+    raw_slot_type = str(slot_type or "").strip().upper()
+    slot_shape = raw_slot_type or classify_slot_shape(screen_w, screen_h) or SLOT_SHAPE_FULL
+    slot_size_key = f"{screen_w}x{screen_h}"
     if _uses_component_tree(body, layout):
         theme = dict(layout.get("component_theme", {}))
         if "debug_overlay" in layout:
@@ -1074,10 +1101,14 @@ def render_json_mode(
             status_bar_bottom=status_bar_bottom,
             footer_height=footer_height,
             colors=colors,
+            slot_type=raw_slot_type,
+            slot_tier=slot_tier,
+            slot_shape=slot_shape,
+            size_key=slot_size_key,
         )
     else:
-        _slot_tier = classify_slot_tier(screen_w, screen_h)
-        _slot_st = str(slot_type or "").strip().upper()
+        _slot_tier = slot_tier
+        _slot_st = raw_slot_type
         _full_like = _slot_tier == SLOT_TIER_FULL or _slot_st == SLOT_SHAPE_FULL
         # Legacy default was "center" for full chrome so single-block poetic modes looked
         # vertically centered. Multi-block dashboards (e.g. WEATHER) must default to "top"
@@ -1102,6 +1133,10 @@ def render_json_mode(
                 draw=draw, img=img, content=content,
                 screen_w=screen_w, screen_h=screen_h,
                 y=status_bar_bottom, footer_height=footer_height, colors=colors,
+                slot_type=raw_slot_type,
+                slot_tier=slot_tier,
+                slot_shape=slot_shape,
+                size_key=slot_size_key,
             )
             _render_centered_text(ctx, body[0], use_full_body=True)
         elif body_align == "center" and body:
@@ -1110,6 +1145,10 @@ def render_json_mode(
                 draw=ImageDraw.Draw(measure_img), img=measure_img, content=content,
                 screen_w=screen_w, screen_h=screen_h,
                 y=status_bar_bottom, footer_height=footer_height,
+                slot_type=raw_slot_type,
+                slot_tier=slot_tier,
+                slot_shape=slot_shape,
+                size_key=slot_size_key,
             )
             apply_text_fontmode(measure_ctx.draw)
             for block in body:
@@ -1124,6 +1163,10 @@ def render_json_mode(
                 draw=draw, img=img, content=content,
                 screen_w=screen_w, screen_h=screen_h,
                 y=status_bar_bottom + offset, footer_height=footer_height, colors=colors,
+                slot_type=raw_slot_type,
+                slot_tier=slot_tier,
+                slot_shape=slot_shape,
+                size_key=slot_size_key,
             )
             for block in body:
                 if ctx.y >= footer_top - 10:
@@ -1134,6 +1177,10 @@ def render_json_mode(
                 draw=draw, img=img, content=content,
                 screen_w=screen_w, screen_h=screen_h,
                 y=status_bar_bottom, footer_height=footer_height, colors=colors,
+                slot_type=raw_slot_type,
+                slot_tier=slot_tier,
+                slot_shape=slot_shape,
+                size_key=slot_size_key,
             )
             for block in body:
                 if ctx.y >= footer_top - 10:
@@ -1174,7 +1221,60 @@ def render_json_mode(
 _BLOCK_RENDERERS: dict[str, Any] = {}
 
 
+def _normalize_target_tokens(value: Any) -> set[str]:
+    if value is None:
+        return set()
+    raw_items: list[str] = []
+    if isinstance(value, str):
+        raw_items = re.split(r"[\s,]+", value.strip())
+    elif isinstance(value, (list, tuple, set)):
+        raw_items = [str(item).strip() for item in value if isinstance(item, str)]
+    return {token.lower() for token in raw_items if token}
+
+
+def _slot_target_aliases(ctx: RenderContext) -> set[str]:
+    targets = {
+        str(ctx.size_key or "").strip().lower(),
+        str(ctx.slot_tier or "").strip().lower(),
+        str(ctx.slot_shape or "").strip().lower(),
+        str(ctx.slot_type or "").strip().lower(),
+        "any",
+    }
+    tier = str(ctx.slot_tier or "").strip().lower()
+    if tier == SLOT_TIER_FULL:
+        targets.update({"full", "tier_full"})
+    elif tier == SLOT_TIER_LG:
+        targets.update({"lg", "large", "tier_lg"})
+    elif tier in {SLOT_TIER_MD, SLOT_TIER_SM, SLOT_TIER_XS}:
+        targets.update({"md", "medium", "sm", "xs", "xsmall", "tiny", "tier_small"})
+    shape = str(ctx.slot_shape or "").strip().upper()
+    if shape == SLOT_SHAPE_SMALL:
+        targets.add("small")
+    elif shape == SLOT_SHAPE_WIDE:
+        targets.add("wide")
+    elif shape == SLOT_SHAPE_TALL:
+        targets.add("tall")
+    elif shape in {SLOT_SHAPE_FULL, SLOT_SHAPE_LARGE}:
+        targets.update({"full", "large"})
+    return {token for token in targets if token}
+
+
+def _should_render_block(ctx: RenderContext, block: dict) -> bool:
+    show_on = _normalize_target_tokens(block.get("show_on"))
+    hide_on = _normalize_target_tokens(block.get("hide_on"))
+    if not show_on and not hide_on:
+        return True
+    targets = _slot_target_aliases(ctx)
+    if show_on and show_on.isdisjoint(targets):
+        return False
+    if hide_on and not hide_on.isdisjoint(targets):
+        return False
+    return True
+
+
 def _render_block(ctx: RenderContext, block: dict) -> None:
+    if not _should_render_block(ctx, block):
+        return
     btype = block.get("type", "")
     renderer = _BLOCK_RENDERERS.get(btype)
     if renderer:

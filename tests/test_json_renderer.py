@@ -10,7 +10,13 @@ from io import BytesIO
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from PIL import Image
-from core.json_renderer import render_json_mode, RenderContext, _localized_footer_label, _localized_footer_attribution
+from core.json_renderer import (
+    render_json_mode,
+    RenderContext,
+    _localized_footer_label,
+    _localized_footer_attribution,
+    _should_render_block,
+)
 from core.config import SCREEN_WIDTH as SCREEN_W, SCREEN_HEIGHT as SCREEN_H
 
 
@@ -305,6 +311,58 @@ def test_render_context_resolve():
     assert ctx.resolve("{count} items") == "42 items"
     assert ctx.resolve("no placeholders") == "no placeholders"
     assert ctx.resolve("{missing}") == ""
+
+
+def test_block_visibility_targets_support_shape_tier_and_size():
+    from PIL import ImageDraw
+
+    img = Image.new("1", (145, 68), 1)
+    draw = ImageDraw.Draw(img)
+    ctx = RenderContext(
+        draw=draw,
+        img=img,
+        content={},
+        screen_w=145,
+        screen_h=68,
+        slot_type="TALL",
+        slot_tier="slot_xs",
+        slot_shape="TALL",
+        size_key="145x68",
+    )
+
+    assert _should_render_block(ctx, {"type": "separator", "show_on": ["tall", "full"]}) is True
+    assert _should_render_block(ctx, {"type": "separator", "show_on": "slot_xs"}) is True
+    assert _should_render_block(ctx, {"type": "separator", "show_on": "tier_small"}) is True
+    assert _should_render_block(ctx, {"type": "separator", "show_on": "145x68"}) is True
+    assert _should_render_block(ctx, {"type": "separator", "show_on": "any"}) is True
+    assert _should_render_block(ctx, {"type": "separator", "show_on": ["wide", "full"]}) is False
+
+
+def test_block_visibility_hide_on_takes_precedence():
+    from PIL import ImageDraw
+
+    img = Image.new("1", (380, 77), 1)
+    draw = ImageDraw.Draw(img)
+    ctx = RenderContext(
+        draw=draw,
+        img=img,
+        content={},
+        screen_w=380,
+        screen_h=77,
+        slot_type="WIDE",
+        slot_tier="slot_sm",
+        slot_shape="WIDE",
+        size_key="380x77",
+    )
+
+    assert _should_render_block(ctx, {"type": "text", "show_on": "wide,slot_sm"}) is True
+    assert _should_render_block(ctx, {"type": "text", "show_on": "tier_small"}) is True
+    assert _should_render_block(ctx, {"type": "text", "hide_on": ["wide", "tall"]}) is False
+    assert _should_render_block(ctx, {"type": "text", "hide_on": ["any"]}) is False
+    assert _should_render_block(
+        ctx,
+        {"type": "text", "show_on": ["wide", "full"], "hide_on": ["slot_sm"]},
+    ) is False
 
 
 def test_render_stoic_json():
