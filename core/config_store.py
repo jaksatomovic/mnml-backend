@@ -590,12 +590,11 @@ async def init_db():
                 "image_model": DEFAULT_IMAGE_MODEL,
             },
         )
-        try:
+        custom_modes_columns = await _table_columns(db, "custom_modes")
+        if "definition_language" not in custom_modes_columns:
             await db.execute(
                 "ALTER TABLE custom_modes ADD COLUMN definition_language TEXT DEFAULT 'zh'"
             )
-        except Exception:
-            pass
         await _migrate_legacy_user_devices(db)
         await db.commit()
     finally:
