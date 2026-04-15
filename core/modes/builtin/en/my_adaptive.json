@@ -1,101 +1,64 @@
 {
   "mode_id": "MY_ADAPTIVE",
   "display_name": "Photo Frame",
-  "description": "Display your uploaded photo adapted for e-ink",
   "icon": "my_adaptive",
   "cacheable": false,
+  "description": "Display your uploaded photo adapted for e-ink",
   "content": {
     "type": "static",
-    "static_data": {
-      "image_url": ""
-    },
-    "fallback": {
-      "image_url": ""
-    }
+    "static_data": {"image_url": ""},
+    "fallback": {"image_url": ""}
   },
   "layout": {
-    "status_bar": {
-      "line_width": 0
-    },
+    "status_bar": {"line_width": 0},
     "body": [
       {
         "type": "image",
         "field": "image_url",
         "width": 400,
-        "height": 270,
+        "height": 234,
         "x": 0,
-        "y": 0,
+        "y": 36,
+        "fit": "cover",
+        "align_x": "center",
+        "align_y": "center",
         "margin_bottom": 0
       }
     ],
-    "footer": {
-      "line_width": 0
-    }
+    "footer": {"line_width": 0}
   },
   "layout_overrides": {
-    "slot_lg": {
+    "296x128": {
       "body": [
         {
           "type": "image",
           "field": "image_url",
-          "width": 320,
-          "height": 216,
+          "width": 296,
+          "height": 104,
           "x": 0,
-          "y": 0,
+          "y": 12,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
           "margin_bottom": 0
         }
-      ],
-      "footer": {
-        "line_width": 0
-      }
+      ]
     },
-    "slot_md": {
+    "648x480": {
       "body": [
         {
           "type": "image",
           "field": "image_url",
-          "width": 260,
-          "height": 176,
+          "width": 648,
+          "height": 375,
           "x": 0,
-          "y": 0,
+          "y": 57,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
           "margin_bottom": 0
         }
-      ],
-      "footer": {
-        "line_width": 0
-      }
-    },
-    "slot_sm": {
-      "body": [
-        {
-          "type": "image",
-          "field": "image_url",
-          "width": 200,
-          "height": 136,
-          "x": 0,
-          "y": 0,
-          "margin_bottom": 0
-        }
-      ],
-      "footer": {
-        "line_width": 0
-      }
-    },
-    "slot_xs": {
-      "body": [
-        {
-          "type": "image",
-          "field": "image_url",
-          "width": 160,
-          "height": 108,
-          "x": 0,
-          "y": 0,
-          "margin_bottom": 0
-        }
-      ],
-      "footer": {
-        "line_width": 0
-      }
+      ]
     }
   }
 }

@@ -2,7 +2,6 @@
   "mode_id": "MY_QUOTE",
   "display_name": "Daily Quote",
   "icon": "my_quote",
-  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": false,
   "description": "A short, powerful quote with attribution",
   "content": {
@@ -51,106 +50,30 @@
       "line_width": 1,
       "dashed": false
     },
-    "body": [
-      {
-        "type": "centered_text",
-        "field": "quote",
-        "font_name": "Lora-Regular.ttf",
-        "font_size": 18,
-        "max_width_ratio": 0.85,
-        "vertical_center": true
-      }
-    ],
+    "layout_engine": "component_tree",
+    "body_preset": "quote_focus_card",
+    "preset_props": {
+      "padding_x": 18,
+      "justify": "center",
+      "quote_inset_x": 30,
+      "quote_field": "quote",
+      "quote_font": "noto_serif_light",
+      "quote_font_size": 18,
+      "quote_max_lines": 4
+    },
     "footer": {
       "label": "Custom Quote",
       "attribution_template": "— {author}"
     }
   },
-  "variants": {
-    "LARGE": {
-      "body_align": "center",
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 16,
-          "max_width_ratio": 0.86,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "QUOTE",
-        "attribution_template": "— {author}"
-      }
-    },
-    "WIDE": {
-      "body_align": "center",
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 14,
-          "max_width_ratio": 0.9,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "QUOTE",
-        "attribution_template": "— {author}",
-        "height": 18
-      }
-    },
-    "TALL": {
-      "body_align": "center",
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 15,
-          "max_width_ratio": 0.84,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "QUOTE",
-        "attribution_template": "— {author}",
-        "height": 20
-      }
-    },
-    "SMALL": {
-      "body_align": "center",
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 12,
-          "max_width_ratio": 0.93,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "QUOTE",
-        "attribution_template": "— {author}",
-        "height": 16
-      }
-    }
-  },
   "layout_overrides": {
     "296x128": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 13,
-          "max_width_ratio": 0.92,
-          "vertical_center": true
-        }
-      ],
+      "preset_props": {
+        "padding_x": 8,
+        "quote_inset_x": 8,
+        "quote_font_size": 13,
+        "quote_max_lines": 3
+      },
       "footer": {
         "label": "Custom Quote",
         "attribution_template": "— {author}",
@@ -158,82 +81,11 @@
       }
     },
     "800x480": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 26,
-          "max_width_ratio": 0.82,
-          "vertical_center": true
-        }
-      ]
-    },
-    "slot_lg": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 16,
-          "max_width_ratio": 0.86,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "QUOTE",
-        "attribution_template": "— {author}"
-      }
-    },
-    "slot_md": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 14,
-          "max_width_ratio": 0.9,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "QUOTE",
-        "attribution_template": "— {author}",
-        "height": 22
-      }
-    },
-    "slot_sm": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 12,
-          "max_width_ratio": 0.93,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "QUOTE",
-        "attribution_template": "— {author}",
-        "height": 18
-      }
-    },
-    "slot_xs": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 10,
-          "max_width_ratio": 0.95,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "QUOTE",
-        "attribution_template": "— {author}",
-        "height": 16
+      "preset_props": {
+        "padding_x": 28,
+        "quote_inset_x": 72,
+        "quote_font_size": 26,
+        "quote_max_lines": 4
       }
     }
   }

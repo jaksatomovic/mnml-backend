@@ -23,7 +23,11 @@ from core.config import SCREEN_HEIGHT, SCREEN_WIDTH
 from core.config_store import get_main_db
 from core.context import get_date_context, get_weather
 from core.db import execute_insert_returning_id
-from core.mode_registry import CUSTOM_JSON_DIR, _validate_mode_def, get_registry
+from core.mode_registry import (
+    CUSTOM_JSON_DIR,
+    _validate_mode_def_with_error,
+    get_registry,
+)
 from core.config_store import save_custom_mode, get_custom_mode as get_user_custom_mode_from_db
 
 router = APIRouter(tags=["discover"])
@@ -587,8 +591,9 @@ async def install_shared_mode(
         mode_def["display_name"] = f"{original_name} (from marketplace)"
 
     # translatedmodetranslated
-    if not _validate_mode_def(mode_def):
-        return JSONResponse({"error": "modetranslatedfailed"}, status_code=400)
+    ok, err = _validate_mode_def_with_error(mode_def, allow_raw_component_tree=False)
+    if not ok:
+        return JSONResponse({"error": err or "modetranslatedfailed"}, status_code=400)
 
     # translatedmodeconflict
     registry = get_registry()
@@ -765,8 +770,9 @@ async def install_plugin_package(
         ):
             return JSONResponse({"error": "plugintranslatedfailed"}, status_code=400)
 
-    if not _validate_mode_def(mode_def):
-        return JSONResponse({"error": "modetranslatedfailed"}, status_code=400)
+    ok, err = _validate_mode_def_with_error(mode_def, allow_raw_component_tree=False)
+    if not ok:
+        return JSONResponse({"error": err or "modetranslatedfailed"}, status_code=400)
 
     registry = get_registry()
     if registry.is_builtin(new_mode_id):

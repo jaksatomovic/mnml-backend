@@ -22,6 +22,7 @@ from openai import OpenAIError
 from .config import DEFAULT_LLM_PROVIDER, DEFAULT_LLM_MODEL, DEFAULT_IMAGE_PROVIDER, DEFAULT_IMAGE_MODEL
 from .content import _build_context_str, _build_style_instructions, _call_llm, _clean_json_response
 from .errors import LLMKeyMissingError
+from .layout_presets import expand_layout_presets
 from .render_tiers import (
     SLOT_SHAPE_FULL,
     SLOT_SHAPE_LARGE,
@@ -87,7 +88,7 @@ def _collect_image_fields(blocks: list, fields: set):
 
 async def _prefetch_images(content: dict, mode_def: dict) -> dict:
     """Pre-fetch any image URLs referenced by the layout into content dict."""
-    layout = mode_def.get("layout", {})
+    layout = expand_layout_presets(mode_def.get("layout", {}))
     body_blocks = layout.get("body", [])
     image_fields: set = set()
     _collect_image_fields(body_blocks, image_fields)
@@ -992,7 +993,7 @@ async def _generate_external_data_content(mode_def: dict, content_cfg: dict, fal
                     days = 4
                 elif st_grid == "TALL":
                     days = 3
-                elif st_grid in ("LARGE", "FULL"):
+                elif st_grid == "FULL":
                     days = 7
                 elif st_grid:
                     days = 3

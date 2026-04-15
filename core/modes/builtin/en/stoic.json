@@ -60,102 +60,30 @@
       "line_width": 1,
       "dashed": false
     },
-    "body": [
-      {
-        "type": "centered_text",
-        "field": "quote",
-        "font_name": "Lora-Regular.ttf",
-        "font_size": 20,
-        "max_width_ratio": 0.88,
-        "vertical_center": true
-      }
-    ],
+    "layout_engine": "component_tree",
+    "body_preset": "quote_focus_card",
+    "preset_props": {
+      "padding_x": 18,
+      "justify": "center",
+      "quote_inset_x": 24,
+      "quote_field": "quote",
+      "quote_font": "noto_serif_regular",
+      "quote_font_size": 20,
+      "quote_max_lines": 4
+    },
     "footer": {
       "label": "Stoic",
       "attribution_template": "— {author}"
     }
   },
-  "variants": {
-    "LARGE": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 18,
-          "max_width_ratio": 0.88,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "Stoic",
-        "attribution_template": "— {author}"
-      }
-    },
-    "WIDE": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 14,
-          "max_width_ratio": 0.92,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "Stoic",
-        "attribution_template": "— {author}",
-        "height": 18
-      }
-    },
-    "TALL": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 13,
-          "max_width_ratio": 0.9,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "Stoic",
-        "attribution_template": "— {author}",
-        "height": 18
-      }
-    },
-    "SMALL": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 11,
-          "max_width_ratio": 0.94,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "Stoic",
-        "attribution_template": "— {author}",
-        "height": 16
-      }
-    }
-  },
   "layout_overrides": {
     "296x128": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 14,
-          "max_width_ratio": 0.92,
-          "vertical_center": true
-        }
-      ],
+      "preset_props": {
+        "padding_x": 8,
+        "quote_inset_x": 8,
+        "quote_font_size": 14,
+        "quote_max_lines": 3
+      },
       "footer": {
         "label": "Stoic",
         "attribution_template": "— {author}",
@@ -163,82 +91,11 @@
       }
     },
     "800x480": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 28,
-          "max_width_ratio": 0.82,
-          "vertical_center": true
-        }
-      ]
-    },
-    "slot_lg": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 18,
-          "max_width_ratio": 0.88,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "???",
-        "attribution_template": "— {author}"
-      }
-    },
-    "slot_md": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 16,
-          "max_width_ratio": 0.9,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "???",
-        "attribution_template": "— {author}",
-        "height": 24
-      }
-    },
-    "slot_sm": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 14,
-          "max_width_ratio": 0.92,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "???",
-        "attribution_template": "— {author}",
-        "height": 20
-      }
-    },
-    "slot_xs": {
-      "body": [
-        {
-          "type": "centered_text",
-          "field": "quote",
-          "font_name": "Lora-Regular.ttf",
-          "font_size": 11,
-          "max_width_ratio": 0.94,
-          "vertical_center": true
-        }
-      ],
-      "footer": {
-        "label": "???",
-        "attribution_template": "— {author}",
-        "height": 16
+      "preset_props": {
+        "padding_x": 28,
+        "quote_inset_x": 44,
+        "quote_font_size": 28,
+        "quote_max_lines": 4
       }
     }
   }

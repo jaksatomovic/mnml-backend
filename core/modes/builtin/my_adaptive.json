@@ -1,7 +1,7 @@
 {
   "mode_id": "MY_ADAPTIVE",
-  "display_name": "translated",
-  "description": "translated，translated",
+  "display_name": "相框",
+  "description": "上传本地照片，自适应墨水屏显示",
   "icon": "my_adaptive",
   "cacheable": false,
   "content": {
@@ -22,9 +22,12 @@
         "type": "image",
         "field": "image_url",
         "width": 400,
-        "height": 270,
+        "height": 234,
         "x": 0,
-        "y": 0,
+        "y": 36,
+        "fit": "cover",
+        "align_x": "center",
+        "align_y": "center",
         "margin_bottom": 0
       }
     ],
@@ -33,69 +36,37 @@
     }
   },
   "layout_overrides": {
-    "slot_lg": {
+    "296x128": {
       "body": [
         {
           "type": "image",
           "field": "image_url",
-          "width": 320,
-          "height": 216,
+          "width": 296,
+          "height": 104,
           "x": 0,
-          "y": 0,
+          "y": 12,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
           "margin_bottom": 0
         }
-      ],
-      "footer": {
-        "line_width": 0
-      }
+      ]
     },
-    "slot_md": {
+    "648x480": {
       "body": [
         {
           "type": "image",
           "field": "image_url",
-          "width": 260,
-          "height": 176,
+          "width": 648,
+          "height": 375,
           "x": 0,
-          "y": 0,
+          "y": 57,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
           "margin_bottom": 0
         }
-      ],
-      "footer": {
-        "line_width": 0
-      }
-    },
-    "slot_sm": {
-      "body": [
-        {
-          "type": "image",
-          "field": "image_url",
-          "width": 200,
-          "height": 136,
-          "x": 0,
-          "y": 0,
-          "margin_bottom": 0
-        }
-      ],
-      "footer": {
-        "line_width": 0
-      }
-    },
-    "slot_xs": {
-      "body": [
-        {
-          "type": "image",
-          "field": "image_url",
-          "width": 160,
-          "height": 108,
-          "x": 0,
-          "y": 0,
-          "margin_bottom": 0
-        }
-      ],
-      "footer": {
-        "line_width": 0
-      }
+      ]
     }
   }
 }

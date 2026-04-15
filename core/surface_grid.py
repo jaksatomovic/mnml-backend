@@ -7,9 +7,8 @@ Slots use cell coordinates ``(x, y)`` and span ``(w, h)`` in **grid cells**.
 - ``SMALL`` — 1×1
 - ``WIDE`` — 2×1
 - ``TALL`` — 1×2
-- ``LARGE`` — 2×2
-- ``FULL`` — entire grid only (``w`` = columns, ``h`` = rows); override / alert use-case
-- ``CUSTOM`` — any rectangle ``1 ≤ w ≤ columns``, ``1 ≤ h ≤ rows`` (variants fall back by pixel geometry)
+- ``FULL`` — entire grid (``w`` = columns, ``h`` = rows), or the former ``LARGE`` 2×2 on a 2×2 grid
+- ``CUSTOM`` — any other in-bounds rectangle (e.g. 2×2 on a 3×3 grid; variants use pixel geometry)
 """
 
 from __future__ import annotations
@@ -34,10 +33,9 @@ SLOT_TYPE_SPAN: dict[str, tuple[int, int]] = {
     "SMALL": (1, 1),
     "WIDE": (2, 1),
     "TALL": (1, 2),
-    "LARGE": (2, 2),
 }
 
-KNOWN_SLOT_TYPES = frozenset({"SMALL", "WIDE", "TALL", "LARGE", "FULL", "CUSTOM"})
+KNOWN_SLOT_TYPES = frozenset({"SMALL", "WIDE", "TALL", "FULL", "CUSTOM"})
 
 
 def _as_int(v: Any, default: int) -> int:
@@ -67,30 +65,42 @@ def grid_dimensions(grid: dict[str, Any]) -> tuple[int, int, int, int]:
 
 
 def infer_slot_type_from_span(w: int, h: int) -> str:
-    """Map cell span to the canonical type name; non-standard spans → ``CUSTOM``."""
+    """Map cell span to the canonical type name without grid context; non-standard spans → ``CUSTOM``.
+
+    A 2×2 block is ``CUSTOM`` here; use :func:`expected_slot_type_for_span` with grid size to get ``FULL``.
+    """
     if w == 1 and h == 1:
         return "SMALL"
     if w == 2 and h == 1:
         return "WIDE"
     if w == 1 and h == 2:
         return "TALL"
-    if w == 2 and h == 2:
-        return "LARGE"
     return "CUSTOM"
 
 
 def expected_slot_type_for_span(w: int, h: int, columns: int, rows: int) -> str:
     """Derive the only valid ``slot_type`` for a rectangle (strict layout builder / API).
 
-    Standard shapes map to SMALL/WIDE/TALL/LARGE. A rectangle that covers the entire grid
-    becomes ``FULL`` (legacy full-canvas tiles). Any other in-bounds rectangle is ``CUSTOM``.
+    ``FULL`` means the slot covers the entire grid. Other standard rectangles use SMALL/WIDE/TALL;
+    everything else (including 2×2 on a grid larger than 2×2) is ``CUSTOM``.
     """
-    base = infer_slot_type_from_span(w, h)
-    if base != "CUSTOM":
-        return base
     if w == columns and h == rows:
         return "FULL"
+    if w == 1 and h == 1:
+        return "SMALL"
+    if w == 2 and h == 1:
+        return "WIDE"
+    if w == 1 and h == 2:
+        return "TALL"
     return "CUSTOM"
+
+
+def normalize_legacy_slot_type(st: str, w: int, h: int, columns: int, rows: int) -> str:
+    """Map deprecated ``LARGE`` to ``FULL`` or ``CUSTOM`` (same span rules as today)."""
+    u = (st or "").strip().upper()
+    if u == "LARGE":
+        return expected_slot_type_for_span(w, h, columns, rows)
+    return u
 
 
 def validate_slot_type_matches_span(
@@ -120,7 +130,7 @@ def validate_slots_for_grid(
         y = _as_int(raw.get("y"), -1)
         w = _as_int(raw.get("w"), 0)
         h = _as_int(raw.get("h"), 0)
-        st = str(raw.get("slot_type") or "").strip().upper()
+        st = normalize_legacy_slot_type(str(raw.get("slot_type") or ""), w, h, columns, rows).strip().upper()
         if x < 0 or y < 0 or w < 1 or h < 1:
             return False, "invalid slot x/y/w/h"
         if x + w > columns or y + h > rows:
@@ -165,7 +175,12 @@ def mode_definition_supports_expected_type(defn: dict | None, expected: str) -> 
     if not isinstance(allowed, list) or len(allowed) == 0:
         return True
     exp = (expected or "").strip().upper()
+    if exp == "LARGE":
+        exp = "FULL"
     norm = {str(x).strip().upper() for x in allowed if isinstance(x, str)}
+    if "LARGE" in norm:
+        norm = norm | {"FULL"}
+        norm.discard("LARGE")
     return exp in norm
 
 
@@ -239,8 +254,6 @@ def validate_layout(
             continue
         sid = str(sid_raw).strip()
 
-        st = str(raw.get("slot_type") or "").strip().upper()
-
         bad_coord = False
         for nm, val in (("x", raw.get("x")), ("y", raw.get("y")), ("w", raw.get("w")), ("h", raw.get("h"))):
             if val is None:
@@ -268,6 +281,14 @@ def validate_layout(
         if x + w > columns or y + h > rows:
             _err("OUT_OF_BOUNDS", f"slot {sid} exceeds grid bounds", sid)
             continue
+
+        st = normalize_legacy_slot_type(
+            str(raw.get("slot_type") or ""),
+            w,
+            h,
+            columns,
+            rows,
+        ).strip().upper()
 
         expected = expected_slot_type_for_span(w, h, columns, rows)
         if st != expected:
@@ -483,7 +504,12 @@ def mode_supports_slot_type(
     if not isinstance(allowed, list) or len(allowed) == 0:
         return True
     st = (slot_type or "").strip().upper()
+    if st == "LARGE":
+        st = "FULL"
     norm = {str(x).strip().upper() for x in allowed if isinstance(x, str)}
+    if "LARGE" in norm:
+        norm = norm | {"FULL"}
+        norm.discard("LARGE")
     if st in norm:
         return True
     if st == "CUSTOM" and slot_span is not None:

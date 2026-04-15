@@ -99,7 +99,7 @@ def test_validate_layout_document_ok():
         "slots": [
             {"id": "a", "x": 0, "y": 0, "w": 1, "h": 1, "slot_type": "SMALL"},
             {"id": "b", "x": 1, "y": 0, "w": 1, "h": 1, "slot_type": "SMALL"},
-            {"id": "c", "x": 0, "y": 1, "w": 2, "h": 2, "slot_type": "LARGE"},
+            {"id": "c", "x": 0, "y": 1, "w": 2, "h": 2, "slot_type": "CUSTOM"},
         ],
     }
     r = validate_layout_document(layout, get_mode_definition=lambda _m: None)

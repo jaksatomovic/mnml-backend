@@ -73,7 +73,7 @@ class TestConfigRequest:
             ConfigRequest(mac="AA:BB:CC:DD:EE:FF", llmProvider="openai")
 
     def test_invalid_strategy(self):
-        with pytest.raises(ValidationError, match="invalidtext"):
+        with pytest.raises(ValidationError, match="invalidrefresh"):
             ConfigRequest(mac="AA:BB:CC:DD:EE:FF", refreshStrategy="sequential")
 
     def test_nickname_max_length(self):
@@ -84,12 +84,12 @@ class TestConfigRequest:
         body = ConfigRequest(mac="AA:BB:CC:DD:EE:FF")
         assert body.nickname == ""
         assert body.modes == ["STOIC"]
-        assert body.refreshStrategy == "random"
+        assert body.refreshStrategy is None
         assert body.refreshInterval == 60
         assert body.always_active is False
-        assert body.language == "zh"
+        assert body.language == "en"
         assert body.contentTone == "neutral"
-        assert body.city == "Hangzhou"
+        assert body.city == "Zagreb"
         assert body.latitude is None
         assert body.llmProvider == "deepseek"
 

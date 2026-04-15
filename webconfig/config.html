@@ -963,6 +963,14 @@ async function activateConfig(configId) {
 }
 
 function fillForm(cfg) {
+  window.__deviceRenderMode = String(
+    cfg.device_mode || cfg.deviceMode || cfg.render_mode || cfg.renderMode || 'mode'
+  ).toLowerCase();
+  const stratPg = document.getElementById('strategy');
+  if (stratPg) {
+    stratPg.style.display = window.__deviceRenderMode === 'surface' ? 'none' : '';
+  }
+
   document.getElementById('nickname').value = cfg.nickname || '';
 
   // Screen size
@@ -1119,7 +1127,7 @@ function collectFormData() {
   const locationMeta = window.__selectedLocation || {};
   const city = document.getElementById('city').value.trim() || locationMeta.city || 'translated';
 
-  return {
+  const payload = {
     mac,
     nickname: document.getElementById('nickname').value.trim(),
     screenSize: document.querySelector('#screenSize .pi.sel')?.dataset.v || '400x300',
@@ -1141,6 +1149,10 @@ function collectFormData() {
     timeSlotRules: getTimeSlotRules(),
     memoText: document.getElementById('memoText').value.trim()
   };
+  if (window.__deviceRenderMode === 'surface') {
+    delete payload.refreshStrategy;
+  }
+  return payload;
 }
 
 function updateModeSections() {
@@ -1230,6 +1242,7 @@ function importConfig(event) {
       const cfg = {
         nickname: data.nickname || '',
         modes: data.modes || [],
+        device_mode: data.deviceMode || data.device_mode || 'mode',
         refresh_strategy: data.refreshStrategy || data.refresh_strategy || 'random',
         language: data.language || 'zh',
         content_tone: data.contentTone || data.content_tone || 'neutral',
@@ -1978,7 +1991,6 @@ function wizFinish(){
       llmProvider:provider,
       apiKey:apiKey,
       refreshInterval:refresh,
-      refreshStrategy:'random',
       language:'zh',
       contentTone:'neutral',
       city:(location&&location.city)||city,

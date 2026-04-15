@@ -48,8 +48,9 @@ class ConfigRequest(BaseModel):
         max_length=10,
         description="translatedmodelist",
     )
-    refreshStrategy: str = Field(
-        default="random", description="refresh strategy: random / cycle"
+    refreshStrategy: Optional[str] = Field(
+        default=None,
+        description="Legacy mode rotation: random / cycle / time_slot / smart. Omitted on save = keep previous or server default; ignored for deviceMode=surface (server stores canonical value).",
     )
     refreshInterval: int = Field(
         default=60, ge=10, le=1440, description="translated(translated), 10~1440"
@@ -154,10 +155,13 @@ class ConfigRequest(BaseModel):
 
     @field_validator("refreshStrategy")
     @classmethod
-    def validate_strategy(cls, v: str) -> str:
-        if v not in _VALID_STRATEGIES:
+    def validate_strategy(cls, v: Optional[str]) -> Optional[str]:
+        if v is None or (isinstance(v, str) and not str(v).strip()):
+            return None
+        s = str(v).strip().lower()
+        if s not in _VALID_STRATEGIES:
             raise ValueError(f"invalidrefresh strategy: {v}，translated: {_VALID_STRATEGIES}")
-        return v
+        return s
 
     @field_validator("language")
     @classmethod

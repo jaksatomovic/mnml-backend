@@ -1,10 +1,9 @@
 {
   "mode_id": "TIMETABLE",
-  "display_name": "translated",
+  "display_name": "课程表",
   "icon": "school",
-  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": false,
-  "description": "translated，translated",
+  "description": "今日课程安排，四色屏高亮当前课程",
   "content": {
     "type": "composite",
     "steps": [
@@ -14,8 +13,8 @@
         "fallback": {
           "year": 2026,
           "day": 23,
-          "month_cn": "March",
-          "weekday_cn": "Mon",
+          "month_cn": "三月",
+          "weekday_cn": "周一",
           "day_of_year": 82,
           "days_in_year": 365
         }
@@ -25,32 +24,12 @@
         "provider": "timetable",
         "fallback": {
           "style": "daily",
-          "timetable_title": "Mon · translated",
+          "timetable_title": "周一 · 今日课程",
           "slots": [
-            {
-              "time": "08:00",
-              "name": "translated",
-              "location": "A201",
-              "current": false
-            },
-            {
-              "time": "10:00",
-              "name": "translated",
-              "location": "B305",
-              "current": true
-            },
-            {
-              "time": "14:00",
-              "name": "translated",
-              "location": "C102",
-              "current": false
-            },
-            {
-              "time": "16:00",
-              "name": "translated",
-              "location": "translated",
-              "current": false
-            }
+            { "time": "08:00", "name": "高等数学", "location": "A201", "current": false },
+            { "time": "10:00", "name": "大学英语", "location": "B305", "current": true },
+            { "time": "14:00", "name": "数据结构", "location": "C102", "current": false },
+            { "time": "16:00", "name": "体育", "location": "操场", "current": false }
           ],
           "slot_count": 4,
           "current_day": 0,
@@ -62,32 +41,12 @@
     "fallback_pool": [
       {
         "style": "daily",
-        "timetable_title": "Mon · translated",
+        "timetable_title": "周一 · 今日课程",
         "slots": [
-          {
-            "time": "08:00",
-            "name": "translated",
-            "location": "A201",
-            "current": false
-          },
-          {
-            "time": "10:00",
-            "name": "translated",
-            "location": "B305",
-            "current": true
-          },
-          {
-            "time": "14:00",
-            "name": "translated",
-            "location": "C102",
-            "current": false
-          },
-          {
-            "time": "16:00",
-            "name": "translated",
-            "location": "translated",
-            "current": false
-          }
+          { "time": "08:00", "name": "高等数学", "location": "A201", "current": false },
+          { "time": "10:00", "name": "大学英语", "location": "B305", "current": true },
+          { "time": "14:00", "name": "数据结构", "location": "C102", "current": false },
+          { "time": "16:00", "name": "体育", "location": "操场", "current": false }
         ],
         "slot_count": 4,
         "current_day": 0,
@@ -96,10 +55,7 @@
     ]
   },
   "layout": {
-    "status_bar": {
-      "line_width": 1,
-      "dashed": false
-    },
+    "status_bar": { "line_width": 1, "dashed": false },
     "body_align": "top",
     "body": [
       {
@@ -113,199 +69,6 @@
     "footer": {
       "label": "TIMETABLE",
       "attribution_template": "— InkSight"
-    }
-  },
-  "variants": {
-    "LARGE": {
-      "body_align": "top",
-      "body": [
-        {
-          "type": "timetable_grid",
-          "field": "slots",
-          "font_size": 11,
-          "margin_x": 5,
-          "row_height": 26,
-          "show_location": true,
-          "time_col_ratio": 0.2
-        }
-      ],
-      "footer": {
-        "label": "TIMETABLE",
-        "attribution_template": "— InkSight"
-      }
-    },
-    "WIDE": {
-      "body_align": "center",
-      "body": [
-        {
-          "type": "text",
-          "field": "timetable_title",
-          "font_size": 10,
-          "align": "center",
-          "max_lines": 1,
-          "margin_x": 8
-        },
-        {
-          "type": "spacer",
-          "height": 2
-        },
-        {
-          "type": "timetable_grid",
-          "field": "slots",
-          "font_size": 10,
-          "margin_x": 6,
-          "row_height": 22,
-          "show_location": true,
-          "time_col_ratio": 0.18
-        }
-      ],
-      "footer": {
-        "label": "TIMETABLE",
-        "attribution_template": "— InkSight",
-        "height": 20
-      }
-    },
-    "TALL": {
-      "body_align": "top",
-      "body": [
-        {
-          "type": "text",
-          "field": "timetable_title",
-          "font_size": 10,
-          "align": "center",
-          "max_lines": 1,
-          "margin_x": 6
-        },
-        {
-          "type": "timetable_grid",
-          "field": "slots",
-          "font_size": 9,
-          "margin_x": 4,
-          "row_height": 20,
-          "show_location": true,
-          "time_col_ratio": 0.22
-        }
-      ],
-      "footer": {
-        "label": "TIMETABLE",
-        "attribution_template": "— InkSight",
-        "height": 18
-      }
-    },
-    "SMALL": {
-      "body_align": "center",
-      "body": [
-        {
-          "type": "text",
-          "field": "timetable_title",
-          "font_size": 9,
-          "align": "center",
-          "max_lines": 1,
-          "margin_x": 4
-        },
-        {
-          "type": "spacer",
-          "height": 2
-        },
-        {
-          "type": "timetable_grid",
-          "field": "slots",
-          "font_size": 8,
-          "margin_x": 2,
-          "row_height": 16,
-          "show_location": false,
-          "time_col_ratio": 0.28
-        }
-      ],
-      "footer": {
-        "label": "TIME",
-        "attribution_template": "— InkSight",
-        "height": 16
-      }
-    }
-  },
-  "layout_overrides": {
-    "slot_lg": {
-      "body_align": "top",
-      "body": [
-        {
-          "type": "timetable_grid",
-          "field": "slots",
-          "font_size": 11,
-          "margin_x": 5,
-          "row_height": 26
-        }
-      ],
-      "footer": {
-        "label": "TIMETABLE",
-        "attribution_template": "— InkSight"
-      }
-    },
-    "slot_md": {
-      "body_align": "top",
-      "body": [
-        {
-          "type": "timetable_grid",
-          "field": "slots",
-          "font_size": 10,
-          "margin_x": 4,
-          "row_height": 24
-        }
-      ],
-      "footer": {
-        "label": "TIMETABLE",
-        "attribution_template": "— InkSight",
-        "height": 22
-      }
-    },
-    "slot_sm": {
-      "body_align": "center",
-      "body": [
-        {
-          "type": "text",
-          "field": "timetable_title",
-          "font_size": 10,
-          "align": "center",
-          "max_lines": 1,
-          "margin_x": 6
-        },
-        {
-          "type": "spacer",
-          "height": 4
-        },
-        {
-          "type": "timetable_grid",
-          "field": "slots",
-          "font_size": 9,
-          "margin_x": 4,
-          "row_height": 18,
-          "show_location": false,
-          "time_col_ratio": 0.26
-        }
-      ],
-      "footer": {
-        "label": "TIMETABLE",
-        "attribution_template": "— InkSight",
-        "height": 18
-      }
-    },
-    "slot_xs": {
-      "body_align": "center",
-      "body": [
-        {
-          "type": "text",
-          "field": "timetable_title",
-          "font_size": 10,
-          "align": "center",
-          "max_lines": 2,
-          "margin_x": 6
-        }
-      ],
-      "footer": {
-        "label": "TIMETABLE",
-        "attribution_template": "— InkSight",
-        "height": 16
-      }
     }
   }
 }

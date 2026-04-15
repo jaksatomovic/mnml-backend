@@ -439,6 +439,8 @@ async def render(
             force_next=force_next,
             skip_cache=skip_cache_for_this_render,
             colors=params.colors,
+            slot_type=None,
+            widget_preview=False,
         )
 
         if img.size != (params.w, params.h):
@@ -558,12 +560,20 @@ async def preview(
     city_override: Optional[str] = Query(default=None),
     mode_override: Optional[str] = Query(default=None),
     memo_text: Optional[str] = Query(default=None),
-    w: int = Query(default=SCREEN_WIDTH, ge=100, le=1600),
-    h: int = Query(default=SCREEN_HEIGHT, ge=100, le=1200),
+    w: int = Query(default=SCREEN_WIDTH, ge=48, le=1600),
+    h: int = Query(default=SCREEN_HEIGHT, ge=48, le=1200),
     no_cache: Optional[int] = Query(default=None),
     intent: Optional[int] = Query(default=None),
     colors: int = Query(default=2, ge=2, le=4),
     ui_language: Optional[str] = Query(default=None, description="Preview only: zh|en, overrides device mode_language"),
+    slot_type: Optional[str] = Query(
+        default=None,
+        description="Widget slot shape for JSON variants: FULL|SMALL|WIDE|TALL",
+    ),
+    widget_preview: Optional[int] = Query(
+        default=None,
+        description="1 = single-mode widget tab preview (skip Surface mosaic even if device is in surface mode)",
+    ),
     x_device_token: Optional[str] = Header(default=None),
     x_inksight_llm_api_key: Optional[str] = Header(default=None),
     ink_session: Optional[str] = Cookie(default=None),
@@ -622,6 +632,8 @@ async def preview(
             user_api_key=x_inksight_llm_api_key,
             intent_only=(intent == 1),
             colors=colors,
+            slot_type=(slot_type.strip() if slot_type else None),
+            widget_preview=(widget_preview == 1),
         )
         if intent == 1:
             from fastapi.responses import JSONResponse
@@ -702,11 +714,19 @@ async def preview_stream(
     city_override: Optional[str] = Query(default=None),
     mode_override: Optional[str] = Query(default=None),
     memo_text: Optional[str] = Query(default=None),
-    w: int = Query(default=SCREEN_WIDTH, ge=100, le=1600),
-    h: int = Query(default=SCREEN_HEIGHT, ge=100, le=1200),
+    w: int = Query(default=SCREEN_WIDTH, ge=48, le=1600),
+    h: int = Query(default=SCREEN_HEIGHT, ge=48, le=1200),
     no_cache: Optional[int] = Query(default=None),
     colors: int = Query(default=2, ge=2, le=4),
     ui_language: Optional[str] = Query(default=None, description="Preview only: zh|en, overrides device mode_language"),
+    slot_type: Optional[str] = Query(
+        default=None,
+        description="Widget slot shape for JSON variants: FULL|SMALL|WIDE|TALL",
+    ),
+    widget_preview: Optional[int] = Query(
+        default=None,
+        description="1 = single-mode widget tab preview (skip Surface mosaic even if device is in surface mode)",
+    ),
     x_device_token: Optional[str] = Header(default=None),
     x_inksight_llm_api_key: Optional[str] = Header(default=None),
     ink_session: Optional[str] = Cookie(default=None),
@@ -765,6 +785,8 @@ async def preview_stream(
                 current_user_id=current_user_id,
                 user_api_key=x_inksight_llm_api_key,
                 colors=colors,
+                slot_type=(slot_type.strip() if slot_type else None),
+                widget_preview=(widget_preview == 1),
             )
             # translated API key invalid，translated
             if api_key_invalid:

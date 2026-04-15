@@ -4,7 +4,7 @@ JSON modes can define:
 
 - ``layout_overrides`` — ``full`` (standalone), ``slot_lg`` … ``slot_xs`` (pixel-bucket tiers),
   and exact ``{w}x{h}`` keys.
-- ``variants`` — **slot-shape** layouts: ``SMALL``, ``WIDE``, ``TALL``, ``LARGE`` (iOS-style
+- ``variants`` — **slot-shape** layouts: ``SMALL``, ``WIDE``, ``TALL``, ``FULL`` (iOS-style
   widget families). When a shape variant matches the render size, it is used **instead of**
   tier-based ``slot_*`` overrides (see :func:`merge_layout_for_screen`).
 
@@ -48,21 +48,21 @@ SLOT_SHAPE_LARGE = "LARGE"
 SLOT_SHAPE_FULL = "FULL"
 
 # Strict variant fallback when ``slot_type`` is known from the grid (spec):
-# SMALL never falls back to LARGE; WIDE may use simplified LARGE; etc.
+# SMALL never falls back to FULL; WIDE/TALL may fall back to FULL for simplified layouts.
 _STRICT_SLOT_TYPE_VARIANT_FALLBACK: dict[str, tuple[str, ...]] = {
     SLOT_SHAPE_SMALL: (SLOT_SHAPE_SMALL,),
-    SLOT_SHAPE_WIDE: (SLOT_SHAPE_WIDE, SLOT_SHAPE_LARGE),
-    SLOT_SHAPE_TALL: (SLOT_SHAPE_TALL, SLOT_SHAPE_LARGE),
-    SLOT_SHAPE_LARGE: (SLOT_SHAPE_LARGE,),
-    SLOT_SHAPE_FULL: (SLOT_SHAPE_FULL, SLOT_SHAPE_LARGE),
+    SLOT_SHAPE_WIDE: (SLOT_SHAPE_WIDE, SLOT_SHAPE_FULL),
+    SLOT_SHAPE_TALL: (SLOT_SHAPE_TALL, SLOT_SHAPE_FULL),
+    SLOT_SHAPE_FULL: (SLOT_SHAPE_FULL,),
 }
 
 # Legacy: infer shape from pixels when ``slot_type`` is not passed (standalone / old surfaces).
+# ``SLOT_SHAPE_LARGE`` is still returned by :func:`classify_slot_shape` for squarish tiles; variant keys use ``FULL``.
 _GEOMETRY_SHAPE_VARIANT_FALLBACK: dict[str, tuple[str, ...]] = {
     SLOT_SHAPE_SMALL: (SLOT_SHAPE_SMALL, SLOT_SHAPE_TALL, SLOT_SHAPE_WIDE),
-    SLOT_SHAPE_WIDE: (SLOT_SHAPE_WIDE, SLOT_SHAPE_LARGE, SLOT_SHAPE_TALL),
-    SLOT_SHAPE_TALL: (SLOT_SHAPE_TALL, SLOT_SHAPE_LARGE, SLOT_SHAPE_SMALL),
-    SLOT_SHAPE_LARGE: (SLOT_SHAPE_LARGE, SLOT_SHAPE_WIDE, SLOT_SHAPE_TALL, SLOT_SHAPE_SMALL),
+    SLOT_SHAPE_WIDE: (SLOT_SHAPE_WIDE, SLOT_SHAPE_FULL, SLOT_SHAPE_TALL),
+    SLOT_SHAPE_TALL: (SLOT_SHAPE_TALL, SLOT_SHAPE_FULL, SLOT_SHAPE_SMALL),
+    SLOT_SHAPE_LARGE: (SLOT_SHAPE_FULL, SLOT_SHAPE_WIDE, SLOT_SHAPE_TALL, SLOT_SHAPE_SMALL),
 }
 
 
@@ -201,12 +201,18 @@ def _merge_tier_layout_overrides(
     layout_overrides: dict | None,
     screen_w: int,
     screen_h: int,
+    *,
+    slot_type: str | None = None,
 ) -> dict:
     """Apply ``slot_*`` / ``full`` entries from ``layout_overrides``."""
     if not isinstance(layout_overrides, dict) or not layout_overrides:
         return merged
     out = dict(merged)
     tier = classify_slot_tier(screen_w, screen_h)
+    # FULL grid cells use nearly the whole mosaic but not 400×300; still apply the same
+    # ``layout_overrides["full"]`` as legacy standalone so visuals match.
+    if str(slot_type or "").strip().upper() == SLOT_SHAPE_FULL:
+        tier = SLOT_TIER_FULL
     if tier != SLOT_TIER_FULL:
         for key in _SLOT_TIER_FALLBACK.get(tier, ()):
             tier_ov = layout_overrides.get(key)
@@ -250,7 +256,7 @@ def merge_layout_for_screen(
         merged = {**merged, **shape_layout}
     else:
         merged = _merge_tier_layout_overrides(
-            merged, layout_overrides, screen_w, screen_h
+            merged, layout_overrides, screen_w, screen_h, slot_type=slot_type
         )
 
     if isinstance(layout_overrides, dict):

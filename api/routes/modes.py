@@ -13,7 +13,11 @@ from core.auth import require_admin, require_user, optional_user
 from core.config import SCREEN_HEIGHT, SCREEN_WIDTH, get_default_llm_model_for_provider
 from core.config_store import remove_mode_from_all_configs
 from core.context import get_date_context, get_weather
-from core.mode_registry import CUSTOM_JSON_DIR, _validate_mode_def, get_registry
+from core.mode_registry import (
+    CUSTOM_JSON_DIR,
+    _validate_mode_def_with_error,
+    get_registry,
+)
 from core.mode_catalog import BUILTIN_CATALOG, builtin_catalog_map
 from core.config_store import (
     get_user_custom_modes,
@@ -165,6 +169,7 @@ async def mode_catalog(
                         "mode_id": info.mode_id,
                         "source": info.source,
                         "category": (cat.category if cat else "more"),
+                        "topic": (cat.topic if cat else "learning"),
                         "display_name": info.display_name,
                         "description": info.description,
                         "settings_schema": info.settings_schema or [],
@@ -196,6 +201,7 @@ async def mode_catalog(
                     "mode_id": mid,
                     "source": info.source,
                     "category": "custom",
+                    "topic": "custom",
                     "display_name": info.display_name,
                     "description": info.description,
                     "settings_schema": info.settings_schema or [],
@@ -210,6 +216,7 @@ async def mode_catalog(
                     "mode_id": mid,
                     "source": info.source,
                     "category": (cat.category if cat else "more"),
+                    "topic": (cat.topic if cat else "learning"),
                     "display_name": info.display_name,
                     "description": info.description,
                     "settings_schema": info.settings_schema or [],
@@ -290,6 +297,7 @@ async def mode_catalog(
                     "mode_id": mode_id,
                     "source": "custom",
                     "category": "custom",
+                    "topic": "custom",
                     "display_name": display_name,
                     "description": description,
                     "settings_schema": settings_schema if isinstance(settings_schema, list) else [],
@@ -328,6 +336,10 @@ async def custom_mode_preview(
     screen_h = body.get("h", SCREEN_HEIGHT)
     colors = int(body.get("colors", 2))
     response_type = str(body.get("responseType", body.get("response_type", "image"))).strip().lower()
+
+    ok, err = _validate_mode_def_with_error(mode_def, allow_raw_component_tree=False)
+    if not ok:
+        return JSONResponse({"error": err or "Invalid mode definition"}, status_code=400)
 
     # translated API key：translated，translated key
     user_api_key = None
@@ -497,8 +509,9 @@ async def create_custom_mode(body: dict, user_id: int = Depends(require_user)):
     mac = body.get("mac", "").strip().upper()
     if not mode_id:
         return JSONResponse({"error": "mode_id is required"}, status_code=400)
-    if not _validate_mode_def(body):
-        return JSONResponse({"error": "Invalid mode definition"}, status_code=400)
+    ok, err = _validate_mode_def_with_error(body, allow_raw_component_tree=False)
+    if not ok:
+        return JSONResponse({"error": err or "Invalid mode definition"}, status_code=400)
 
     body["mode_id"] = mode_id
     registry = get_registry()

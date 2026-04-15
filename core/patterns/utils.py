@@ -361,6 +361,7 @@ def draw_status_bar(
     language: str = "zh",
     suppress_center_weather: bool = False,
     draw_bottom_divider: bool = True,
+    time_str: str = "",
 ):
     """translated"""
     def _strip_time_tokens(text: str) -> str:

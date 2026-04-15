@@ -1,16 +1,15 @@
 {
   "mode_id": "WEATHER",
-  "display_name": "translated",
+  "display_name": "天气看板",
   "icon": "weather",
-  "supported_slot_types": ["SMALL", "WIDE", "TALL", "LARGE", "FULL"],
   "cacheable": false,
-  "description": "translated + translated3translated + translated",
+  "description": "当日天气 + 未来3天预报 + 穿衣建议",
   "settings_schema": [
     {
       "key": "forecast_days",
-      "label": "translated",
+      "label": "预报天数",
       "type": "number",
-      "default": 3,
+      "default": 4,
       "min": 1,
       "max": 7,
       "step": 1
@@ -22,77 +21,24 @@
     "fallback": {
       "city": "",
       "today_temp": "--",
-      "today_desc": "translated",
+      "today_desc": "暂无数据",
       "today_code": -1,
       "today_low": "--",
       "today_high": "--",
       "today_range": "-- / --",
-      "advice": "translatedGet by translated",
+      "advice": "注意根据天气添减衣物",
       "forecast": []
     },
     "fallback_pool": [
-      {
-        "city": "",
-        "today_temp": "--",
-        "today_desc": "translated",
-        "today_code": -1,
-        "today_low": "--",
-        "today_high": "--",
-        "today_range": "-- / --",
-        "advice": "translatedGet by translated",
-        "forecast": []
-      },
-      {
-        "city": "",
-        "today_temp": "--",
-        "today_desc": "translated",
-        "today_code": -1,
-        "today_low": "--",
-        "today_high": "--",
-        "today_range": "-- / --",
-        "advice": "translated，translated",
-        "forecast": []
-      },
-      {
-        "city": "",
-        "today_temp": "--",
-        "today_desc": "translated",
-        "today_code": -1,
-        "today_low": "--",
-        "today_high": "--",
-        "today_range": "-- / --",
-        "advice": "translated，translated",
-        "forecast": []
-      },
-      {
-        "city": "",
-        "today_temp": "--",
-        "today_desc": "translated",
-        "today_code": -1,
-        "today_low": "--",
-        "today_high": "--",
-        "today_range": "-- / --",
-        "advice": "translated",
-        "forecast": []
-      },
-      {
-        "city": "",
-        "today_temp": "--",
-        "today_desc": "translated",
-        "today_code": -1,
-        "today_low": "--",
-        "today_high": "--",
-        "today_range": "-- / --",
-        "advice": "translated",
-        "forecast": []
-      }
+      {"city": "", "today_temp": "--", "today_desc": "暂无数据", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "注意根据天气添减衣物", "forecast": []},
+      {"city": "", "today_temp": "--", "today_desc": "暂无数据", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "早晚温差大，记得带件外套", "forecast": []},
+      {"city": "", "today_temp": "--", "today_desc": "暂无数据", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "气温适宜，轻装出行", "forecast": []},
+      {"city": "", "today_temp": "--", "today_desc": "暂无数据", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "有雨记得带伞", "forecast": []},
+      {"city": "", "today_temp": "--", "today_desc": "暂无数据", "today_code": -1, "today_low": "--", "today_high": "--", "today_range": "-- / --", "advice": "天冷注意保暖", "forecast": []}
     ]
   },
   "layout": {
-    "status_bar": {
-      "line_width": 1,
-      "dashed": false
-    },
+    "status_bar": {"line_width": 1, "dashed": false},
     "body_align": "top",
     "body": [
       {
@@ -161,7 +107,7 @@
       {
         "type": "icon_text",
         "icon": "humidity",
-        "text": "translated {today_humidity}%   {today_wind_dir} {today_wind_level}",
+        "text": "湿度 {today_humidity}%   {today_wind_dir} {today_wind_level}",
         "font_size": 12,
         "align": "left",
         "margin_x": 15
@@ -179,7 +125,7 @@
           {
             "type": "icon_text",
             "icon": "sunrise",
-            "text": "translated {sunrise} | translated {sunset}",
+            "text": "日出 {sunrise} | 日落 {sunset}",
             "font_size": 12,
             "align": "left",
             "margin_x": 0
@@ -209,440 +155,6 @@
         "max_lines": 2
       }
     ],
-    "footer": {
-      "label": "WEATHER",
-      "attribution_template": "— Open-Meteo"
-    }
-  },
-  "variants": {
-    "LARGE": {
-      "body_align": "top",
-      "body": [
-        {
-          "type": "text",
-          "field": "city",
-          "font_size": 13,
-          "align": "left",
-          "margin_x": 14,
-          "max_lines": 1
-        },
-        {
-          "type": "spacer",
-          "height": 4
-        },
-        {
-          "type": "two_column",
-          "left_width": 130,
-          "gap": 6,
-          "left_x": 12,
-          "left": [
-            {
-              "type": "big_number",
-              "field": "today_temp",
-              "font_size": 40,
-              "align": "left",
-              "margin_x": 0,
-              "unit": "°C"
-            },
-            {
-              "type": "spacer",
-              "height": 2
-            },
-            {
-              "type": "weather_icon_text",
-              "code_field": "today_code",
-              "field": "today_desc",
-              "font_size": 13,
-              "icon_size": 20,
-              "align": "left",
-              "margin_x": 0
-            }
-          ],
-          "right": [
-            {
-              "type": "forecast_cards",
-              "field": "forecast",
-              "max_items": 7,
-              "margin_x": 0,
-              "gap": 3,
-              "icon_size": 22
-            }
-          ]
-        },
-        {
-          "type": "spacer",
-          "height": 4
-        },
-        {
-          "type": "text",
-          "field": "advice",
-          "font_size": 11,
-          "align": "center",
-          "max_lines": 2,
-          "margin_x": 12
-        }
-      ],
-      "footer": {
-        "label": "WEATHER",
-        "attribution_template": "— Open-Meteo"
-      }
-    },
-    "WIDE": {
-      "body_align": "top",
-      "body": [
-        {
-          "type": "text",
-          "field": "city",
-          "font_size": 11,
-          "align": "left",
-          "margin_x": 10,
-          "max_lines": 1
-        },
-        {
-          "type": "spacer",
-          "height": 2
-        },
-        {
-          "type": "two_column",
-          "left_width": 118,
-          "gap": 6,
-          "left_x": 10,
-          "left": [
-            {
-              "type": "big_number",
-              "field": "today_temp",
-              "font_size": 32,
-              "align": "left",
-              "margin_x": 0,
-              "unit": "°C"
-            },
-            {
-              "type": "spacer",
-              "height": 2
-            },
-            {
-              "type": "weather_icon_text",
-              "code_field": "today_code",
-              "field": "today_desc",
-              "font_size": 11,
-              "icon_size": 18,
-              "align": "left",
-              "margin_x": 0
-            }
-          ],
-          "right": [
-            {
-              "type": "forecast_cards",
-              "field": "forecast",
-              "max_items": 4,
-              "margin_x": 0,
-              "gap": 3,
-              "icon_size": 20
-            }
-          ]
-        }
-      ],
-      "footer": {
-        "label": "WEATHER",
-        "attribution_template": "— Open-Meteo",
-        "height": 18
-      }
-    },
-    "TALL": {
-      "body_align": "top",
-      "body": [
-        {
-          "type": "text",
-          "field": "city",
-          "font_size": 10,
-          "align": "center",
-          "margin_x": 6,
-          "max_lines": 1
-        },
-        {
-          "type": "big_number",
-          "field": "today_temp",
-          "font_size": 28,
-          "align": "center",
-          "margin_x": 6,
-          "unit": "°C"
-        },
-        {
-          "type": "weather_icon_text",
-          "code_field": "today_code",
-          "field": "today_desc",
-          "font_size": 10,
-          "icon_size": 16,
-          "align": "center",
-          "margin_x": 6
-        },
-        {
-          "type": "forecast_cards",
-          "field": "forecast",
-          "max_items": 2,
-          "margin_x": 4,
-          "gap": 4,
-          "icon_size": 18
-        }
-      ],
-      "footer": {
-        "label": "WEATHER",
-        "attribution_template": "— Open-Meteo",
-        "height": 18
-      }
-    },
-    "SMALL": {
-      "body_align": "top",
-      "body": [
-        {
-          "type": "text",
-          "field": "city",
-          "font_size": 9,
-          "align": "left",
-          "margin_x": 8,
-          "max_lines": 1
-        },
-        {
-          "type": "spacer",
-          "height": 2
-        },
-        {
-          "type": "big_number",
-          "field": "today_temp",
-          "font_size": 28,
-          "align": "left",
-          "margin_x": 8,
-          "unit": "°C"
-        },
-        {
-          "type": "spacer",
-          "height": 1
-        },
-        {
-          "type": "weather_icon_text",
-          "code_field": "today_code",
-          "field": "today_desc",
-          "font_size": 9,
-          "icon_size": 16,
-          "align": "left",
-          "margin_x": 8,
-          "max_lines": 1
-        }
-      ],
-      "footer": {
-        "label": "WEATHER",
-        "attribution_template": "— Open-Meteo",
-        "height": 16
-      }
-    }
-  },
-  "layout_overrides": {
-    "slot_lg": {
-      "body_align": "top",
-      "body": [
-        {
-          "type": "text",
-          "field": "city",
-          "font_size": 13,
-          "align": "left",
-          "margin_x": 14,
-          "max_lines": 1
-        },
-        {
-          "type": "spacer",
-          "height": 4
-        },
-        {
-          "type": "two_column",
-          "left_width": 130,
-          "gap": 6,
-          "left_x": 12,
-          "left": [
-            {
-              "type": "big_number",
-              "field": "today_temp",
-              "font_size": 40,
-              "align": "left",
-              "margin_x": 0,
-              "unit": "°C"
-            },
-            {
-              "type": "spacer",
-              "height": 2
-            },
-            {
-              "type": "weather_icon_text",
-              "code_field": "today_code",
-              "field": "today_desc",
-              "font_size": 13,
-              "icon_size": 20,
-              "align": "left",
-              "margin_x": 0
-            }
-          ],
-          "right": [
-            {
-              "type": "forecast_cards",
-              "field": "forecast",
-              "max_items": 7,
-              "margin_x": 0,
-              "gap": 3,
-              "icon_size": 22
-            }
-          ]
-        },
-        {
-          "type": "spacer",
-          "height": 4
-        },
-        {
-          "type": "text",
-          "field": "advice",
-          "font_size": 11,
-          "align": "center",
-          "max_lines": 2,
-          "margin_x": 12
-        }
-      ],
-      "footer": {
-        "label": "WEATHER",
-        "attribution_template": "— Open-Meteo"
-      }
-    },
-    "slot_md": {
-      "body_align": "top",
-      "body": [
-        {
-          "type": "text",
-          "field": "city",
-          "font_size": 11,
-          "align": "left",
-          "margin_x": 10,
-          "max_lines": 1
-        },
-        {
-          "type": "spacer",
-          "height": 3
-        },
-        {
-          "type": "two_column",
-          "left_width": 100,
-          "gap": 4,
-          "left_x": 10,
-          "left": [
-            {
-              "type": "big_number",
-              "field": "today_temp",
-              "font_size": 32,
-              "align": "left",
-              "margin_x": 0,
-              "unit": "°C"
-            },
-            {
-              "type": "weather_icon_text",
-              "code_field": "today_code",
-              "field": "today_desc",
-              "font_size": 11,
-              "icon_size": 18,
-              "align": "left",
-              "margin_x": 0
-            }
-          ],
-          "right": [
-            {
-              "type": "forecast_cards",
-              "field": "forecast",
-              "max_items": 3,
-              "margin_x": 0,
-              "gap": 3,
-              "icon_size": 22
-            }
-          ]
-        }
-      ],
-      "footer": {
-        "label": "WEATHER",
-        "attribution_template": "— Open-Meteo",
-        "height": 22
-      }
-    },
-    "slot_sm": {
-      "body_align": "top",
-      "body": [
-        {
-          "type": "text",
-          "field": "city",
-          "font_size": 9,
-          "align": "left",
-          "margin_x": 8,
-          "max_lines": 1
-        },
-        {
-          "type": "spacer",
-          "height": 2
-        },
-        {
-          "type": "big_number",
-          "field": "today_temp",
-          "font_size": 28,
-          "align": "left",
-          "margin_x": 8,
-          "unit": "°C"
-        },
-        {
-          "type": "spacer",
-          "height": 1
-        },
-        {
-          "type": "weather_icon_text",
-          "code_field": "today_code",
-          "field": "today_desc",
-          "font_size": 9,
-          "icon_size": 16,
-          "align": "left",
-          "margin_x": 8,
-          "max_lines": 1
-        }
-      ],
-      "footer": {
-        "label": "WEATHER",
-        "attribution_template": "— Open-Meteo",
-        "height": 18
-      }
-    },
-    "slot_xs": {
-      "body_align": "center",
-      "body": [
-        {
-          "type": "text",
-          "field": "city",
-          "font_size": 9,
-          "align": "center",
-          "margin_x": 6,
-          "max_lines": 1
-        },
-        {
-          "type": "big_number",
-          "field": "today_temp",
-          "font_size": 22,
-          "align": "center",
-          "margin_x": 8,
-          "unit": "°C"
-        },
-        {
-          "type": "text",
-          "field": "today_desc",
-          "font_size": 9,
-          "align": "center",
-          "margin_x": 6,
-          "max_lines": 1
-        }
-      ],
-      "footer": {
-        "label": "WEATHER",
-        "attribution_template": "— Open-Meteo",
-        "height": 16
-      }
-    }
+    "footer": {"label": "WEATHER", "attribution_template": "— Open-Meteo"}
   }
 }

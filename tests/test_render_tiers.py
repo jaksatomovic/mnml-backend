@@ -1,6 +1,7 @@
 """Tests for slot tier classification and layout merge."""
 
 from core.render_tiers import (
+    SLOT_SHAPE_FULL,
     SLOT_SHAPE_LARGE,
     SLOT_SHAPE_SMALL,
     SLOT_SHAPE_TALL,
@@ -83,6 +84,23 @@ def test_merge_full_tier_skips_slot_only_when_full():
     overrides = {"slot_sm": {"body": [{"type": "text", "field": "tiny"}]}}
     full = merge_layout_for_screen(base, overrides, screen_w=400, screen_h=300)
     assert full["body"] == [{"type": "text", "field": "a"}]
+
+
+def test_full_slot_type_uses_layout_overrides_full_like_standalone():
+    """FULL surface cells are not 400×300 but must merge ``layout_overrides["full"]`` like legacy."""
+    base = {"body": [{"type": "text", "field": "base"}]}
+    overrides = {
+        "full": {"body": [{"type": "text", "field": "from_full"}]},
+        "slot_lg": {"body": [{"type": "text", "field": "from_lg"}]},
+    }
+    out = merge_layout_for_screen(
+        base,
+        overrides,
+        screen_w=360,
+        screen_h=200,
+        slot_type=SLOT_SHAPE_FULL,
+    )
+    assert out["body"] == [{"type": "text", "field": "from_full"}]
 
 
 def test_merge_layout_fallback_from_larger_slot_tier():

@@ -346,7 +346,7 @@ async def generate_mode_definition(
         definition = _force_image_gen_mode(definition)
 
     # Validate
-    if not _validate_mode_def(definition):
+    if not _validate_mode_def(definition, allow_raw_component_tree=False):
         return {
             "ok": False,
             "error": "translatedmodetranslatedfailed，translated",

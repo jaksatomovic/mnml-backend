@@ -337,6 +337,8 @@ async def build_image(
     user_api_key: Optional[str] = None,
     intent_only: bool = False,
     colors: int = 2,
+    slot_type: Optional[str] = None,
+    widget_preview: bool = False,
 ):
     from core.mode_registry import get_registry
 
@@ -362,6 +364,8 @@ async def build_image(
         and str(config.get("device_mode") or config.get("deviceMode") or "mode").strip().lower()
         == "surface"
     )
+    # Config UI widget tab: single-mode slot preview must not use the Surface mosaic renderer.
+    use_surface_mosaic = is_surface_device and not widget_preview
 
     # Load device owner's custom modes if needed (for device rendering)
     # Only load modes for the specific device to avoid loading modes from other devices
@@ -397,7 +401,7 @@ async def build_image(
     
     mode_info = registry.get_mode_info(persona)
     is_mode_cacheable = bool(mode_info.cacheable) if mode_info else True
-    if is_surface_device:
+    if use_surface_mosaic:
         # Composite is keyed by active surface, not the legacy rotation persona.
         is_mode_cacheable = False
 
@@ -569,7 +573,7 @@ async def build_image(
     if not llm_mode_requires_quota:
         logger.debug("[QUOTA DEBUG] Mode %s does NOT require quota", persona)
 
-    if is_surface_device:
+    if use_surface_mosaic:
         # Per-tile quota is enforced inside each generate_and_render call; avoid blocking
         # the whole mosaic on the rotation persona's LLM classification.
         llm_mode_requires_quota = False
@@ -637,9 +641,10 @@ async def build_image(
                 config["memo_text"] = memo_clean
                 config["memoText"] = memo_clean
 
-    # translated（/preview translated）：translated（translated/translated）translated mode_language。
-    # translated（translated mac）：translated configs translated mode_language，translated ui_language translated。
-    if not mac and preview_ui_language in ("zh", "en"):
+    # Preview locale: when the client passes ui_language (config /preview pages), use it for
+    # JSON mode selection (e.g. en/weather.json) and date strings — even if a MAC is set,
+    # so the widget tab matches the UI language instead of the device's stored mode_language.
+    if preview_ui_language in ("zh", "en"):
         config = copy.deepcopy(config or {})
         config["mode_language"] = preview_ui_language
         config["modeLanguage"] = preview_ui_language
@@ -863,7 +868,7 @@ async def build_image(
             )
             return img, persona, False, True, quota_exhausted, False, False, usage_source
 
-    if is_surface_device and mac and config:
+    if use_surface_mosaic and mac and config:
         from core.surface_engine import resolve_device_surface
         from core.surface_preview_render import render_surface_preview_image
 
@@ -927,6 +932,7 @@ async def build_image(
             get_date_context(timezone_name=timezone_name),
             get_weather(**location_args),
         )
+        _slot = str(slot_type or "").strip().upper() or None
         img, content_data = await generate_and_render(
             persona,
             config,
@@ -937,6 +943,7 @@ async def build_image(
             screen_h=screen_h,
             mac=mac or "",
             colors=colors,
+            slot_type=_slot,
         )
         if isinstance(content_data, dict):
             logger.debug(

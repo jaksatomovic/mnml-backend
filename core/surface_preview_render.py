@@ -28,6 +28,32 @@ from core.surface_grid import (
     validate_slots_for_grid,
 )
 
+
+def _as_int(v: Any, default: int = 0) -> int:
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return default
+
+
+def _is_single_full_grid_canvas(
+    sorted_slots: list[dict[str, Any]],
+    grid: dict[str, Any],
+) -> bool:
+    """True when the surface is one slot covering the entire grid (FULL) — same as standalone full-frame."""
+    if len(sorted_slots) != 1:
+        return False
+    cols, rows, _, _ = grid_dimensions(grid)
+    s0 = sorted_slots[0]
+    gw = _as_int(s0.get("w"), 0)
+    gh = _as_int(s0.get("h"), 0)
+    if gw != cols or gh != rows:
+        return False
+    st = str(s0.get("slot_type") or "").strip().upper()
+    if st == "LARGE":
+        st = "FULL"
+    return st == "FULL"
+
 logger = logging.getLogger(__name__)
 
 _POSITION_ORDER = ("top", "middle", "bottom")
@@ -296,7 +322,6 @@ def _draw_slot_chrome(
     draw = ImageDraw.Draw(img)
     apply_text_fontmode(draw)
 
-    r = 3
     left = x0
     right = x1 - 1
     top = y0
@@ -304,20 +329,15 @@ def _draw_slot_chrome(
 
     footer_h = min(22, max(14, int(h * 0.14)))
     footer_top = max(top + 8, bottom - footer_h + 1)
-    body_bottom = max(top + r + 2, footer_top - 1)
+    body_bottom = max(top + 2, footer_top - 1)
 
     # Dotted border belongs to content area only (stops before footer).
-    _draw_dotted_line_h(draw, left + r, right - r, top, step=4, fill=0)
-    _draw_dotted_line_v(draw, left, top + r, body_bottom, step=4, fill=0)
-    _draw_dotted_line_v(draw, right, top + r, body_bottom, step=4, fill=0)
-    _draw_dotted_top_arc(draw, (left, top, left + 2 * r, top + 2 * r), 180, 270, fill=0)
-    _draw_dotted_top_arc(draw, (right - 2 * r, top, right, top + 2 * r), 270, 360, fill=0)
+    _draw_dotted_line_h(draw, left, right, top, step=4, fill=0)
+    _draw_dotted_line_v(draw, left, top, body_bottom, step=4, fill=0)
+    _draw_dotted_line_v(draw, right, top, body_bottom, step=4, fill=0)
 
-    # Footer: black bar with rounded bottom corners only.
-    fr = 3
-    draw.rounded_rectangle([left, footer_top + 1, right, bottom], radius=fr, fill=0)
-    # Square the top edge back so only bottom corners remain rounded.
-    draw.rectangle([left, footer_top + 1, right, footer_top + fr], fill=0)
+    # Footer: plain rectangle (no rounded corners).
+    draw.rectangle([left, footer_top + 1, right, bottom], fill=0)
     _draw_dotted_line_h(draw, left + 3, right - 3, footer_top, step=3, fill=255)
 
     font = load_font("inter_medium", max(9, min(12, int(w / 16))))
@@ -403,6 +423,33 @@ async def render_surface_preview_image(
             )
             items.append(raw if isinstance(raw, dict) else None)
 
+    # One FULL slot covering the whole grid: same visual as standalone / widget FULL preview
+    # (integrated status bar, body, mode footer). Avoids per-tile omit_chrome + dotted slot chrome.
+    if use_grid and grid and _is_single_full_grid_canvas(sorted_slots, grid):
+        persona = _resolve_mode_for_block(items[0] if items else None)
+        try:
+            full_img, _c = await generate_and_render(
+                persona,
+                cfg,
+                date_ctx,
+                weather,
+                battery_pct,
+                screen_w=screen_w,
+                screen_h=screen_h,
+                mac=mac or "",
+                colors=2,
+                omit_chrome=False,
+                slot_type=None,
+            )
+            return full_img.point(lambda p: 255 if p > 135 else 0).convert("1")
+        except Exception:
+            logger.exception(
+                "[surface_preview] full-canvas surface render failed persona=%s",
+                persona,
+            )
+            err_img = _draw_error_tile(screen_w, screen_h, persona[:12])
+            return err_img.point(lambda p: 255 if p > 135 else 0).convert("1")
+
     async def _one_tile(
         persona: str,
         rect: tuple[int, int, int, int],
@@ -411,6 +458,11 @@ async def render_surface_preview_image(
         rx0, ry0, rx1, ry1 = rect
         tw = max(96, rx1 - rx0)
         th = max(72, ry1 - ry0)
+        # Match widget-tab E-Ink preview when "FULL" is selected: omit slot_type so the renderer
+        # uses legacy full-screen layout merge (layout + layout_overrides["full"]), not variants.FULL.
+        st = str(slot_type or "").strip().upper() or None
+        if st == "FULL":
+            st = None
         try:
             tile, _c = await generate_and_render(
                 persona,
@@ -423,7 +475,7 @@ async def render_surface_preview_image(
                 mac=mac or "",
                 colors=2,
                 omit_chrome=True,
-                slot_type=slot_type,
+                slot_type=st,
             )
             return _fit_tile(tile, tw, th)
         except Exception:

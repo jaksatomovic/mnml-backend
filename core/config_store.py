@@ -1461,13 +1461,44 @@ async def revoke_device_member(owner_user_id: int, mac: str, target_user_id: int
 
 async def save_config(mac: str, data: dict) -> int:
     now = datetime.now().isoformat()
-    refresh_strategy = data.get("refreshStrategy", "random")
-    logger.info(
-        f"[CONFIG SAVE] mac={mac}, refreshStrategy={refresh_strategy}, modes={data.get('modes')}"
-    )
-
     db = await get_main_db()
     prev = await get_active_config(mac)
+
+    surface_playback_mode = str(
+        data.get("surfacePlaybackMode") or data.get("surface_playback_mode") or "single"
+    ).strip().lower()
+    if surface_playback_mode not in ("single", "rotate", "scheduled"):
+        surface_playback_mode = "single"
+
+    _dm = (
+        data.get("renderMode")
+        or data.get("render_mode")
+        or data.get("deviceMode")
+        or data.get("device_mode")
+    )
+    if not _dm and prev:
+        _dm = prev.get("device_mode") or ""
+    device_mode = str(_dm or "mode").strip().lower()
+    if device_mode not in ("mode", "surface"):
+        device_mode = "mode"
+
+    rs_in = data.get("refreshStrategy")
+    if rs_in is None:
+        rs_in = data.get("refresh_strategy")
+    if device_mode == "surface":
+        # Legacy column; persona rotation uses surface playlist / playback. Canonical placeholder.
+        refresh_strategy = "random"
+    elif rs_in is not None and str(rs_in).strip() != "":
+        refresh_strategy = str(rs_in).strip().lower()
+        if refresh_strategy not in ("random", "cycle", "time_slot", "smart"):
+            refresh_strategy = (prev or {}).get("refresh_strategy") or DEFAULT_REFRESH_STRATEGY
+    else:
+        refresh_strategy = (prev or {}).get("refresh_strategy") or DEFAULT_REFRESH_STRATEGY
+
+    logger.info(
+        f"[CONFIG SAVE] mac={mac}, refreshStrategy={refresh_strategy}, device_mode={device_mode}, modes={data.get('modes')}"
+    )
+
     await db.execute("UPDATE configs SET is_active = 0 WHERE mac = ?", (mac,))
 
     countdown_events_json = json.dumps(
@@ -1483,18 +1514,6 @@ async def save_config(mac: str, data: dict) -> int:
     surfaces_json = json.dumps(data.get("surfaces", []), ensure_ascii=False)
     surface_schedule_json = json.dumps(data.get("surfaceSchedule", []), ensure_ascii=False)
     surface_playlist_json = json.dumps(data.get("surfacePlaylist", []), ensure_ascii=False)
-    surface_playback_mode = str(
-        data.get("surfacePlaybackMode") or data.get("surface_playback_mode") or "single"
-    ).strip().lower()
-    if surface_playback_mode not in ("single", "rotate", "scheduled"):
-        surface_playback_mode = "single"
-    _dm = (
-        data.get("renderMode")
-        or data.get("render_mode")
-        or data.get("deviceMode")
-        or "mode"
-    )
-    device_mode = str(_dm or "mode").strip().lower()
     assigned_mode = str(data.get("assignedMode", "") or "").strip().upper()
     assigned_surface = str(data.get("assignedSurface", "") or "").strip()
     _asg_save = str(data.get("assigned", "") or "").strip()
