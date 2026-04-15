@@ -409,15 +409,28 @@ def draw_status_bar(
     if fitted_date:
         draw.text((pad_x, date_y), fitted_date, fill=EINK_FG, font=font_date)
 
-    # Weather icon only in the bar center — omit temperature text (e.g. "22°C"), which on
-    # 1-bit panels is often misread as a clock; full detail stays in WEATHER mode body, etc.
+    def _extract_temp_token(text: str) -> str:
+        if not text:
+            return ""
+        m = re.search(r"(-?\d+)\s*°\s*C", text, flags=re.IGNORECASE)
+        if m:
+            return f"{m.group(1)}°C"
+        m = re.search(r"(-?\d+)\s*C\b", text, flags=re.IGNORECASE)
+        if m:
+            return f"{m.group(1)}°C"
+        return ""
+
     if not suppress_center_weather:
         weather_icon = get_weather_icon(weather_code) if weather_code >= 0 else None
+        temp_text = _extract_temp_token((weather_str or "").strip())
         if weather_icon:
             icon_fill = EINK_COLOR_NAME_MAP.get("red", EINK_FG) if colors >= 3 else EINK_FG
             paste_icon_onto(img, weather_icon, (wx, y - 1), fill=icon_fill)
+            if temp_text:
+                icon_text_x = wx + int(15 * scale)
+                draw.text((icon_text_x, y), temp_text, fill=EINK_FG, font=font_en)
         elif (weather_str or "").strip():
-            draw.text((wx, y), weather_str, fill=EINK_FG, font=font_date)
+            draw.text((wx, y), temp_text or weather_str, fill=EINK_FG, font=font_date)
 
     batt_text = f"{battery_pct}%"
     bbox = draw.textbbox((0, 0), batt_text, font=font_en)
