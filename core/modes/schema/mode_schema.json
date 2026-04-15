@@ -80,8 +80,27 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["llm", "llm_json", "static", "external_data", "image_gen", "computed", "composite"],
-          "description": "llm/llm_json/static plus external_data/image_gen/computed/composite"
+          "enum": ["llm", "llm_json", "static", "external_data", "image_gen", "computed", "composite", "http_fetch"],
+          "description": "llm/llm_json/static plus external_data/image_gen/computed/composite/http_fetch"
+        },
+        "url": {
+          "type": "string",
+          "description": "HTTPS URL for http_fetch; may include {context} and {city}"
+        },
+        "allowed_hosts": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Hostnames allowed for http_fetch (suffix match, same as plugin allowed_domains)"
+        },
+        "response_map": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Maps layout field names to dot paths in the JSON response"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Optional HTTP headers for http_fetch (string values only)"
         },
         "provider": {
           "type": "string",
@@ -147,6 +166,25 @@
         {
           "if": { "properties": { "type": { "const": "llm_json" } } },
           "then": { "required": ["prompt_template", "output_schema", "fallback"] }
+        },
+        {
+          "if": { "properties": { "type": { "const": "http_fetch" } } },
+          "then": {
+            "required": ["url", "allowed_hosts", "response_map", "fallback"],
+            "properties": {
+              "url": { "type": "string", "minLength": 8 },
+              "allowed_hosts": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string", "minLength": 1 }
+              },
+              "response_map": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": { "type": "string", "minLength": 1 }
+              }
+            }
+          }
         }
       ]
     },

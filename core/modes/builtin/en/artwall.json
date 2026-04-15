@@ -4,6 +4,7 @@
   "icon": "art",
   "cacheable": false,
   "description": "AI-generated minimalist line art",
+  "supported_slot_types": ["FULL", "SMALL"],
   "content": {
     "type": "image_gen",
     "provider": "text2image",

@@ -1,0 +1,225 @@
+{
+  "mode_id": "BF6_PROFILE",
+  "display_name": "BF6 profil",
+  "icon": "gamepad-2",
+  "cacheable": false,
+  "description": "Snimak profila igrača za Battlefield 6 iz GameTools API-ja.",
+  "settings_schema": [
+    {
+      "key": "bf6_username",
+      "label": "Korisničko ime BF6",
+      "type": "text",
+      "default": "",
+      "description": "Unesite korisničko ime za Battlefield 6 u igri."
+    },
+    {
+      "key": "bf6_platform",
+      "label": "Platforma",
+      "type": "select",
+      "default": "pc",
+      "options": [
+        {
+          "value": "pc",
+          "label": "PC"
+        },
+        {
+          "value": "xbox",
+          "label": "Xbox (generički)"
+        },
+        {
+          "value": "xboxseries",
+          "label": "Serija Xbox"
+        },
+        {
+          "value": "xboxone",
+          "label": "Xbox One"
+        },
+        {
+          "value": "psn",
+          "label": "PlayStation (generički)"
+        },
+        {
+          "value": "ps5",
+          "label": "PlayStation 5"
+        },
+        {
+          "value": "ps4",
+          "label": "PlayStation 4"
+        }
+      ],
+      "description": "Odaberite platformu na kojoj je račun igrača aktivan."
+    }
+  ],
+  "content": {
+    "type": "external_data",
+    "provider": "bf6_profile",
+    "fallback": {
+      "title": "BF6 profil",
+      "username": "Nije postavljeno",
+      "platform": "PC",
+      "rank": "-",
+      "avatar_url": "",
+      "badges": "-",
+      "score_total": "-",
+      "kills": "-",
+      "deaths": "-",
+      "kd": "-",
+      "assists": "-",
+      "revives": "-",
+      "headshots": "-",
+      "headshot_rate": "-",
+      "summary_left": [
+        {
+          "line": "ubija -"
+        },
+        {
+          "line": "Smrtni slučajevi  -"
+        },
+        {
+          "line": "K/D -"
+        },
+        {
+          "line": "Asistira -"
+        }
+      ],
+      "summary_right": [
+        {
+          "line": "rezultat -"
+        },
+        {
+          "line": "Snimke u glavu -"
+        },
+        {
+          "line": "HS stopa -"
+        },
+        {
+          "line": "Oživljava -"
+        }
+      ],
+      "error": ""
+    }
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false,
+      "bottom_pct": 0.108
+    },
+    "body": [
+      {
+        "type": "text",
+        "field": "title",
+        "font_size": 17,
+        "font": "lora_bold",
+        "align": "center",
+        "max_lines": 1,
+        "margin_x": 14
+      },
+      {
+        "type": "text",
+        "text": "{username}",
+        "font_size": 12,
+        "font": "lora_regular",
+        "align": "center",
+        "max_lines": 1,
+        "margin_x": 14
+      },
+      {
+        "type": "text",
+        "text": "Platforma {platform}",
+        "font_size": 9,
+        "font": "lora_regular",
+        "align": "center",
+        "max_lines": 1,
+        "margin_x": 14
+      },
+      {
+        "type": "image",
+        "field": "avatar_url",
+        "width": 74,
+        "height": 74,
+        "x": 308,
+        "y": 44,
+        "margin_bottom": 0,
+        "fallback_text": "RANK"
+      },
+      {
+        "type": "spacer",
+        "height": 1
+      },
+      {
+        "type": "big_number",
+        "field": "rank",
+        "font_size": 30,
+        "align": "left"
+      },
+      {
+        "type": "text",
+        "text": "Razina čina",
+        "font_size": 9,
+        "font": "lora_regular",
+        "align": "left",
+        "margin_x": 88,
+        "max_lines": 1
+      },
+      {
+        "type": "big_number",
+        "field": "score_total",
+        "font_size": 20,
+        "align": "left"
+      },
+      {
+        "type": "text",
+        "text": "Ukupni rezultat",
+        "font_size": 9,
+        "font": "lora_regular",
+        "align": "left",
+        "margin_x": 150,
+        "max_lines": 1
+      },
+      {
+        "type": "spacer",
+        "height": 1
+      },
+      {
+        "type": "spacer",
+        "height": 2
+      },
+      {
+        "type": "two_column",
+        "left_x": 18,
+        "left_width": 184,
+        "gap": 12,
+        "right_margin": 18,
+        "left": [
+          {
+            "type": "list",
+            "field": "summary_left",
+            "item_template": "{line}",
+            "font_size": 12,
+            "font": "lora_regular",
+            "item_spacing": 15,
+            "margin_x": 0,
+            "max_items": 5
+          }
+        ],
+        "right": [
+          {
+            "type": "list",
+            "field": "summary_right",
+            "item_template": "{line}",
+            "font_size": 12,
+            "font": "lora_regular",
+            "item_spacing": 15,
+            "margin_x": 0,
+            "max_items": 5
+          }
+        ]
+      }
+    ],
+    "footer": {
+      "label": "BF6",
+      "attribution_template": "— Alati za igre"
+    }
+  }
+}

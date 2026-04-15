@@ -1,0 +1,149 @@
+{
+  "mode_id": "POETRY",
+  "display_name": "Klasična poezija",
+  "icon": "star",
+  "cacheable": true,
+  "description": "Klasična pjesma prilagođena trenutnom godišnjem dobu i raspoloženju",
+  "content": {
+    "type": "llm_json",
+    "prompt_template": "Vi ste stručnjak za klasičnu književnost. Na temelju informacija o okruženju, preporučite kratku pjesmu ili ulomak (4-8 redaka) iz engleske ili zapadne poezije koji odjekuje trenutnim godišnjim dobom, vremenom ili raspoloženjem.\nIzlazni JSON: {{\"title\": \"Poem title\", \"author\": \"Poet name\", \"lines\": [\"line 1\", \"line 2\", ...], \"note\": \"One-line appreciation (under 40 chars)\"}}\nZahtjevi:\n1. Birajte između klasičnih pjesnika: Shakespeare, Frost, Dickinson, Keats, Shelley, Wordsworth, Whitman, Yeats, Rilke, Neruda itd.\n2. Svaki put drugačija pjesma\n3. Svaki red kao zasebni element niza\n4. Sav tekst mora biti na engleskom jeziku\n5. Ispis samo JSON\nKontekst: {context}",
+    "output_schema": {
+      "title": {
+        "type": "string",
+        "default": "Put kojim se ne ide"
+      },
+      "author": {
+        "type": "string",
+        "default": "Robert Frost"
+      },
+      "lines": {
+        "type": "array",
+        "default": [
+          "U žutoj šumi dva su se puta razišla,",
+          "I žao mi je što nisam mogao putovati oboje",
+          "I budi jedan putnik, dugo sam stajao",
+          "I spustio pogled koliko sam mogao"
+        ]
+      },
+      "note": {
+        "type": "string",
+        "default": "Svaki izbor oblikuje ono što postajemo."
+      }
+    },
+    "temperature": 0.8,
+    "fallback": {
+      "title": "Put kojim se ne ide",
+      "author": "Robert Frost",
+      "lines": [
+        "U žutoj šumi dva su se puta razišla,",
+        "I žao mi je što nisam mogao putovati oboje",
+        "I budi jedan putnik, dugo sam stajao",
+        "I spustio pogled koliko sam mogao"
+      ],
+      "note": "Svaki izbor oblikuje ono što postajemo."
+    },
+    "fallback_pool": [
+      {
+        "title": "Put kojim se ne ide",
+        "author": "Robert Frost",
+        "lines": [
+          "U žutoj šumi dva su se puta razišla,",
+          "I žao mi je što nisam mogao putovati oboje",
+          "I budi jedan putnik, dugo sam stajao",
+          "I spustio pogled koliko sam mogao"
+        ],
+        "note": "Svaki izbor oblikuje ono što postajemo."
+      },
+      {
+        "title": "Sonet 18",
+        "author": "William Shakespeare",
+        "lines": [
+          "Da te usporedim s ljetnim danom?",
+          "Ti si ljupkija i umjerenija.",
+          "Jaki vjetrovi tresu drage pupoljke svibnja,",
+          "A ljetni najam ima prekratak rok."
+        ],
+        "note": "Ljepota sačuvana kroz riječi."
+      },
+      {
+        "title": "Nada je stvar s perjem",
+        "author": "Emily Dickinson",
+        "lines": [
+          "Nada je stvar s perjem",
+          "To sjedi u duši,",
+          "I pjeva melodiju bez riječi,",
+          "I nikad ne prestaje."
+        ],
+        "note": "Nada traje izvan razuma."
+      }
+    ]
+  },
+  "layout": {
+    "layout_engine": "component_tree",
+    "status_bar": {
+      "line_width": 1,
+      "dashed": true
+    },
+    "body_preset": "poetry_card",
+    "preset_props": {
+      "top_gap": 14,
+      "title_field": "title",
+      "title_font": "noto_serif_bold",
+      "title_font_size": 14,
+      "author_field": "author",
+      "author_font": "noto_serif_regular",
+      "author_font_size": 11,
+      "separator_width": 60,
+      "lines_field": "lines",
+      "lines_limit": 8,
+      "lines_inset_x": 30,
+      "lines_font": "noto_serif_regular",
+      "lines_font_size": 13,
+      "lines_gap": 7,
+      "note_field": "note",
+      "note_font": "noto_serif_light",
+      "note_font_size": 10,
+      "note_max_lines": 2
+    },
+    "footer": {
+      "label": "Poezija",
+      "attribution_template": "— {author}",
+      "dashed": true
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "preset_props": {
+        "top_gap": 0,
+        "gap": 5,
+        "title_font_size": 11,
+        "author_field": null,
+        "separator_width": 40,
+        "lines_limit": 4,
+        "lines_inset_x": 8,
+        "lines_font_size": 11,
+        "lines_gap": 3,
+        "note_field": null
+      },
+      "footer": {
+        "label": "Poezija",
+        "attribution_template": "— {author}",
+        "dashed": true,
+        "height": 18
+      }
+    },
+    "800x480": {
+      "preset_props": {
+        "top_gap": 22,
+        "gap": 10,
+        "title_font_size": 22,
+        "author_font_size": 16,
+        "separator_width": 90,
+        "lines_inset_x": 50,
+        "lines_font_size": 18,
+        "lines_gap": 10,
+        "note_font_size": 14
+      }
+    }
+  }
+}

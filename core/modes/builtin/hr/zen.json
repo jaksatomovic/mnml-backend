@@ -1,0 +1,93 @@
+{
+  "mode_id": "ZEN",
+  "display_name": "Dnevni zen",
+  "icon": "zen",
+  "cacheable": true,
+  "description": "Jedna riječ za razmišljanje, s kratkim značenjem",
+  "content": {
+    "type": "llm_json",
+    "prompt_template": "Vi ste zen majstor. Odaberite JEDNU englesku riječ koja najbolje opisuje bit ovog trenutka. Navedite kratko značenje ili bilješku o porijeklu.\nIzlazni JSON: {{\"word\": \"one word\", \"source\": \"brief meaning or origin (under 30 chars)\"}}\nPrimjer: {{\"word\": \"Stillness\", \"source\": \"the art of doing nothing\"}}\nSav tekst mora biti na engleskom jeziku. Ispis samo JSON.\nKontekst: {context}",
+    "output_schema": {
+      "word": {
+        "type": "string",
+        "default": "Mirnoća"
+      },
+      "source": {
+        "type": "string",
+        "default": "umijeće nečinjenja ništa"
+      }
+    },
+    "temperature": 0.8,
+    "fallback": {
+      "word": "Mirnoća",
+      "source": "the art of doing nothing"
+    },
+    "fallback_pool": [
+      {
+        "word": "Mirnoća"
+      },
+      {
+        "word": "Lutati"
+      },
+      {
+        "word": "Bloom"
+      },
+      {
+        "word": "Disati"
+      },
+      {
+        "word": "Zanos"
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": true
+    },
+    "layout_engine": "component_tree",
+    "body_preset": "zen_focus_card",
+    "preset_props": {
+      "padding_x": 18,
+      "justify": "center",
+      "gap": 10,
+      "word_inset_x": 60,
+      "word_field": "word",
+      "word_font": "noto_serif_regular",
+      "word_font_size": 48,
+      "source_field": "source",
+      "source_font": "noto_serif_light",
+      "source_font_size": 9
+    },
+    "footer": {
+      "label": "Zen",
+      "attribution_template": null,
+      "dashed": true
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "preset_props": {
+        "padding_x": 8,
+        "word_inset_x": 44,
+        "word_font_size": 32,
+        "source_field": null
+      },
+      "footer": {
+        "label": "Zen",
+        "attribution_template": null,
+        "dashed": true,
+        "height": 18
+      }
+    },
+    "800x480": {
+      "preset_props": {
+        "padding_x": 28,
+        "gap": 14,
+        "word_inset_x": 120,
+        "word_font_size": 72,
+        "source_font_size": 14
+      }
+    }
+  }
+}

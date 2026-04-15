@@ -1,0 +1,246 @@
+{
+  "mode_id": "FITNESS",
+  "display_name": "Plan vježbanja",
+  "icon": "exercise",
+  "cacheable": false,
+  "description": "Jednostavan plan vježbanja kod kuće s 5 vježbi",
+  "content": {
+    "type": "llm_json",
+    "prompt_template": "Vi ste kondicijski trener. Preporučite jednostavan plan vježbanja u JSON-u:\n\n{{\n  \"workout_name\": \"Naziv (npr. Jutarnje istezanje, Core Blast)\",\n  \"duration\": \"Ukupno vrijeme (npr. 15 min)\",\n  \"vježbe\": [\n    {{\"name\": \"Exercise name\", \"reps\": \"Reps/duration\"}},\n    {{\"name\": \"Exercise name\", \"reps\": \"Reps/duration\"}},\n    {{\"name\": \"Exercise name\", \"reps\": \"Reps/duration\"}},\n    {{\"name\": \"Exercise name\", \"reps\": \"Reps/duration\"}},\n    {{\"name\": \"Exercise name\", \"reps\": \"Reps/duration\"}}\n  ],\n  \"tip\": \"Savjet za zdravlje (ispod 30 znakova)\"\n}}\n\nZahtjevi:\n1. Jednostavan, pogodan za dom\n2. Nije potrebna oprema\n3. Ispis samo JSON",
+    "output_schema": {
+      "workout_name": {
+        "type": "string",
+        "default": "Jutarnje istezanje"
+      },
+      "duration": {
+        "type": "string",
+        "default": "15 min"
+      },
+      "exercises": {
+        "type": "array",
+        "default": [
+          {
+            "name": "Jumping Jacks",
+            "reps": "30 sek"
+          },
+          {
+            "name": "Sklekovi",
+            "reps": "10 ponavljanja"
+          },
+          {
+            "name": "Daska",
+            "reps": "30 sek"
+          },
+          {
+            "name": "Čučnjevi",
+            "reps": "15 ponavljanja"
+          },
+          {
+            "name": "Istezanje",
+            "reps": "60 sek"
+          }
+        ]
+      },
+      "tip": {
+        "type": "string",
+        "default": "Ostanite hidrirani između serija."
+      }
+    },
+    "temperature": 0.8,
+    "fallback": {
+      "workout_name": "Jutarnje istezanje",
+      "duration": "15 min",
+      "exercises": [
+        {
+          "name": "Jumping Jacks",
+          "reps": "30 sek"
+        },
+        {
+          "name": "Sklekovi",
+          "reps": "10 ponavljanja"
+        },
+        {
+          "name": "Daska",
+          "reps": "30 sek"
+        },
+        {
+          "name": "Čučnjevi",
+          "reps": "15 ponavljanja"
+        },
+        {
+          "name": "Istezanje",
+          "reps": "60 sek"
+        }
+      ],
+      "tip": "Ostanite hidrirani između serija."
+    },
+    "fallback_pool": [
+      {
+        "workout_name": "Jutarnje istezanje",
+        "duration": "15 min",
+        "exercises": [
+          {
+            "name": "Jumping Jacks",
+            "reps": "30 sek"
+          },
+          {
+            "name": "Sklekovi",
+            "reps": "10 ponavljanja"
+          },
+          {
+            "name": "Daska",
+            "reps": "30 sek"
+          },
+          {
+            "name": "Čučnjevi",
+            "reps": "15 ponavljanja"
+          },
+          {
+            "name": "Istezanje",
+            "reps": "60 sek"
+          }
+        ],
+        "tip": "Ostanite hidrirani između serija."
+      },
+      {
+        "workout_name": "Eksplozija jezgre",
+        "duration": "20 min",
+        "exercises": [
+          {
+            "name": "Držanje za dasku",
+            "reps": "30 sek"
+          },
+          {
+            "name": "trbušnjaci",
+            "reps": "15 ponavljanja"
+          },
+          {
+            "name": "Bočna daska",
+            "reps": "20 sekundi svaki"
+          },
+          {
+            "name": "Planinari",
+            "reps": "30 sek"
+          },
+          {
+            "name": "Glutealni most",
+            "reps": "15 ponavljanja"
+          }
+        ],
+        "tip": "Snažna jezgra je temelj svakog kretanja."
+      },
+      {
+        "workout_name": "Reljef za vrat i ramena",
+        "duration": "10 min",
+        "exercises": [
+          {
+            "name": "Okreti vrata",
+            "reps": "10 ponavljanja"
+          },
+          {
+            "name": "Sleganje ramenima",
+            "reps": "15 ponavljanja"
+          },
+          {
+            "name": "Otvarač škrinje",
+            "reps": "12 ponavljanja"
+          },
+          {
+            "name": "Krugovi ruku",
+            "reps": "10 u svakom smjeru"
+          },
+          {
+            "name": "Istezanje trapeza",
+            "reps": "30 sekundi svaki"
+          }
+        ],
+        "tip": "Stolni radnici: učinite to svaka 2 sata."
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "layout_engine": "component_tree",
+    "body_preset": "fitness_card",
+    "preset_props": {
+      "top_gap": 14,
+      "title_field": "workout_name",
+      "title_font": "noto_serif_bold",
+      "title_font_size": 16,
+      "duration_field": "duration",
+      "duration_font": "noto_serif_regular",
+      "duration_font_size": 14,
+      "header_divider_margin_x": 24,
+      "exercise_title": "Vježbe",
+      "exercise_icon": "exercise",
+      "section_title_font": "noto_serif_regular",
+      "section_title_font_size": 14,
+      "section_content_indent": 32,
+      "exercise_limit": 8,
+      "exercise_gap": 6,
+      "exercise_row_gap": 8,
+      "exercise_template": "{index}. {name}",
+      "exercise_font": "noto_serif_regular",
+      "exercise_font_size": 13,
+      "exercise_reps_field": "reps",
+      "exercise_reps_font": "noto_serif_regular",
+      "exercise_reps_font_size": 13,
+      "tip_divider_margin_x": 24,
+      "tip_title": "Savjet",
+      "tip_icon": "tips",
+      "tip_field": "tip",
+      "tip_font": "noto_serif_light",
+      "tip_font_size": 14,
+      "tip_max_lines": 3
+    },
+    "footer": {
+      "label": "fitness",
+      "attribution_template": "— Ostanite zdravi"
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "preset_props": {
+        "top_gap": 0,
+        "padding_x": 8,
+        "gap": 4,
+        "title_font_size": 13,
+        "title_align": "left",
+        "duration_font_size": 10,
+        "duration_align": "left",
+        "header_divider_style": "short",
+        "header_divider_margin_x": null,
+        "header_divider_width": 40,
+        "exercise_title": "",
+        "exercise_limit": 3,
+        "exercise_gap": 4,
+        "exercise_font_size": 11,
+        "exercise_reps_font_size": 11,
+        "show_tip_divider": false,
+        "tip_field": null
+      },
+      "footer": {
+        "label": "fitness",
+        "height": 20
+      }
+    },
+    "648x480": {
+      "preset_props": {
+        "top_gap": 20,
+        "title_font_size": 22,
+        "duration_font_size": 18,
+        "header_divider_margin_x": 40,
+        "section_title_font_size": 18,
+        "section_content_indent": 40,
+        "exercise_gap": 8,
+        "exercise_font_size": 17,
+        "exercise_reps_font_size": 17,
+        "tip_divider_margin_x": 40,
+        "tip_font_size": 16
+      }
+    }
+  }
+}

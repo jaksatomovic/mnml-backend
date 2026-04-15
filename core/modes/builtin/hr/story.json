@@ -1,0 +1,168 @@
+{
+  "mode_id": "STORY",
+  "display_name": "Flash Fiction",
+  "icon": "book",
+  "cacheable": true,
+  "description": "Mikropriča u tri čina od 30 sekundi",
+  "content": {
+    "type": "llm_json",
+    "prompt_template": "Vi ste majstor flash fikcije. Napišite mikropriču u tri čina koja se može pročitati za 30 sekundi.\nIzlazni JSON:\n{{\"title\": \"Title (under 6 words)\", \"opening\": \"Setup (under 50 chars, set scene and character)\", \"twist\": \"Twist (under 60 chars, unexpected turn)\", \"ending\": \"Ending (under 50 chars, lingering resonance)\", \"genre\": \"Genre (Suspense / Heartfelt / Sci-fi / Absurd)\"}}\nZahtjevi:\n1. Završetak mora imati zaokret ili dugotrajan osjećaj\n2. Suptilna veza s trenutnim vremenom/vremenom\n3. Nema sretnih završetaka — težite književnoj kvaliteti\n4. Stil flash fikcije, a ne bajke ili moralne priče\nIspis samo JSON.\nKontekst: {context}",
+    "output_schema": {
+      "title": {
+        "type": "string",
+        "default": "Posljednji svjetionik"
+      },
+      "opening": {
+        "type": "string",
+        "default": "Uspinjala se spiralnim stepenicama svake večeri u šest."
+      },
+      "twist": {
+        "type": "string",
+        "default": "Brodovi su prestali dolaziti prije mnogo godina. Svejedno je držala upaljeno svjetlo."
+      },
+      "ending": {
+        "type": "string",
+        "default": "Jedne se noći na horizontu pojavio mali čamac."
+      },
+      "genre": {
+        "type": "string",
+        "default": "Iskren"
+      }
+    },
+    "temperature": 0.92,
+    "fallback": {
+      "title": "Posljednji svjetionik",
+      "opening": "Uspinjala se spiralnim stepenicama svake večeri u šest.",
+      "twist": "Brodovi su prestali dolaziti prije mnogo godina. Svejedno je držala upaljeno svjetlo.",
+      "ending": "Jedne se noći na horizontu pojavio mali čamac.",
+      "genre": "Iskren"
+    }
+  },
+  "layout": {
+    "layout_engine": "component_tree",
+    "status_bar": {
+      "line_width": 1,
+      "dashed": true
+    },
+    "component_theme": {
+      "body_font": "noto_serif_regular",
+      "body_font_size": 13,
+      "body_line_gap": 5
+    },
+    "body_preset": "story_card",
+    "preset_props": {
+      "padding_x": 18,
+      "padding_y": 6,
+      "justify": "center",
+      "gap": 6,
+      "meta_field": "genre",
+      "meta_font_size": 9,
+      "title_field": "title",
+      "title_font": "noto_serif_bold",
+      "title_font_size": 16,
+      "title_max_lines": 2,
+      "separator_width": 50,
+      "sections": [
+        {
+          "field": "opening",
+          "font": "noto_serif_regular",
+          "font_size": 13,
+          "inset_x": 28,
+          "max_lines": 3
+        },
+        {
+          "field": "twist",
+          "font": "noto_serif_regular",
+          "font_size": 13,
+          "inset_x": 28,
+          "max_lines": 3
+        },
+        {
+          "field": "ending",
+          "font": "noto_serif_regular",
+          "font_size": 13,
+          "inset_x": 28,
+          "max_lines": 3
+        }
+      ]
+    },
+    "footer": {
+      "label": "Priča",
+      "attribution_template": "— Mikro fikcija",
+      "dashed": true
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "preset_props": {
+        "padding_x": 8,
+        "padding_y": 4,
+        "justify": "center",
+        "gap": 4,
+        "meta_field": null,
+        "title_field": "title",
+        "title_font": "noto_serif_bold",
+        "title_font_size": 12,
+        "title_max_lines": 2,
+        "separator_width": 30,
+        "sections": [
+          {
+            "field": "opening",
+            "font_size": 10,
+            "inset_x": 8,
+            "max_lines": 2
+          },
+          {
+            "field": "twist",
+            "font_size": 10,
+            "inset_x": 8,
+            "max_lines": 2
+          }
+        ]
+      },
+      "footer": {
+        "label": "Priča",
+        "dashed": true,
+        "height": 18
+      }
+    },
+    "800x480": {
+      "preset_props": {
+        "padding_x": 28,
+        "padding_y": 10,
+        "justify": "center",
+        "gap": 10,
+        "meta_field": "genre",
+        "meta_font_size": 13,
+        "title_field": "title",
+        "title_font": "noto_serif_bold",
+        "title_font_size": 24,
+        "title_max_lines": 2,
+        "separator_width": 70,
+        "sections": [
+          {
+            "field": "opening",
+            "font": "noto_serif_regular",
+            "font_size": 19,
+            "inset_x": 48,
+            "max_lines": 4
+          },
+          {
+            "field": "twist",
+            "font": "noto_serif_regular",
+            "font_size": 19,
+            "inset_x": 48,
+            "max_lines": 4
+          },
+          {
+            "field": "ending",
+            "font": "noto_serif_regular",
+            "font_size": 19,
+            "inset_x": 48,
+            "max_lines": 4
+          }
+        ]
+      }
+    }
+  }
+}

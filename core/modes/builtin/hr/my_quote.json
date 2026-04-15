@@ -1,0 +1,92 @@
+{
+  "mode_id": "MY_QUOTE",
+  "display_name": "Dnevni citat",
+  "icon": "my_quote",
+  "cacheable": false,
+  "description": "Kratak, snažan citat s atribucijom",
+  "content": {
+    "type": "llm_json",
+    "prompt_template": "Vi ste vješt aforističar. Ispišite kratak, snažan citat i njegovog autora.\nIzlazni JSON:\n{{\"quote\": \"The quote (under 50 chars)\", \"author\": \"Author (under 30 chars, can be fictional but realistic)\"}}\nZahtjevi:\n1. Ne generička samopomoć — budite specifični, suzdržani, oštri\n2. Izbjegavajte političku osjetljivost\n3. Ispis samo JSON\nKontekst: {context}",
+    "output_schema": {
+      "quote": {
+        "type": "string",
+        "default": "Svijet slomi svakoga, a poslije su neki jaki na slomljenom mjestu."
+      },
+      "author": {
+        "type": "string",
+        "default": "Ernest Hemingway"
+      }
+    },
+    "temperature": 0.85,
+    "fallback": {
+      "quote": "Svijet slomi svakoga, a poslije su neki jaki na slomljenom mjestu.",
+      "author": "Ernest Hemingway"
+    },
+    "fallback_pool": [
+      {
+        "quote": "Svijet slomi svakoga, a poslije su neki jaki na slomljenom mjestu.",
+        "author": "Ernest Hemingway"
+      },
+      {
+        "quote": "Ne morate ići brže. Morate ići stabilnije.",
+        "author": "InkSight"
+      },
+      {
+        "quote": "Ne čekajte inspiraciju. Završite prvi korak.",
+        "author": "InkSight"
+      },
+      {
+        "quote": "Razbij teške stvari na male. Dovršite male.",
+        "author": "InkSight"
+      },
+      {
+        "quote": "Manje izbora, više akcije.",
+        "author": "InkSight"
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "layout_engine": "component_tree",
+    "body_preset": "quote_focus_card",
+    "preset_props": {
+      "padding_x": 18,
+      "justify": "center",
+      "quote_inset_x": 30,
+      "quote_field": "quote",
+      "quote_font": "noto_serif_light",
+      "quote_font_size": 18,
+      "quote_max_lines": 4
+    },
+    "footer": {
+      "label": "Prilagođena ponuda",
+      "attribution_template": "— {author}"
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "preset_props": {
+        "padding_x": 8,
+        "quote_inset_x": 8,
+        "quote_font_size": 13,
+        "quote_max_lines": 3
+      },
+      "footer": {
+        "label": "Prilagođena ponuda",
+        "attribution_template": "— {author}",
+        "height": 18
+      }
+    },
+    "800x480": {
+      "preset_props": {
+        "padding_x": 28,
+        "quote_inset_x": 72,
+        "quote_font_size": 26,
+        "quote_max_lines": 4
+      }
+    }
+  }
+}

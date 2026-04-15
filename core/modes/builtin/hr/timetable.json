@@ -1,0 +1,117 @@
+{
+  "mode_id": "TIMETABLE",
+  "display_name": "Raspored",
+  "icon": "school",
+  "cacheable": false,
+  "description": "Današnji raspored nastave s istaknutim trenutnim razredom",
+  "content": {
+    "type": "composite",
+    "steps": [
+      {
+        "type": "computed",
+        "provider": "daily_meta",
+        "fallback": {
+          "year": 2026,
+          "day": 23,
+          "month_cn": "ožujak",
+          "weekday_cn": "pon",
+          "day_of_year": 82,
+          "days_in_year": 365
+        }
+      },
+      {
+        "type": "computed",
+        "provider": "timetable",
+        "fallback": {
+          "style": "daily",
+          "timetable_title": "Pon · Današnja nastava",
+          "slots": [
+            {
+              "time": "08:00 sati",
+              "name": "Račun",
+              "location": "A201",
+              "current": false
+            },
+            {
+              "time": "10:00 sati",
+              "name": "engleski",
+              "location": "B305",
+              "current": true
+            },
+            {
+              "time": "14:00 sati",
+              "name": "Strukture podataka",
+              "location": "C102",
+              "current": false
+            },
+            {
+              "time": "16:00 sati",
+              "name": "P.E.",
+              "location": "teretana",
+              "current": false
+            }
+          ],
+          "slot_count": 4,
+          "current_day": 0,
+          "current_period": 1
+        }
+      }
+    ],
+    "fallback": {},
+    "fallback_pool": [
+      {
+        "style": "daily",
+        "timetable_title": "Pon · Današnja nastava",
+        "slots": [
+          {
+            "time": "08:00 sati",
+            "name": "Račun",
+            "location": "A201",
+            "current": false
+          },
+          {
+            "time": "10:00 sati",
+            "name": "engleski",
+            "location": "B305",
+            "current": true
+          },
+          {
+            "time": "14:00 sati",
+            "name": "Strukture podataka",
+            "location": "C102",
+            "current": false
+          },
+          {
+            "time": "16:00 sati",
+            "name": "P.E.",
+            "location": "teretana",
+            "current": false
+          }
+        ],
+        "slot_count": 4,
+        "current_day": 0,
+        "current_period": 1
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "body_align": "top",
+    "body": [
+      {
+        "type": "timetable_grid",
+        "field": "slots",
+        "font_size": 12,
+        "margin_x": 6,
+        "row_height": 30
+      }
+    ],
+    "footer": {
+      "label": "TIMETABLE",
+      "attribution_template": "— InkSight"
+    }
+  }
+}

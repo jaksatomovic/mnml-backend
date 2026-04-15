@@ -503,7 +503,16 @@ async def build_image(
     # - external_data: translated provider translated "briefing" translated summarize translated include_insight，translated LLM
     # - composite: translated steps translated
     llm_mode_requires_quota = False
-    json_mode = registry.get_json_mode(persona, mac)
+    _cfg_for_mode = dict(config or {})
+    if preview_ui_language in ("zh", "en", "hr"):
+        _cfg_for_mode["mode_language"] = preview_ui_language
+        _cfg_for_mode["modeLanguage"] = preview_ui_language
+    _ml = str(
+        _cfg_for_mode.get("mode_language")
+        or _cfg_for_mode.get("modeLanguage")
+        or "zh"
+    ).lower()
+    json_mode = registry.get_json_mode(persona, mac, language=_ml)
     if json_mode and isinstance(json_mode.definition, dict):
         content_def = json_mode.definition.get("content", {}) or {}
         ctype = content_def.get("type")
@@ -644,7 +653,7 @@ async def build_image(
     # Preview locale: when the client passes ui_language (config /preview pages), use it for
     # JSON mode selection (e.g. en/weather.json) and date strings — even if a MAC is set,
     # so the widget tab matches the UI language instead of the device's stored mode_language.
-    if preview_ui_language in ("zh", "en"):
+    if preview_ui_language in ("zh", "en", "hr"):
         config = copy.deepcopy(config or {})
         config["mode_language"] = preview_ui_language
         config["modeLanguage"] = preview_ui_language
@@ -958,7 +967,11 @@ async def build_image(
             elif content_data.get("_used_fallback") is True:
                 content_fallback = True
             else:
-                jm = get_registry().get_json_mode(persona, mac)
+                _eff = get_effective_mode_config(config, persona)
+                _ml2 = str(
+                    _eff.get("mode_language") or _eff.get("modeLanguage") or "zh"
+                ).lower()
+                jm = get_registry().get_json_mode(persona, mac, language=_ml2)
                 if jm and jm.definition.get("content", {}).get("type") == "image_gen":
                     content_fallback = not bool(content_data.get("image_url"))
 

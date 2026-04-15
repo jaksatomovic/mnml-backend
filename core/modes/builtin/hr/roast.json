@@ -1,0 +1,134 @@
+{
+  "mode_id": "ROAST",
+  "display_name": "Dnevno pečenje",
+  "icon": "electric_bolt",
+  "cacheable": true,
+  "description": "Duhoviti, sarkastični tekstovi o vašem trenutnom trenutku",
+  "content": {
+    "type": "llm",
+    "prompt_template": "Vi ste duhoviti AI s darom za crni humor i sarkazam. Odaberite JEDAN određeni detalj iz podataka o okolišu u nastavku i pecite ga nemilosrdno.\nNa primjer: ako je ponedjeljak, roast Monday blues; ako pada kiša, ispeci ljude koje je zatekla kiša; ako je kasna noć, pečene noćne sove; ako je vruće, pečenje topline.\nPečenje bi trebalo zvučati kao da kraj vas sjedi zlobni prijatelj - a ne kao opća internetska šala. Nježan, ali razoran. Nasmijte ih unatoč njima samima.\nPišite samo na engleskom. Izbacite SAMO pečenje. Bez navodnika, bez prefiksa.\nKontekst: {context}",
+    "output_format": "raw",
+    "output_fields": [
+      "quote"
+    ],
+    "temperature": 0.85,
+    "fallback": {
+      "quote": "I poslužitelj je umoran. Baš kao i vama, potreban mu je odmor."
+    },
+    "fallback_pool": [
+      {
+        "quote": "I poslužitelj je umoran. Baš kao i vama, potreban mu je odmor."
+      },
+      {
+        "quote": "Učitavanje... slično kao i vaš život - uvijek u međuspremniku."
+      },
+      {
+        "quote": "404: Vaša motivacija nije pronađena."
+      },
+      {
+        "quote": "Veza je istekla. Kao i tvoje strpljenje."
+      },
+      {
+        "quote": "Sustav zauzet. Možda bi i ti trebao biti."
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 2,
+      "dashed": false
+    },
+    "layout_engine": "component_tree",
+    "component_theme": {
+      "body_font": "lora_regular",
+      "body_font_size": 18,
+      "body_line_gap": 8
+    },
+    "body": {
+      "type": "column",
+      "padding_x": 18,
+      "justify": "center",
+      "children": [
+        {
+          "type": "box",
+          "padding_x": 6,
+          "children": [
+            {
+              "type": "text",
+              "field": "quote",
+              "font": "lora_regular",
+              "font_size": 18,
+              "align": "center",
+              "max_lines": 4
+            }
+          ]
+        }
+      ]
+    },
+    "footer": {
+      "label": "ROAST",
+      "attribution_template": "— InkSight AI",
+      "line_width": 2
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "component_theme": {
+        "body_font_size": 13
+      },
+      "body": {
+        "type": "column",
+        "padding_x": 8,
+        "justify": "center",
+        "children": [
+          {
+            "type": "box",
+            "padding_x": 4,
+            "children": [
+              {
+                "type": "text",
+                "field": "quote",
+                "font": "lora_regular",
+                "font_size": 13,
+                "align": "center",
+                "max_lines": 4
+              }
+            ]
+          }
+        ]
+      },
+      "footer": {
+        "label": "ROAST",
+        "attribution_template": "— InkSight AI",
+        "height": 18,
+        "line_width": 2
+      }
+    },
+    "800x480": {
+      "component_theme": {
+        "body_font_size": 26
+      },
+      "body": {
+        "type": "column",
+        "padding_x": 28,
+        "justify": "center",
+        "children": [
+          {
+            "type": "box",
+            "padding_x": 44,
+            "children": [
+              {
+                "type": "text",
+                "field": "quote",
+                "font": "lora_regular",
+                "font_size": 26,
+                "align": "center",
+                "max_lines": 4
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

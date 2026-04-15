@@ -558,6 +558,7 @@ async def init_db():
                 user_id INTEGER NOT NULL,
                 mac VARCHAR(17) NOT NULL,
                 definition_json TEXT NOT NULL,
+                definition_language TEXT DEFAULT 'zh',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(mode_id, user_id, mac),
@@ -589,6 +590,12 @@ async def init_db():
                 "image_model": DEFAULT_IMAGE_MODEL,
             },
         )
+        try:
+            await db.execute(
+                "ALTER TABLE custom_modes ADD COLUMN definition_language TEXT DEFAULT 'zh'"
+            )
+        except Exception:
+            pass
         await _migrate_legacy_user_devices(db)
         await db.commit()
     finally:
@@ -2071,7 +2078,7 @@ async def get_user_custom_modes(user_id: int, mac: Optional[str] = None) -> list
     if mac:
         cursor = await db.execute(
             """
-            SELECT mode_id, mac, definition_json, created_at, updated_at
+            SELECT mode_id, mac, definition_json, created_at, updated_at, definition_language
             FROM custom_modes
             WHERE user_id = ? AND mac = ?
             ORDER BY created_at DESC
@@ -2081,7 +2088,7 @@ async def get_user_custom_modes(user_id: int, mac: Optional[str] = None) -> list
     else:
         cursor = await db.execute(
             """
-            SELECT mode_id, mac, definition_json, created_at, updated_at
+            SELECT mode_id, mac, definition_json, created_at, updated_at, definition_language
             FROM custom_modes
             WHERE user_id = ?
             ORDER BY created_at DESC
@@ -2093,12 +2100,14 @@ async def get_user_custom_modes(user_id: int, mac: Optional[str] = None) -> list
     for row in rows:
         try:
             definition = json.loads(row[2])
+            dl = row[5] if len(row) > 5 and row[5] else "zh"
             modes.append({
                 "mode_id": row[0],
                 "mac": row[1],
                 "definition": definition,
                 "created_at": row[3],
                 "updated_at": row[4],
+                "definition_language": (str(dl).strip().lower() if dl else "zh"),
             })
         except json.JSONDecodeError:
             logger.error(f"[CUSTOM_MODES] Failed to parse definition for mode {row[0]}")
@@ -2123,7 +2132,7 @@ async def get_custom_mode(user_id: int, mode_id: str, mac: Optional[str] = None)
     db = await get_main_db()
     cursor = await db.execute(
         """
-        SELECT mac, definition_json, created_at, updated_at
+        SELECT mac, definition_json, created_at, updated_at, definition_language
         FROM custom_modes
         WHERE user_id = ? AND mode_id = ? AND mac = ?
         """,
@@ -2134,36 +2143,49 @@ async def get_custom_mode(user_id: int, mode_id: str, mac: Optional[str] = None)
         return None
     try:
         definition = json.loads(row[1])
+        dl = row[4] if len(row) > 4 and row[4] else "zh"
         return {
             "mode_id": mode_id.upper(),
             "mac": row[0],
             "definition": definition,
             "created_at": row[2],
             "updated_at": row[3],
+            "definition_language": (str(dl).strip().lower() if dl else "zh"),
         }
     except json.JSONDecodeError:
         logger.error(f"[CUSTOM_MODES] Failed to parse definition for mode {mode_id}")
         return None
 
 
-async def save_custom_mode(user_id: int, mode_id: str, definition: dict, mac: str) -> bool:
+async def save_custom_mode(
+    user_id: int,
+    mode_id: str,
+    definition: dict,
+    mac: str,
+    *,
+    definition_language: str = "zh",
+) -> bool:
     """Save or update a custom mode for a user and device."""
     db = await get_main_db()
     mode_id = mode_id.upper()
     mac = mac.upper()
     now = datetime.now().isoformat()
     definition_json = json.dumps(definition, ensure_ascii=False)
-    
+    dl = (definition_language or "zh").strip().lower()
+    if dl not in ("zh", "en", "hr"):
+        dl = "zh"
+
     try:
         await db.execute(
             """
-            INSERT INTO custom_modes (mode_id, user_id, mac, definition_json, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO custom_modes (mode_id, user_id, mac, definition_json, created_at, updated_at, definition_language)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(mode_id, user_id, mac) DO UPDATE SET
                 definition_json = ?,
-                updated_at = ?
+                updated_at = ?,
+                definition_language = ?
             """,
-            (mode_id, user_id, mac, definition_json, now, now, definition_json, now),
+            (mode_id, user_id, mac, definition_json, now, now, dl, definition_json, now, dl),
         )
         await db.commit()
         logger.info(f"[CUSTOM_MODES] Saved custom mode {mode_id} for user {user_id} on device {mac}")

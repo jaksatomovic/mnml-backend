@@ -1,0 +1,114 @@
+{
+  "mode_id": "ARTWALL",
+  "display_name": "AI čl",
+  "icon": "art",
+  "cacheable": false,
+  "description": "Minimalistička crtana umjetnost generirana umjetnom inteligencijom",
+  "supported_slot_types": [
+    "FULL",
+    "SMALL"
+  ],
+  "content": {
+    "type": "image_gen",
+    "provider": "text2image",
+    "fallback": {
+      "artwork_title": "Ink Muse",
+      "image_url": "/webconfig/assets/art/moyun.png",
+      "description": "Današnji umjetnički rad"
+    },
+    "fallback_pool": [
+      {
+        "artwork_title": "Ink Muse",
+        "image_url": "/webconfig/assets/art/moyun.png",
+        "description": "Današnji umjetnički rad"
+      },
+      {
+        "artwork_title": "Planinski sumrak",
+        "image_url": "/webconfig/assets/art/shanjuqiuming.png",
+        "description": "Krajolik ispiranja tinte"
+      },
+      {
+        "artwork_title": "Bambusovi mudraci",
+        "image_url": "/webconfig/assets/art/zhulinqixian.png",
+        "description": "Klasične drvorezne figure"
+      },
+      {
+        "artwork_title": "Zen Lotus",
+        "image_url": "/webconfig/assets/art/chanyilianhua.png",
+        "description": "Minimalistička zen estetika"
+      },
+      {
+        "artwork_title": "Kretanje oblaka",
+        "image_url": "/webconfig/assets/art/yunjuanyunshu.png",
+        "description": "Crno-bijelo more oblaka"
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "body": [
+      {
+        "type": "text",
+        "field": "artwork_title",
+        "font_size": 14,
+        "align": "center",
+        "max_lines": 1
+      },
+      {
+        "type": "image",
+        "field": "image_url",
+        "width": 248,
+        "height": 166,
+        "fit": "cover",
+        "align_x": "center",
+        "align_y": "center"
+      }
+    ],
+    "footer": {
+      "label": "Umjetnički zid",
+      "attribution_template": "— Tinta Art"
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "width": 272,
+          "height": 86,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center"
+        }
+      ],
+      "footer": {
+        "label": "Umjetnički zid",
+        "height": 20
+      }
+    },
+    "648x480": {
+      "body": [
+        {
+          "type": "text",
+          "field": "artwork_title",
+          "font_size": 18,
+          "align": "center",
+          "max_lines": 1
+        },
+        {
+          "type": "image",
+          "field": "image_url",
+          "width": 428,
+          "height": 300,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center"
+        }
+      ]
+    }
+  }
+}

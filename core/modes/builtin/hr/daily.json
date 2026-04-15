@@ -1,0 +1,196 @@
+{
+  "mode_id": "DAILY",
+  "display_name": "Dnevni izbor",
+  "icon": "sunny",
+  "cacheable": true,
+  "description": "Dnevni citat, preporuka knjige i zabavne činjenice",
+  "content": {
+    "type": "composite",
+    "steps": [
+      {
+        "type": "computed",
+        "provider": "daily_meta",
+        "fallback": {
+          "year": 2026,
+          "day": 1,
+          "month_cn": "siječnja",
+          "weekday_cn": "ponedjeljak",
+          "day_of_year": 1,
+          "days_in_year": 365
+        }
+      },
+      {
+        "type": "llm_json",
+        "prompt_template": "Vi ste načitan pomoćnik za dnevne preporuke. Na temelju informacija o okruženju, generirajte dnevni sadržaj u JSON-u:\n1. citat: Inspirativan citat (ispod 40 znakova), usmjeren na razmišljanje ili motivaciju\n2. autor: Citiraj autora\n3. book_title: Preporučite knjigu\n4. book_author: Autor knjige\n5. book_desc: Jednoredni opis teme knjige ili zašto je vrijedi pročitati (ispod 42 znaka); nemojte ponavljati citat ili savjet\n6. savjet: konkretan, praktičan savjet ili zabavna činjenica (ispod 32 znaka); izbjegavajte inspirativno fraziranje i nemojte ponavljati season_text\n7. season_text: Kratka rečenica o trenutnoj sezoni (ispod 28 znakova); samo sezonsko promatranje, bez savjeta\nNeka se tri odjeljka sadržaja jasno razlikuju po značenju i izbjegavajte semantičko ponavljanje. Ispis samo JSON.\nKontekst: {context}",
+        "output_schema": {
+          "quote": {
+            "type": "string",
+            "default": "Jedini način da radite sjajan posao je da volite ono što radite."
+          },
+          "author": {
+            "type": "string",
+            "default": "Steve Jobs"
+          },
+          "book_title": {
+            "type": "string",
+            "default": "Atomske navike"
+          },
+          "book_author": {
+            "type": "string",
+            "default": "James Clear"
+          },
+          "book_desc": {
+            "type": "string",
+            "default": "Male promjene, izvanredni rezultati."
+          },
+          "tip": {
+            "type": "string",
+            "default": "Med se nikad ne kvari — jestiv nakon tisuća godina."
+          },
+          "season_text": {
+            "type": "string",
+            "default": "Proljeće budi svijet u boji."
+          }
+        },
+        "fallback": {
+          "quote": "Jedini način da radite sjajan posao je da volite ono što radite.",
+          "author": "Steve Jobs",
+          "book_title": "Atomske navike",
+          "book_author": "James Clear",
+          "book_desc": "Male promjene, izvanredni rezultati.",
+          "tip": "Med se nikad ne kvari — jestiv nakon tisuća godina.",
+          "season_text": "Proljeće budi svijet u boji."
+        }
+      }
+    ],
+    "fallback": {},
+    "fallback_pool": [
+      {
+        "quote": "Jedini način da radite sjajan posao je da volite ono što radite.",
+        "author": "Steve Jobs",
+        "book_title": "Atomske navike",
+        "book_author": "James Clear",
+        "book_desc": "Male promjene, izvanredni rezultati.",
+        "tip": "Med se nikad ne kvari — jestiv nakon tisuća godina.",
+        "season_text": "Proljeće budi svijet u boji."
+      },
+      {
+        "quote": "Usred poteškoća leži prilika.",
+        "author": "Albert Einstein",
+        "book_title": "Duboki rad",
+        "book_author": "Cal Newport",
+        "book_desc": "Pravila za usredotočeni uspjeh u rastresenom svijetu.",
+        "tip": "Drijemanje od 20 minuta je idealno; duže uzrokuje omamljenost.",
+        "season_text": "Zima nas podsjeća na odmor i razmišljanje."
+      },
+      {
+        "quote": "Budite svoji; svi ostali su već zauzeti.",
+        "author": "Oscar Wilde",
+        "book_title": "Mali princ",
+        "book_author": "Antoine de Saint-Exupéry",
+        "book_desc": "Bajka za odrasle i djecu.",
+        "tip": "Plavo svjetlo utječe na san — izbjegavajte ekrane prije spavanja.",
+        "season_text": "Priroda se budi; vrijeme za šetnju vani."
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "layout_engine": "component_tree",
+    "component_theme": {
+      "body_font": "noto_serif_regular",
+      "body_font_size": 12
+    },
+    "body_preset": "daily_card",
+    "preset_props": {
+      "padding_x": 18,
+      "justify": "center",
+      "min_height": 170,
+      "row_gap": 10,
+      "panel_width": 116,
+      "panel_padding_x": 8,
+      "panel_gap": 4,
+      "year_font_size": 12,
+      "day_font_size": 52,
+      "month_font_size": 14,
+      "weekday_font_size": 12,
+      "progress_width": 80,
+      "season_font": "noto_serif_light",
+      "season_font_size": 10,
+      "season_inset_x": 10,
+      "content_padding_x": 6,
+      "content_justify": "space_between",
+      "quote_font": "noto_serif_regular",
+      "quote_font_size": 15,
+      "author_template": "— {author}",
+      "author_font_size": 12,
+      "book_title_font_size": 14,
+      "book_author_template": "od {book_author}",
+      "book_author_font_size": 12,
+      "book_desc_font_size": 12,
+      "tip_font_size": 12,
+      "divider_margin_x": 6
+    },
+    "footer": {
+      "label": "Dnevno",
+      "attribution_template": "— Carpe Diem"
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "preset_props": {
+        "variant": "compact",
+        "padding_x": 8,
+        "justify": "center",
+        "gap": 5,
+        "day_font_size": 40,
+        "meta_template": "{month_cn} {weekday_cn}",
+        "meta_font_size": 10,
+        "meta_align": "left",
+        "separator_width": 40,
+        "quote_font": "noto_serif_regular",
+        "quote_font_size": 11,
+        "author_template": "— {author}",
+        "author_font_size": 9
+      },
+      "footer": {
+        "label": "Dnevno",
+        "height": 20
+      }
+    },
+    "648x480": {
+      "preset_props": {
+        "padding_x": 28,
+        "justify": "center",
+        "min_height": 280,
+        "row_gap": 14,
+        "panel_width": 185,
+        "panel_padding_x": 12,
+        "panel_gap": 6,
+        "year_font_size": 14,
+        "day_font_size": 80,
+        "month_font_size": 18,
+        "weekday_font_size": 16,
+        "progress_width": 130,
+        "season_font": "noto_serif_light",
+        "season_font_size": 13,
+        "season_inset_x": 16,
+        "content_padding_x": 8,
+        "quote_font": "noto_serif_regular",
+        "quote_font_size": 21,
+        "author_template": "— {author}",
+        "author_font_size": 15,
+        "book_title_font_size": 19,
+        "book_author_template": "od {book_author}",
+        "book_author_font_size": 15,
+        "book_desc_font_size": 15,
+        "tip_font_size": 15,
+        "tip_max_lines": 3,
+        "divider_margin_x": 8
+      }
+    }
+  }
+}

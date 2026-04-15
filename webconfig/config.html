@@ -586,6 +586,15 @@ h1{font-size:1.8rem;margin-bottom:8px}
   </div>
 
   <div class="fg">
+    <label class="lbl">Mode language (zh / en / hr)</label>
+    <select id="modeDefinitionLang" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--bd)">
+      <option value="zh">中文 (zh)</option>
+      <option value="en" selected>English (en)</option>
+      <option value="hr">Hrvatski (hr)</option>
+    </select>
+  </div>
+
+  <div class="fg">
     <label class="lbl">modetranslated (JSON)</label>
     <textarea class="json-editor" id="modeJsonIn" spellcheck="false" oninput="validateModeJson()"></textarea>
     <div class="json-error" id="modeJsonError"></div>
@@ -1698,6 +1707,8 @@ async function saveModeDefinition() {
 
   try {
     const def = JSON.parse(document.getElementById('modeJsonIn').value);
+    var lang = document.getElementById('modeDefinitionLang').value;
+    if (lang === 'zh' || lang === 'en' || lang === 'hr') { def.definition_language = lang; }
     const res = await fetch(`${API_BASE}/api/modes/custom`, {
       method: 'POST',
       headers: authHeaders(),
@@ -1732,6 +1743,8 @@ async function previewCustomMode() {
 
   try {
     const def = JSON.parse(document.getElementById('modeJsonIn').value);
+    var lang2 = document.getElementById('modeDefinitionLang').value;
+    if (lang2 === 'zh' || lang2 === 'en' || lang2 === 'hr') { def.definition_language = lang2; }
     // Save temporarily, then preview
     const saveRes = await fetch(`${API_BASE}/api/modes/custom`, {
       method: 'POST',

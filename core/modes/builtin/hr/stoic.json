@@ -1,0 +1,102 @@
+{
+  "mode_id": "STOIC",
+  "display_name": "Stoička mudrost",
+  "icon": "book",
+  "cacheable": true,
+  "description": "Stoički citati s modernom interpretacijom",
+  "content": {
+    "type": "llm_json",
+    "prompt_template": "Vi ste vodič stoičke filozofije. Na temelju podataka o okruženju u nastavku odaberite temeljni stoički koncept (npr. dihotomija kontrole, amor fati, memento mori, unutarnja citadela, racionalna strast, kozmopolitizam) i predstavite ga kao jedan izvorni citat + jedno moderno tumačenje.\nIzlazni JSON:\n{{\"quote\": \"Original quote (under 60 chars)\", \"author\": \"Author (e.g. Marcus Aurelius)\", \"interpretation\": \"Modern take (under 40 chars, like a friend talking to you)\"}}\nZahtjevi:\n1. Citati moraju biti iz stvarnih stoičkih tekstova (Meditacije, Pisma, Rasprave, itd.)\n2. Moderna interpretacija trebala bi biti relativna\n3. Svaki put odaberite drugačiji koncept\n4. Sav tekst mora biti na engleskom jeziku\nIspis samo JSON.\nKontekst: {context}",
+    "output_schema": {
+      "quote": {
+        "type": "string",
+        "default": "Zapreka djelovanju unaprjeđuje djelovanje. Ono što stoji na putu postaje put."
+      },
+      "author": {
+        "type": "string",
+        "default": "Marko Aurelije"
+      },
+      "interpretation": {
+        "type": "string",
+        "default": "Prepreka JEST put."
+      }
+    },
+    "temperature": 0.8,
+    "fallback": {
+      "quote": "Zapreka djelovanju unaprjeđuje djelovanje. Ono što stoji na putu postaje put.",
+      "author": "Marko Aurelije",
+      "interpretation": "Prepreka JEST put."
+    },
+    "fallback_pool": [
+      {
+        "quote": "Zapreka djelovanju unaprjeđuje djelovanje. Ono što stoji na putu postaje put.",
+        "author": "Marko Aurelije",
+        "interpretation": "Prepreka JEST put."
+      },
+      {
+        "quote": "Češće patimo u mašti nego u stvarnosti.",
+        "author": "Seneka",
+        "interpretation": "Većina briga se nikada ne ostvari."
+      },
+      {
+        "quote": "Sreća vašeg života ovisi o kvaliteti vaših misli.",
+        "author": "Marko Aurelije",
+        "interpretation": "Čuvajte svoj um kao tvrđavu."
+      },
+      {
+        "quote": "Ne radi se o tome da imamo kratko vrijeme za život, već da ga puno gubimo.",
+        "author": "Seneka",
+        "interpretation": "Vrijeme je sve što imate. Koristite ga mudro."
+      },
+      {
+        "quote": "Ne gubite više vrijeme raspravljajući o tome kakav bi dobar čovjek trebao biti. Budite jedno.",
+        "author": "Marko Aurelije",
+        "interpretation": "Prestani planirati. Počni raditi."
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "layout_engine": "component_tree",
+    "body_preset": "quote_focus_card",
+    "preset_props": {
+      "padding_x": 18,
+      "justify": "center",
+      "quote_inset_x": 24,
+      "quote_field": "quote",
+      "quote_font": "noto_serif_regular",
+      "quote_font_size": 20,
+      "quote_max_lines": 4
+    },
+    "footer": {
+      "label": "Stoički",
+      "attribution_template": "— {author}"
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "preset_props": {
+        "padding_x": 8,
+        "quote_inset_x": 8,
+        "quote_font_size": 14,
+        "quote_max_lines": 3
+      },
+      "footer": {
+        "label": "Stoički",
+        "attribution_template": "— {author}",
+        "height": 18
+      }
+    },
+    "800x480": {
+      "preset_props": {
+        "padding_x": 28,
+        "quote_inset_x": 44,
+        "quote_font_size": 28,
+        "quote_max_lines": 4
+      }
+    }
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "mode_id": "HALO_F1_RESULTS",
+  "display_name": "Halo F1 rezultati",
+  "icon": "trophy",
+  "cacheable": false,
+  "description": "Najnoviji rezultati Formule 1 nadahnuti Halo F1.",
+  "settings_schema": [
+    {
+      "key": "item_limit",
+      "label": "Redovi",
+      "type": "number",
+      "default": 10,
+      "min": 5,
+      "max": 20,
+      "step": 1,
+      "description": "Koliko redaka rezultata za dohvaćanje iz zadnje dovršene sesije."
+    }
+  ],
+  "content": {
+    "type": "external_data",
+    "provider": "halo_f1_results",
+    "fallback": {
+      "session_label": "Najnoviji rezultati",
+      "leader_name": "Još nema rezultata",
+      "leader_detail": "",
+      "result_rows_left": [
+        {
+          "line": "1. Rezultati nedostupni"
+        }
+      ],
+      "result_rows_right": [],
+      "result_rows": [
+        {
+          "line": "1. Rezultati nedostupni"
+        }
+      ]
+    }
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "body": [
+      {
+        "type": "text",
+        "field": "session_label",
+        "font_size": 16,
+        "align": "center",
+        "max_lines": 1,
+        "margin_x": 14
+      },
+      {
+        "type": "text",
+        "text": "Najnovija snimka klasifikacije",
+        "font_size": 9,
+        "align": "center",
+        "max_lines": 1,
+        "margin_x": 14
+      },
+      {
+        "type": "spacer",
+        "height": 3
+      },
+      {
+        "type": "separator",
+        "style": "solid",
+        "line_width": 1,
+        "margin_x": 14
+      },
+      {
+        "type": "spacer",
+        "height": 6
+      },
+      {
+        "type": "group",
+        "title": "Pobjednik",
+        "title_font_size": 11,
+        "margin_x": 14,
+        "children": [
+          {
+            "type": "two_column",
+            "left_x": 14,
+            "left_width": 176,
+            "gap": 8,
+            "right_margin": 14,
+            "left": [
+              {
+                "type": "text",
+                "field": "leader_name",
+                "font_size": 15,
+                "align": "left",
+                "margin_x": 0,
+                "max_lines": 1
+              }
+            ],
+            "right": [
+              {
+                "type": "text",
+                "field": "leader_detail",
+                "font_size": 11,
+                "align": "right",
+                "margin_x": 0,
+                "max_lines": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "spacer",
+        "height": 4
+      },
+      {
+        "type": "separator",
+        "style": "dashed",
+        "margin_x": 14
+      },
+      {
+        "type": "spacer",
+        "height": 4
+      },
+      {
+        "type": "group",
+        "title": "Klasifikacija",
+        "title_font_size": 11,
+        "margin_x": 14,
+        "children": [
+          {
+            "type": "two_column",
+            "left_x": 14,
+            "left_width": 176,
+            "gap": 8,
+            "right_margin": 14,
+            "left": [
+              {
+                "type": "list",
+                "field": "result_rows_left",
+                "item_template": "{line}",
+                "font_size": 9,
+                "item_spacing": 10,
+                "margin_x": 0,
+                "max_items": 10
+              }
+            ],
+            "right": [
+              {
+                "type": "list",
+                "field": "result_rows_right",
+                "item_template": "{line}",
+                "font_size": 9,
+                "item_spacing": 10,
+                "margin_x": 0,
+                "max_items": 10
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "footer": {
+      "label": "F1 REZULTATI",
+      "attribution_template": "— Otvori F1"
+    }
+  }
+}

@@ -14,7 +14,9 @@ from core.config import SCREEN_HEIGHT, SCREEN_WIDTH, get_default_llm_model_for_p
 from core.config_store import remove_mode_from_all_configs
 from core.context import get_date_context, get_weather
 from core.mode_registry import (
-    CUSTOM_JSON_DIR,
+    CUSTOM_EN_DIR,
+    CUSTOM_HR_DIR,
+    CUSTOM_ZH_DIR,
     _validate_mode_def_with_error,
     get_registry,
 )
@@ -104,6 +106,7 @@ async def list_modes(
                 "source": "custom",
                 "settings_schema": definition.get("settings_schema", []),
                 "mac": mode_data.get("mac"),
+                "definition_language": mode_data.get("definition_language") or "zh",
             })
     
     # Always include builtin modes (and any custom modes now in registry for this device)
@@ -514,6 +517,11 @@ async def create_custom_mode(body: dict, user_id: int = Depends(require_user)):
         return JSONResponse({"error": err or "Invalid mode definition"}, status_code=400)
 
     body["mode_id"] = mode_id
+    raw_dl = body.get("definition_language") or body.get("definitionLanguage") or "zh"
+    definition_language = str(raw_dl).strip().lower()
+    if definition_language not in ("zh", "en", "hr"):
+        definition_language = "zh"
+
     registry = get_registry()
     if registry.is_builtin(mode_id):
         return JSONResponse(
@@ -523,10 +531,15 @@ async def create_custom_mode(body: dict, user_id: int = Depends(require_user)):
 
     # Legacy path: no mac means file-based custom mode.
     if not mac:
-        file_path = Path(CUSTOM_JSON_DIR) / f"{mode_id.lower()}.json"
+        locale_map = {"zh": CUSTOM_ZH_DIR, "en": CUSTOM_EN_DIR, "hr": CUSTOM_HR_DIR}
+        locale_dir = Path(locale_map.get(definition_language, CUSTOM_ZH_DIR))
+        locale_dir.mkdir(parents=True, exist_ok=True)
+        file_path = locale_dir / f"{mode_id.lower()}.json"
         file_path.write_text(jsonlib.dumps(body, ensure_ascii=False, indent=2), encoding="utf-8")
         registry.unregister_custom(mode_id)
-        loaded = registry.load_json_mode(str(file_path), source="custom")
+        loaded = registry.load_json_mode(
+            str(file_path), source="custom", definition_language=definition_language
+        )
         if not loaded:
             file_path.unlink(missing_ok=True)
             return JSONResponse({"error": "Failed to load mode definition"}, status_code=400)
@@ -542,13 +555,21 @@ async def create_custom_mode(body: dict, user_id: int = Depends(require_user)):
         )
 
     # Save to database (with device)
-    success = await save_custom_mode(user_id, mode_id, body, mac)
+    success = await save_custom_mode(
+        user_id, mode_id, body, mac, definition_language=definition_language
+    )
     if not success:
         return JSONResponse({"error": "Failed to save custom mode"}, status_code=500)
 
     # Load into registry for immediate use
     registry.unregister_custom(mode_id, mac)
-    loaded = registry.load_custom_mode_from_dict(mode_id, body, source="custom", mac=mac)
+    loaded = registry.load_custom_mode_from_dict(
+        mode_id,
+        body,
+        source="custom",
+        mac=mac,
+        definition_language=definition_language,
+    )
     if not loaded:
         # Rollback database entry
         await delete_custom_mode(user_id, mode_id, mac)

@@ -24,7 +24,6 @@ from core.config_store import get_main_db
 from core.context import get_date_context, get_weather
 from core.db import execute_insert_returning_id
 from core.mode_registry import (
-    CUSTOM_JSON_DIR,
     _validate_mode_def_with_error,
     get_registry,
 )
@@ -600,14 +599,20 @@ async def install_shared_mode(
     if registry.is_builtin(new_mode_id):
         return JSONResponse({"error": "mode ID conflict"}, status_code=409)
 
-    # translated（translated，translated）
-    success = await save_custom_mode(user_id, new_mode_id, mode_def, mac)
+    dl = str(mode_def.get("definition_language") or "zh").strip().lower()
+    if dl not in ("zh", "en", "hr"):
+        dl = "zh"
+    success = await save_custom_mode(
+        user_id, new_mode_id, mode_def, mac, definition_language=dl
+    )
     if not success:
         return JSONResponse({"error": "translatedmodefailed"}, status_code=500)
 
     # translated
     registry.unregister_custom(new_mode_id, mac)
-    loaded = registry.load_custom_mode_from_dict(new_mode_id, mode_def, source="custom", mac=mac)
+    loaded = registry.load_custom_mode_from_dict(
+        new_mode_id, mode_def, source="custom", mac=mac, definition_language=dl
+    )
     if not loaded:
         # Rollback database entry
         from core.config_store import delete_custom_mode
@@ -803,12 +808,19 @@ async def install_plugin_package(
         except ValueError:
             action = "updated"
 
-    success = await save_custom_mode(user_id, new_mode_id, mode_def, mac)
+    dl = str(mode_def.get("definition_language") or "zh").strip().lower()
+    if dl not in ("zh", "en", "hr"):
+        dl = "zh"
+    success = await save_custom_mode(
+        user_id, new_mode_id, mode_def, mac, definition_language=dl
+    )
     if not success:
         return JSONResponse({"error": "translatedmodefailed"}, status_code=500)
 
     registry.unregister_custom(new_mode_id, mac)
-    loaded = registry.load_custom_mode_from_dict(new_mode_id, mode_def, source="custom", mac=mac)
+    loaded = registry.load_custom_mode_from_dict(
+        new_mode_id, mode_def, source="custom", mac=mac, definition_language=dl
+    )
     if not loaded:
         from core.config_store import delete_custom_mode
         await delete_custom_mode(user_id, new_mode_id, mac)

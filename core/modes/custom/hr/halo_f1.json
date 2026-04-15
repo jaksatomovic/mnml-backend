@@ -1,0 +1,369 @@
+{
+  "mode_id": "HALO_F1",
+  "display_name": "Halo F1",
+  "icon": "formula-1",
+  "cacheable": false,
+  "description": "Sljedeći vikend utrke Formule 1 s poretkom, inspiriran Halo F1.",
+  "settings_schema": [
+    {
+      "key": "top_n",
+      "label": "Redovi po tablici",
+      "type": "number",
+      "default": 20,
+      "min": 3,
+      "max": 20,
+      "step": 1,
+      "description": "Koliko vozača pokazati. Konstruktori će pokazati sve dostupne timove."
+    },
+    {
+      "key": "standings_view",
+      "label": "Prikaz poretka",
+      "type": "select",
+      "default": "both",
+      "options": [
+        {
+          "value": "both",
+          "label": "Vozači + konstruktori"
+        },
+        {
+          "value": "drivers",
+          "label": "Samo vozači"
+        },
+        {
+          "value": "constructors",
+          "label": "Samo konstruktori"
+        }
+      ],
+      "description": "Odaberite prikazuje li glavni zaslon Halo F1 obje tablice ili se fokusira na jedno prvenstvo."
+    }
+  ],
+  "content": {
+    "type": "external_data",
+    "provider": "halo_f1",
+    "fallback": {
+      "season": "",
+      "round": null,
+      "standings_view": "both",
+      "race_name": "Formula 1",
+      "circuit_name": "",
+      "country": "",
+      "is_sprint_weekend": false,
+      "next_session_label": "utrka",
+      "next_session_date": "",
+      "next_session_time": "",
+      "session_summary": "Raspored nedostupan",
+      "driver_rows": [],
+      "constructor_rows": [],
+      "driver_leader": "",
+      "constructor_leader": "",
+      "sessions": [],
+      "driver_rows_left": [],
+      "driver_rows_right": [],
+      "constructor_rows_left": [],
+      "constructor_rows_right": []
+    }
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false,
+      "bottom_pct": 0.108
+    },
+    "body": [
+      {
+        "type": "text",
+        "field": "race_name",
+        "font_size": 14,
+        "align": "center",
+        "max_lines": 1,
+        "margin_x": 14
+      },
+      {
+        "type": "text",
+        "text": "Snimka prvenstva",
+        "font_size": 8,
+        "align": "center",
+        "max_lines": 1,
+        "margin_x": 14
+      },
+      {
+        "type": "text",
+        "text": "Runda {round} · {country}",
+        "font_size": 9,
+        "align": "center",
+        "max_lines": 1,
+        "margin_x": 14
+      },
+      {
+        "type": "spacer",
+        "height": 2
+      },
+      {
+        "type": "separator",
+        "style": "solid",
+        "line_width": 1,
+        "margin_x": 14
+      },
+      {
+        "type": "spacer",
+        "height": 2
+      },
+      {
+        "type": "two_column",
+        "left_x": 14,
+        "left_width": 150,
+        "gap": 8,
+        "right_margin": 14,
+        "left": [
+          {
+            "type": "text",
+            "text": "Sljedeća sesija",
+            "font_size": 8,
+            "align": "left",
+            "margin_x": 0,
+            "max_lines": 1
+          },
+          {
+            "type": "big_number",
+            "field": "next_session_time",
+            "font_size": 18,
+            "align": "left"
+          },
+          {
+            "type": "text",
+            "field": "next_session_label",
+            "font_size": 9,
+            "align": "left",
+            "margin_x": 0,
+            "max_lines": 1
+          }
+        ],
+        "right": [
+          {
+            "type": "text",
+            "field": "next_session_date",
+            "font_size": 9,
+            "align": "right",
+            "margin_x": 0,
+            "max_lines": 1
+          },
+          {
+            "type": "spacer",
+            "height": 1
+          },
+          {
+            "type": "text",
+            "field": "circuit_name",
+            "font_size": 8,
+            "align": "right",
+            "margin_x": 0,
+            "max_lines": 2
+          }
+        ]
+      },
+      {
+        "type": "spacer",
+        "height": 2
+      },
+      {
+        "type": "conditional",
+        "field": "standings_view",
+        "conditions": [
+          {
+            "op": "eq",
+            "value": "drivers",
+            "children": [
+              {
+                "type": "text",
+                "text": "Prvenstvo vozača",
+                "font_size": 11,
+                "align": "left",
+                "margin_x": 14,
+                "max_lines": 1
+              },
+              {
+                "type": "spacer",
+                "height": 2
+              },
+              {
+                "type": "two_column",
+                "left_x": 14,
+                "left_width": 182,
+                "gap": 8,
+                "right_margin": 14,
+                "left": [
+                  {
+                    "type": "list",
+                    "field": "driver_rows_left",
+                    "item_template": "{line}",
+                    "font_size": 9,
+                    "item_spacing": 8,
+                    "margin_x": 0,
+                    "max_items": 20
+                  }
+                ],
+                "right": [
+                  {
+                    "type": "list",
+                    "field": "driver_rows_right",
+                    "item_template": "{line}",
+                    "font_size": 9,
+                    "item_spacing": 8,
+                    "margin_x": 0,
+                    "max_items": 20
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "op": "eq",
+            "value": "constructors",
+            "children": [
+              {
+                "type": "text",
+                "text": "Prvenstvo konstruktora",
+                "font_size": 11,
+                "align": "left",
+                "margin_x": 14,
+                "max_lines": 1
+              },
+              {
+                "type": "spacer",
+                "height": 2
+              },
+              {
+                "type": "two_column",
+                "left_x": 14,
+                "left_width": 182,
+                "gap": 8,
+                "right_margin": 14,
+                "left": [
+                  {
+                    "type": "list",
+                    "field": "constructor_rows_left",
+                    "item_template": "{line}",
+                    "font_size": 9,
+                    "item_spacing": 9,
+                    "margin_x": 0,
+                    "max_items": 10
+                  }
+                ],
+                "right": [
+                  {
+                    "type": "list",
+                    "field": "constructor_rows_right",
+                    "item_template": "{line}",
+                    "font_size": 9,
+                    "item_spacing": 9,
+                    "margin_x": 0,
+                    "max_items": 10
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "fallback_children": [
+          {
+            "type": "two_column",
+            "left_x": 14,
+            "left_width": 182,
+            "gap": 8,
+            "right_margin": 14,
+            "left": [
+              {
+                "type": "text",
+                "text": "Vozači",
+                "font_size": 11,
+                "align": "left",
+                "margin_x": 0,
+                "max_lines": 1
+              },
+              {
+                "type": "spacer",
+                "height": 2
+              },
+              {
+                "type": "two_column",
+                "left_x": 0,
+                "left_width": 86,
+                "gap": 2,
+                "right_margin": 0,
+                "left": [
+                  {
+                    "type": "list",
+                    "field": "driver_rows_left",
+                    "item_template": "{line}",
+                    "font_size": 8,
+                    "item_spacing": 7,
+                    "margin_x": 0,
+                    "max_items": 20
+                  }
+                ],
+                "right": [
+                  {
+                    "type": "list",
+                    "field": "driver_rows_right",
+                    "item_template": "{line}",
+                    "font_size": 8,
+                    "item_spacing": 7,
+                    "margin_x": 0,
+                    "max_items": 20
+                  }
+                ]
+              }
+            ],
+            "right": [
+              {
+                "type": "text",
+                "text": "Konstruktori",
+                "font_size": 11,
+                "align": "left",
+                "margin_x": 0,
+                "max_lines": 1
+              },
+              {
+                "type": "spacer",
+                "height": 2
+              },
+              {
+                "type": "two_column",
+                "left_x": 0,
+                "left_width": 86,
+                "gap": 2,
+                "right_margin": 0,
+                "left": [
+                  {
+                    "type": "list",
+                    "field": "constructor_rows_left",
+                    "item_template": "{line}",
+                    "font_size": 8,
+                    "item_spacing": 7,
+                    "margin_x": 0,
+                    "max_items": 10
+                  }
+                ],
+                "right": [
+                  {
+                    "type": "list",
+                    "field": "constructor_rows_right",
+                    "item_template": "{line}",
+                    "font_size": 8,
+                    "item_spacing": 7,
+                    "margin_x": 0,
+                    "max_items": 10
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "footer": {
+      "label": "F1",
+      "attribution_template": "— Jolpica"
+    }
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "mode_id": "RECIPE",
+  "display_name": "Plan obroka",
+  "icon": "food",
+  "cacheable": false,
+  "description": "Prijedlozi za sezonski doručak, ručak i večeru",
+  "content": {
+    "type": "llm_json",
+    "prompt_template": "Vi ste nutricionist. Preporučite jednostavan plan doručka, ručka i večere za danas ovisno o sezoni.\nIzlazni JSON: {{\"season\": \"Season (e.g. Early Spring)\", \"breakfast\": \"Breakfast (under 30 chars, use · to separate items)\", \"lunch\": \"Lunch (under 30 chars)\", \"dinner\": \"Dinner (under 30 chars)\", \"tip\": \"Nutrition tip (under 30 chars)\"}}\nNeka bude jednostavno i jasno. Ispis samo JSON.\nKontekst: {context}",
+    "output_schema": {
+      "season": {
+        "type": "string",
+        "default": "Proljeće"
+      },
+      "breakfast": {
+        "type": "string",
+        "default": "Zobene pahuljice · Bobičasto voće · Zeleni čaj"
+      },
+      "lunch": {
+        "type": "string",
+        "default": "Salata od piletine na žaru · Juha"
+      },
+      "dinner": {
+        "type": "string",
+        "default": "Losos · Pečeno povrće"
+      },
+      "tip": {
+        "type": "string",
+        "default": "Jedite dugu za uravnoteženu prehranu."
+      }
+    },
+    "temperature": 0.8,
+    "fallback": {
+      "season": "Proljeće",
+      "breakfast": "Zobene pahuljice · Bobičasto voće · Zeleni čaj",
+      "lunch": "Salata od piletine na žaru · Juha",
+      "dinner": "Losos · Pečeno povrće",
+      "tip": "Jedite dugu za uravnoteženu prehranu."
+    },
+    "fallback_pool": [
+      {
+        "season": "Proljeće",
+        "breakfast": "Zobene pahuljice · Bobičasto voće · Zeleni čaj",
+        "lunch": "Salata od piletine na žaru · Juha",
+        "dinner": "Losos · Pečeno povrće",
+        "tip": "Jedite dugu za uravnoteženu prehranu."
+      },
+      {
+        "season": "Ljeto",
+        "breakfast": "Jogurt · Granola · Svježe voće",
+        "lunch": "Hladni rezanci · Salata od krastavaca",
+        "dinner": "Stir-fry od škampa · Zelenje kuhano na pari",
+        "tip": "Ostanite hidrirani; jesti lagano na vrućini."
+      },
+      {
+        "season": "Jesen",
+        "breakfast": "Kaša od bundeve · Tost · Jaja",
+        "lunch": "Pirjana svinjetina · Sezonsko povrće",
+        "dinner": "Pileća juha · Batat",
+        "tip": "Topla hrana pomaže u borbi protiv jesenske suhoće."
+      }
+    ]
+  },
+  "layout": {
+    "layout_engine": "component_tree",
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "body_preset": "recipe_card",
+    "preset_props": {
+      "season_field": "season",
+      "season_font": "noto_serif_bold",
+      "season_font_size": 16,
+      "separator_width": 70,
+      "section_font_size": 13,
+      "meal_font": "noto_serif_regular",
+      "meal_font_size": 13,
+      "meal_max_lines": 2,
+      "meal_inset_x": 0,
+      "breakfast_title": "Doručak",
+      "lunch_title": "Ručak",
+      "dinner_title": "Večera",
+      "tip_field": "tip",
+      "tip_font": "noto_serif_light",
+      "tip_font_size": 12,
+      "tip_max_lines": 2,
+      "tip_divider_margin_x": 30
+    },
+    "footer": {
+      "label": "Recept",
+      "attribution_template": "— Jedi dobro"
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "preset_props": {
+        "variant": "compact",
+        "padding_x": 8,
+        "gap": 4,
+        "season_font_size": 12,
+        "separator_width": 30,
+        "compact_delimiter": null,
+        "compact_font": "noto_serif_regular",
+        "compact_font_size": 10,
+        "compact_align": "left",
+        "compact_max_lines": 1,
+        "breakfast_label": "B",
+        "lunch_label": "L",
+        "dinner_label": "D",
+        "compact_tip_field": null
+      },
+      "footer": {
+        "label": "Recept",
+        "height": 20
+      }
+    },
+    "648x480": {
+      "preset_props": {
+        "gap": 10,
+        "season_font_size": 22,
+        "separator_width": 110,
+        "section_font_size": 18,
+        "meal_font_size": 17,
+        "tip_font_size": 16,
+        "tip_divider_margin_x": 48
+      }
+    }
+  }
+}

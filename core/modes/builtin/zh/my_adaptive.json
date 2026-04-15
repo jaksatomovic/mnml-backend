@@ -1,17 +1,23 @@
 {
   "mode_id": "MY_ADAPTIVE",
-  "display_name": "Photo Frame",
+  "display_name": "相框",
+  "description": "上传本地照片，自适应墨水屏显示",
   "icon": "my_adaptive",
-  "cacheable": false,
-  "description": "Display your uploaded photo adapted for e-ink",
   "supported_slot_types": ["FULL"],
+  "cacheable": false,
   "content": {
     "type": "static",
-    "static_data": {"image_url": ""},
-    "fallback": {"image_url": ""}
+    "static_data": {
+      "image_url": ""
+    },
+    "fallback": {
+      "image_url": ""
+    }
   },
   "layout": {
-    "status_bar": {"line_width": 0},
+    "status_bar": {
+      "line_width": 0
+    },
     "body": [
       {
         "type": "image",
@@ -26,7 +32,9 @@
         "margin_bottom": 0
       }
     ],
-    "footer": {"line_width": 0}
+    "footer": {
+      "line_width": 0
+    }
   },
   "layout_overrides": {
     "296x128": {

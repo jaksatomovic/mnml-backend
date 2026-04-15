@@ -237,7 +237,15 @@ async def _generate_content_for_persona(
                         mode_data = await get_user_custom_mode_from_db(user_id, persona, mac)
                         if mode_data:
                             mode_mac = mode_data.get("mac")
-                            registry.load_custom_mode_from_dict(persona, mode_data["definition"], source="custom", mac=mode_mac)
+                            registry.load_custom_mode_from_dict(
+                                persona,
+                                mode_data["definition"],
+                                source="custom",
+                                mac=mode_mac,
+                                definition_language=str(
+                                    mode_data.get("definition_language") or "zh"
+                                ).lower(),
+                            )
                             jm = registry.get_json_mode(persona, mac, language=effective_language)
         if not jm:
             raise ValueError(f"JSON mode {persona} not found in registry")

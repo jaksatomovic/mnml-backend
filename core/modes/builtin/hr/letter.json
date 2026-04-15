@@ -1,0 +1,105 @@
+{
+  "mode_id": "LETTER",
+  "display_name": "Sporo pismo",
+  "icon": "book",
+  "cacheable": true,
+  "description": "Izmišljeno pismo imaginarnog pošiljatelja",
+  "content": {
+    "type": "llm_json",
+    "prompt_template": "Napišite kratko izmišljeno pismo. Pošiljatelj može biti: netko iz budućnosti, obična osoba iz povijesnog doba, stranac koji putuje kroz grad ili izmišljeni lik.\nIzlazni JSON:\n{{\"sender\": \"Sender identity (e.g. A tailor from 1920s Paris)\", \"greeting\": \"Salutation (e.g. Dear friend at the desk)\", \"body\": \"Letter body (50-80 words, vivid, warm but not sentimental)\", \"closing\": \"Sign-off (e.g. Yours warmly)\", \"postscript\": \"P.S. (under 30 chars, witty or poignant)\"}}\nZahtjevi: Književna kvaliteta, jedinstveni glas lika svaki put. Suptilna povezanost s trenutnim vremenom/godišnjim dobom. Bez floskula. Ispis samo JSON.\nKontekst: {context}",
+    "output_schema": {
+      "sender": {
+        "type": "string",
+        "default": "Svjetioničar, 1847"
+      },
+      "greeting": {
+        "type": "string",
+        "default": "Dragi stranac na obali"
+      },
+      "body": {
+        "type": "string",
+        "default": "Sinoć se opet navukla magla. Držao sam svjetlo da gori, kao i uvijek, iako se ponekad pitam tko još plovi ovim vodama. Galebovi znaju moj raspored bolje od mene. Sačuvao sam komad kruha za onu s krivim krilom — podsjeća me da slomljene stvari još mogu letjeti."
+      },
+      "closing": {
+        "type": "string",
+        "default": "S postojanim svjetlom"
+      },
+      "postscript": {
+        "type": "string",
+        "default": "Galeb iskrivljenih krila pozdravlja."
+      }
+    },
+    "max_tokens": 512,
+    "temperature": 0.92,
+    "fallback": {
+      "sender": "Svjetioničar, 1847",
+      "greeting": "Dragi stranac na obali",
+      "body": "Sinoć se opet navukla magla. Držao sam svjetlo da gori, kao i uvijek, iako se ponekad pitam tko još plovi ovim vodama.",
+      "closing": "S postojanim svjetlom",
+      "postscript": "Galeb iskrivljenih krila pozdravlja."
+    }
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": true
+    },
+    "layout_engine": "component_tree",
+    "body_preset": "letter_card",
+    "preset_props": {
+      "padding_x": 32,
+      "padding_y": 10,
+      "justify": "center",
+      "gap": 8,
+      "greeting_font": "noto_serif_regular",
+      "greeting_font_size": 12,
+      "body_font": "noto_serif_regular",
+      "body_font_size": 13,
+      "body_max_lines": 6,
+      "closing_font": "noto_serif_light",
+      "closing_font_size": 12,
+      "postscript_font": "noto_serif_light",
+      "postscript_font_size": 10,
+      "postscript_max_lines": 1
+    },
+    "footer": {
+      "label": "Pismo",
+      "attribution_template": "— {sender}",
+      "dashed": true
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "preset_props": {
+        "padding_x": 8,
+        "padding_y": 4,
+        "gap": 6,
+        "greeting_font_size": 10,
+        "body_font_size": 10,
+        "body_max_lines": 3,
+        "closing_font_size": 10,
+        "postscript_field": null
+      },
+      "footer": {
+        "label": "Pismo",
+        "attribution_template": "— {sender}",
+        "dashed": true,
+        "height": 18
+      }
+    },
+    "800x480": {
+      "preset_props": {
+        "padding_x": 56,
+        "padding_y": 18,
+        "gap": 14,
+        "greeting_font_size": 18,
+        "body_font_size": 19,
+        "body_max_lines": 8,
+        "closing_font_size": 18,
+        "separator_width": 60,
+        "postscript_font_size": 14,
+        "postscript_max_lines": 2
+      }
+    }
+  }
+}

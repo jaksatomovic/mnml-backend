@@ -6,7 +6,7 @@ import os
 import sys
 
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -397,6 +397,82 @@ async def test_habit_computed_content_ignores_stale_derived_override_fields():
     assert "text 1/2 text" in result["summary"]
     assert result["week_progress"] == 1
     assert result["week_total"] == 2
+
+
+@pytest.mark.asyncio
+async def test_http_fetch_maps_json_response():
+    mode_def = {
+        "mode_id": "TEST_HTTP",
+        "display_name": "t",
+        "cacheable": True,
+        "content": {
+            "type": "http_fetch",
+            "url": "https://api.example.com/data",
+            "allowed_hosts": ["api.example.com"],
+            "response_map": {"text": "message", "subtitle": "nested.value"},
+            "fallback": {"text": "fb", "subtitle": "fb2"},
+        },
+        "layout": {"body": [{"type": "text", "field": "text"}]},
+    }
+
+    mock_resp = MagicMock()
+    mock_resp.raise_for_status = MagicMock()
+
+    async def _bytes_iter():
+        yield b'{"message":"hello","nested":{"value":"sub"}}'
+
+    mock_resp.aiter_bytes = lambda: _bytes_iter()
+
+    stream_cm = MagicMock()
+    stream_cm.__aenter__ = AsyncMock(return_value=mock_resp)
+    stream_cm.__aexit__ = AsyncMock(return_value=None)
+
+    mock_client = MagicMock()
+    mock_client.stream = MagicMock(return_value=stream_cm)
+    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+    mock_client.__aexit__ = AsyncMock(return_value=None)
+
+    with (
+        patch("core.json_content.httpx.AsyncClient", return_value=mock_client),
+        patch("core.json_content._http_fetch_resolve_safe", return_value=True),
+    ):
+        result = await generate_json_mode_content(
+            mode_def,
+            date_str="2026-01-01",
+            weather_str="10C",
+            language="en",
+        )
+
+    assert result["text"] == "hello"
+    assert result["subtitle"] == "sub"
+
+
+@pytest.mark.asyncio
+async def test_http_fetch_rejects_host_not_in_allowlist():
+    mode_def = {
+        "mode_id": "TEST_HTTP2",
+        "display_name": "t",
+        "cacheable": True,
+        "content": {
+            "type": "http_fetch",
+            "url": "https://other.example.com/x",
+            "allowed_hosts": ["api.example.com"],
+            "response_map": {"text": "message"},
+            "fallback": {"text": "fb"},
+        },
+        "layout": {"body": [{"type": "text", "field": "text"}]},
+    }
+
+    with patch("core.json_content.httpx.AsyncClient") as mock_cls:
+        result = await generate_json_mode_content(
+            mode_def,
+            date_str="2026-01-01",
+            weather_str="10C",
+            language="en",
+        )
+
+    mock_cls.assert_not_called()
+    assert result["text"] == "fb"
 
 
 if __name__ == "__main__":

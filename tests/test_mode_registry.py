@@ -88,6 +88,38 @@ def test_validate_static_mode():
     assert _validate_mode_def(static_def) is True
 
 
+def test_validate_http_fetch_mode():
+    http_def = {
+        "mode_id": "HTTP_TEST",
+        "display_name": "HTTP",
+        "content": {
+            "type": "http_fetch",
+            "url": "https://api.example.com/v1",
+            "allowed_hosts": ["api.example.com"],
+            "response_map": {"text": "data.title"},
+            "fallback": {"text": "fb"},
+        },
+        "layout": {"body": [{"type": "centered_text", "field": "text"}]},
+    }
+    assert _validate_mode_def(http_def) is True
+
+
+def test_validate_http_fetch_requires_allowed_hosts():
+    bad = {
+        "mode_id": "HTTP_BAD",
+        "display_name": "HTTP",
+        "content": {
+            "type": "http_fetch",
+            "url": "https://api.example.com/v1",
+            "allowed_hosts": [],
+            "response_map": {"text": "x"},
+            "fallback": {"text": "fb"},
+        },
+        "layout": {"body": [{"type": "centered_text", "field": "text"}]},
+    }
+    assert _validate_mode_def(bad) is False
+
+
 def test_registry_register_and_query():
     reg = ModeRegistry()
 

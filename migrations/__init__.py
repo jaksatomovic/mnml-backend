@@ -96,6 +96,13 @@ async def run_main_db_migrations(db, *, defaults: dict[str, str]) -> None:
         (20, "configs.timezone", lambda: _add_column_if_missing(db, "configs", "timezone", "timezone TEXT DEFAULT ''")),
         (21, "configs.admin1", lambda: _add_column_if_missing(db, "configs", "admin1", "admin1 TEXT DEFAULT ''")),
         (22, "configs.country", lambda: _add_column_if_missing(db, "configs", "country", "country TEXT DEFAULT ''")),
+        (
+            23,
+            "custom_modes.definition_language",
+            lambda: _add_column_if_missing(
+                db, "custom_modes", "definition_language", "definition_language TEXT DEFAULT 'zh'"
+            ),
+        ),
     ]
 
     now = datetime.now().isoformat()

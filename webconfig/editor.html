@@ -40,6 +40,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <option value="zen">translated (Zen)</option>
     <option value="sections">translated (Sections)</option>
   </select>
+  <select id="definitionLanguageSelect" title="Language this mode is written for">
+    <option value="zh">中文 (zh)</option>
+    <option value="en" selected>English (en)</option>
+    <option value="hr">Hrvatski (hr)</option>
+  </select>
   <select id="screenSizeSelect" style="padding:6px 10px;border-radius:6px;border:1px solid #d1d5db;font-size:.82rem">
     <option value="400x300">4.2" 400×300</option>
     <option value="296x128">2.9" 296×128</option>
@@ -173,6 +178,8 @@ function doSave(){
   if(!validateJSON())return;
   var def=JSON.parse(editor.value);
   if(!def.mode_id){alert('translated mode_id');return;}
+  var lang=document.getElementById('definitionLanguageSelect').value;
+  if(lang==='zh'||lang==='en'||lang==='hr'){def.definition_language=lang;}
   fetch('/api/modes/custom',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify(def)

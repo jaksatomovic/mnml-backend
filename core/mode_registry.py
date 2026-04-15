@@ -42,9 +42,16 @@ RenderFn = Callable[..., Image.Image]
 
 MODES_DIR = os.path.join(os.path.dirname(__file__), "modes")
 BUILTIN_JSON_DIR = os.path.join(MODES_DIR, "builtin")
+BUILTIN_ZH_DIR = os.path.join(BUILTIN_JSON_DIR, "zh")
 BUILTIN_EN_DIR = os.path.join(BUILTIN_JSON_DIR, "en")
+BUILTIN_HR_DIR = os.path.join(BUILTIN_JSON_DIR, "hr")
 CUSTOM_JSON_DIR = os.path.join(MODES_DIR, "custom")
+CUSTOM_ZH_DIR = os.path.join(CUSTOM_JSON_DIR, "zh")
+CUSTOM_EN_DIR = os.path.join(CUSTOM_JSON_DIR, "en")
+CUSTOM_HR_DIR = os.path.join(CUSTOM_JSON_DIR, "hr")
 SCHEMA_PATH = os.path.join(MODES_DIR, "schema", "mode_schema.json")
+
+_SUPPORTED_MODE_LOCALES = frozenset({"zh", "en", "hr"})
 
 
 @dataclass
@@ -71,6 +78,7 @@ class JsonMode:
     definition: dict = field(default_factory=dict)
     file_path: str = ""
     mac: Optional[str] = None  # Device MAC address for device-specific custom modes
+    definition_language: str = "zh"  # zh | en | hr — which locale this definition was authored for
 
 
 class ModeRegistry:
@@ -78,8 +86,9 @@ class ModeRegistry:
 
     def __init__(self) -> None:
         self._builtin: dict[str, BuiltinMode] = {}
-        self._json_modes: dict[str, JsonMode] = {}  # mode_id -> JsonMode
+        self._json_modes: dict[str, JsonMode] = {}  # mode_id -> primary JsonMode (zh + registry for listing)
         self._en_json_modes: dict[str, JsonMode] = {}  # mode_id -> English JsonMode
+        self._hr_json_modes: dict[str, JsonMode] = {}  # mode_id -> Croatian JsonMode
         self._device_modes: dict[str, set[str]] = {}  # mac -> set of mode_ids
 
     # ── Registration ─────────────────────────────────────────
@@ -109,7 +118,13 @@ class ModeRegistry:
         )
         logger.debug(f"[Registry] Registered builtin mode: {mode_id}")
 
-    def load_json_mode(self, path: str, *, source: str = "custom") -> Optional[str]:
+    def load_json_mode(
+        self,
+        path: str,
+        *,
+        source: str = "custom",
+        definition_language: str = "zh",
+    ) -> Optional[str]:
         """Load and validate a single JSON mode definition. Returns mode_id or None on error."""
         try:
             with open(path, "r", encoding="utf-8") as f:
@@ -133,6 +148,7 @@ class ModeRegistry:
             )
             return None
 
+        dl = definition_language if definition_language in _SUPPORTED_MODE_LOCALES else "zh"
         info = ModeInfo(
             mode_id=mode_id,
             display_name=definition.get("display_name", mode_id),
@@ -143,12 +159,18 @@ class ModeRegistry:
             settings_schema=definition.get("settings_schema", []) if isinstance(definition.get("settings_schema", []), list) else [],
         )
         self._json_modes[mode_id] = JsonMode(
-            info=info, definition=definition, file_path=path
+            info=info, definition=definition, file_path=path, definition_language=dl
         )
         logger.info(f"[Registry] Loaded JSON mode: {mode_id} from {path}")
         return mode_id
 
-    def load_directory(self, dir_path: str, *, source: str = "custom") -> list[str]:
+    def load_directory(
+        self,
+        dir_path: str,
+        *,
+        source: str = "custom",
+        definition_language: str = "zh",
+    ) -> list[str]:
         """Load all .json files from a directory. Returns list of loaded mode_ids."""
         loaded = []
         if not os.path.isdir(dir_path):
@@ -157,16 +179,22 @@ class ModeRegistry:
             if not fname.endswith(".json"):
                 continue
             path = os.path.join(dir_path, fname)
-            mid = self.load_json_mode(path, source=source)
+            mid = self.load_json_mode(
+                path, source=source, definition_language=definition_language
+            )
             if mid:
                 loaded.append(mid)
         return loaded
 
-    def load_en_directory(self, dir_path: str) -> list[str]:
-        """Load English mode overrides from a directory into _en_json_modes."""
-        loaded = []
+    def load_builtin_locale_directory(self, lang: str, dir_path: str) -> list[str]:
+        """Load builtin JSON overrides for a locale into _en_json_modes or _hr_json_modes."""
+        loaded: list[str] = []
+        if lang not in ("en", "hr"):
+            return loaded
         if not os.path.isdir(dir_path):
             return loaded
+        target = self._en_json_modes if lang == "en" else self._hr_json_modes
+        src = "builtin_json_en" if lang == "en" else "builtin_json_hr"
         for fname in sorted(os.listdir(dir_path)):
             if not fname.endswith(".json"):
                 continue
@@ -175,11 +203,11 @@ class ModeRegistry:
                 with open(path, "r", encoding="utf-8") as f:
                     definition = json.load(f)
             except (json.JSONDecodeError, OSError) as e:
-                logger.error(f"[Registry] Failed to load EN mode {path}: {e}")
+                logger.error(f"[Registry] Failed to load {lang.upper()} builtin mode {path}: {e}")
                 continue
             mode_id = definition.get("mode_id", "").upper()
             if not mode_id or not _validate_mode_def(definition):
-                logger.error(f"[Registry] Invalid EN mode file: {path}")
+                logger.error(f"[Registry] Invalid {lang} builtin mode file: {path}")
                 continue
             info = ModeInfo(
                 mode_id=mode_id,
@@ -187,15 +215,62 @@ class ModeRegistry:
                 icon=definition.get("icon", "star"),
                 cacheable=definition.get("cacheable", True),
                 description=definition.get("description", ""),
-                source="builtin_json_en",
+                source=src,
                 settings_schema=definition.get("settings_schema", []) if isinstance(definition.get("settings_schema", []), list) else [],
             )
-            self._en_json_modes[mode_id] = JsonMode(
-                info=info, definition=definition, file_path=path
+            target[mode_id] = JsonMode(
+                info=info, definition=definition, file_path=path, definition_language=lang
             )
             loaded.append(mode_id)
         if loaded:
-            logger.info(f"[Registry] Loaded {len(loaded)} English mode overrides")
+            logger.info(f"[Registry] Loaded {len(loaded)} builtin {lang} mode overrides")
+        return loaded
+
+    def load_custom_locale_directory(self, lang: str, dir_path: str) -> list[str]:
+        """Load custom modes from custom/en or custom/hr: locale map + _json_modes for listing."""
+        loaded: list[str] = []
+        if lang not in ("en", "hr"):
+            return loaded
+        if not os.path.isdir(dir_path):
+            return loaded
+        target = self._en_json_modes if lang == "en" else self._hr_json_modes
+        for fname in sorted(os.listdir(dir_path)):
+            if not fname.endswith(".json"):
+                continue
+            path = os.path.join(dir_path, fname)
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    definition = json.load(f)
+            except (json.JSONDecodeError, OSError) as e:
+                logger.error(f"[Registry] Failed to load custom {lang} mode {path}: {e}")
+                continue
+            mode_id = definition.get("mode_id", "").upper()
+            if not mode_id or not _validate_mode_def(definition):
+                logger.error(f"[Registry] Invalid custom {lang} mode file: {path}")
+                continue
+            if mode_id in self._builtin:
+                logger.warning(
+                    f"[Registry] Custom JSON mode {mode_id} shadows builtin — skipped"
+                )
+                continue
+            info = ModeInfo(
+                mode_id=mode_id,
+                display_name=definition.get("display_name", mode_id),
+                icon=definition.get("icon", "star"),
+                cacheable=definition.get("cacheable", True),
+                description=definition.get("description", ""),
+                source="custom",
+                settings_schema=definition.get("settings_schema", []) if isinstance(definition.get("settings_schema", []), list) else [],
+            )
+            jm = JsonMode(
+                info=info, definition=definition, file_path=path, definition_language=lang
+            )
+            target[mode_id] = jm
+            if mode_id not in self._json_modes:
+                self._json_modes[mode_id] = jm
+            loaded.append(mode_id)
+        if loaded:
+            logger.info(f"[Registry] Loaded {len(loaded)} custom {lang} JSON modes from {dir_path}")
         return loaded
 
     def unregister_custom(self, mode_id: str, mac: Optional[str] = None) -> bool:
@@ -212,6 +287,8 @@ class ModeRegistry:
                     if not self._device_modes[jm.mac]:
                         del self._device_modes[jm.mac]
                 del self._json_modes[mode_id]
+                self._en_json_modes.pop(mode_id, None)
+                self._hr_json_modes.pop(mode_id, None)
                 return True
         return False
     
@@ -227,7 +304,15 @@ class ModeRegistry:
                 count += 1
         return count
 
-    def load_custom_mode_from_dict(self, mode_id: str, definition: dict, *, source: str = "custom", mac: Optional[str] = None) -> Optional[str]:
+    def load_custom_mode_from_dict(
+        self,
+        mode_id: str,
+        definition: dict,
+        *,
+        source: str = "custom",
+        mac: Optional[str] = None,
+        definition_language: str = "zh",
+    ) -> Optional[str]:
         """Load a custom mode from a dictionary (e.g., from database). Returns mode_id or None on error."""
         mode_id = mode_id.upper()
         if not mode_id:
@@ -244,6 +329,7 @@ class ModeRegistry:
             )
             return None
 
+        dl = definition_language if definition_language in _SUPPORTED_MODE_LOCALES else "zh"
         info = ModeInfo(
             mode_id=mode_id,
             display_name=definition.get("display_name", mode_id),
@@ -255,15 +341,32 @@ class ModeRegistry:
         )
         # Normalize mac to uppercase if provided
         normalized_mac = mac.upper() if mac else None
-        self._json_modes[mode_id] = JsonMode(
-            info=info, definition=definition, file_path="", mac=normalized_mac
+        jm = JsonMode(
+            info=info,
+            definition=definition,
+            file_path="",
+            mac=normalized_mac,
+            definition_language=dl,
         )
+        if dl == "zh":
+            self._json_modes[mode_id] = jm
+        elif dl == "en":
+            self._en_json_modes[mode_id] = jm
+            if mode_id not in self._json_modes:
+                self._json_modes[mode_id] = jm
+        elif dl == "hr":
+            self._hr_json_modes[mode_id] = jm
+            if mode_id not in self._json_modes:
+                self._json_modes[mode_id] = jm
         # Track mode for device
         if normalized_mac:
             if normalized_mac not in self._device_modes:
                 self._device_modes[normalized_mac] = set()
             self._device_modes[normalized_mac].add(mode_id)
-        logger.info(f"[Registry] Loaded custom mode from database: {mode_id}" + (f" (device {normalized_mac})" if normalized_mac else ""))
+        logger.info(
+            f"[Registry] Loaded custom mode from database: {mode_id} ({dl})"
+            + (f" (device {normalized_mac})" if normalized_mac else "")
+        )
         return mode_id
 
     async def load_user_custom_modes(self, user_id: int, mac: Optional[str] = None) -> list[str]:
@@ -287,7 +390,15 @@ class ModeRegistry:
                 mode_mac = mode_mac.upper()
             # Unregister first to avoid conflicts (especially important when loading device-specific modes)
             self.unregister_custom(mode_id, mode_mac)
-            loaded = self.load_custom_mode_from_dict(mode_id, definition, source="custom", mac=mode_mac)
+            loaded = self.load_custom_mode_from_dict(
+                mode_id,
+                definition,
+                source="custom",
+                mac=mode_mac,
+                definition_language=str(
+                    mode_data.get("definition_language") or "zh"
+                ).lower(),
+            )
             if loaded:
                 loaded_ids.append(loaded)
         if loaded_ids:
@@ -337,18 +448,38 @@ class ModeRegistry:
         return self._builtin.get(mode_id.upper())
 
     def get_json_mode(self, mode_id: str, mac: Optional[str] = None, *, language: str = "zh") -> Optional[JsonMode]:
-        """Get a JSON mode. If language is 'en', prefer English override."""
+        """Resolve JSON mode for device locale: en/hr overrides, then fallback zh."""
         uid = mode_id.upper()
-        if language == "en":
-            en_jm = self._en_json_modes.get(uid)
-            if en_jm:
-                return en_jm
-        jm = self._json_modes.get(uid)
-        if jm and mac:
-            mac = mac.upper()
-            if jm.mac is not None and jm.mac != mac:
+        lang = (language or "zh").strip().lower()
+        if lang not in _SUPPORTED_MODE_LOCALES:
+            lang = "zh"
+
+        def _with_mac(jm: Optional[JsonMode]) -> Optional[JsonMode]:
+            if not jm:
                 return None
-        return jm
+            if mac:
+                mac_u = mac.upper()
+                if jm.mac is not None and jm.mac != mac_u:
+                    return None
+            return jm
+
+        if lang == "en":
+            jm = _with_mac(self._en_json_modes.get(uid))
+            if jm:
+                return jm
+            return _with_mac(self._json_modes.get(uid))
+
+        if lang == "hr":
+            jm = _with_mac(self._hr_json_modes.get(uid))
+            if jm:
+                return jm
+            jm = _with_mac(self._en_json_modes.get(uid))
+            if jm:
+                return jm
+            return _with_mac(self._json_modes.get(uid))
+
+        # zh (default)
+        return _with_mac(self._json_modes.get(uid))
 
     def is_json_mode(self, mode_id: str) -> bool:
         return mode_id.upper() in self._json_modes
@@ -393,12 +524,40 @@ def _validate_mode_def_with_error(
     if not isinstance(content, dict):
         return False, "content must be an object"
     ctype = content.get("type", "")
-    if ctype not in ("llm", "llm_json", "static", "external_data", "image_gen", "computed", "composite"):
+    if ctype not in (
+        "llm",
+        "llm_json",
+        "static",
+        "external_data",
+        "image_gen",
+        "computed",
+        "composite",
+        "http_fetch",
+    ):
         return False, "content.type is invalid"
     if ctype in ("llm", "llm_json") and not content.get("prompt_template"):
         return False, "content.prompt_template is required"
     if ctype in ("llm", "llm_json") and not content.get("fallback"):
         return False, "content.fallback is required"
+    if ctype == "http_fetch":
+        url = content.get("url")
+        if not isinstance(url, str) or len(url.strip()) < 8:
+            return False, "content.url is required for http_fetch"
+        allowed = content.get("allowed_hosts")
+        if not isinstance(allowed, list) or len(allowed) == 0:
+            return False, "content.allowed_hosts must be a non-empty list for http_fetch"
+        if not all(isinstance(h, str) and h.strip() for h in allowed):
+            return False, "content.allowed_hosts entries must be non-empty strings"
+        rm = content.get("response_map")
+        if not isinstance(rm, dict) or len(rm) == 0:
+            return False, "content.response_map must be a non-empty object for http_fetch"
+        if not all(isinstance(k, str) and isinstance(v, str) and v.strip() for k, v in rm.items()):
+            return False, "content.response_map must map string keys to non-empty path strings"
+        if not content.get("fallback"):
+            return False, "content.fallback is required for http_fetch"
+        hdrs = content.get("headers")
+        if hdrs is not None and not isinstance(hdrs, dict):
+            return False, "content.headers must be an object when set"
 
     layout = definition.get("layout")
     if not isinstance(layout, dict):
@@ -467,13 +626,18 @@ def get_registry() -> ModeRegistry:
 
 
 def _init_registry(registry: ModeRegistry) -> None:
-    builtin_loaded = registry.load_directory(BUILTIN_JSON_DIR, source="builtin_json")
+    builtin_loaded = registry.load_directory(
+        BUILTIN_ZH_DIR, source="builtin_json", definition_language="zh"
+    )
     if builtin_loaded:
-        logger.info(f"[Registry] Loaded {len(builtin_loaded)} builtin JSON modes")
-    registry.load_en_directory(BUILTIN_EN_DIR)
-    custom_loaded = registry.load_directory(CUSTOM_JSON_DIR, source="custom")
-    if custom_loaded:
-        logger.info(f"[Registry] Loaded {len(custom_loaded)} local custom JSON modes")
+        logger.info(f"[Registry] Loaded {len(builtin_loaded)} builtin zh JSON modes")
+    registry.load_builtin_locale_directory("en", BUILTIN_EN_DIR)
+    registry.load_builtin_locale_directory("hr", BUILTIN_HR_DIR)
+    custom_zh = registry.load_directory(CUSTOM_ZH_DIR, source="custom", definition_language="zh")
+    if custom_zh:
+        logger.info(f"[Registry] Loaded {len(custom_zh)} custom zh JSON modes")
+    registry.load_custom_locale_directory("en", CUSTOM_EN_DIR)
+    registry.load_custom_locale_directory("hr", CUSTOM_HR_DIR)
 
 
 def reset_registry() -> None:

@@ -1,0 +1,223 @@
+{
+  "mode_id": "CALENDAR",
+  "display_name": "Kalendar",
+  "icon": "calendar",
+  "cacheable": true,
+  "description": "Mjesečni kalendar s istaknutim današnjim danom i dnevnim savjetom",
+  "content": {
+    "type": "composite",
+    "steps": [
+      {
+        "type": "computed",
+        "provider": "daily_meta",
+        "fallback": {
+          "year": 2026,
+          "day": 19,
+          "month_cn": "ožujak",
+          "weekday_cn": "čet",
+          "day_of_year": 78,
+          "days_in_year": 365
+        }
+      },
+      {
+        "type": "computed",
+        "provider": "calendar_grid",
+        "fallback": {
+          "calendar_title": "ožujka 2026",
+          "weekday_headers": [
+            "Mo",
+            "uto",
+            "Mi",
+            "Th",
+            "Fr",
+            "Sa",
+            "su"
+          ],
+          "calendar_rows": [
+            [
+              "",
+              "",
+              "",
+              "",
+              "",
+              "",
+              "1"
+            ],
+            [
+              "2",
+              "3",
+              "4",
+              "5",
+              "6",
+              "7",
+              "8"
+            ],
+            [
+              "9",
+              "10",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15"
+            ],
+            [
+              "16",
+              "17",
+              "18",
+              "19",
+              "20",
+              "21",
+              "22"
+            ],
+            [
+              "23",
+              "24",
+              "25",
+              "26",
+              "27",
+              "28",
+              "29"
+            ],
+            [
+              "30",
+              "31",
+              "",
+              "",
+              "",
+              "",
+              ""
+            ]
+          ],
+          "today_day": "19",
+          "lunar_date": "",
+          "festival": ""
+        }
+      },
+      {
+        "type": "llm",
+        "prompt_template": "Danas je {context}. {reminder_hint}Dajte savjet u jednom retku dnevno ili zabavnu činjenicu (ispod 30 znakova). Ako postoje podsjetnici, usredotočite se na njih. Ispišite samo tekst.",
+        "output_format": "text",
+        "fallback": {
+          "text": "Neka se današnji dan računa."
+        }
+      }
+    ],
+    "fallback": {},
+    "fallback_pool": [
+      {
+        "calendar_title": "ožujka 2026",
+        "weekday_headers": [
+          "Mo",
+          "uto",
+          "Mi",
+          "Th",
+          "Fr",
+          "Sa",
+          "su"
+        ],
+        "calendar_rows": [
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "1"
+          ],
+          [
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8"
+          ],
+          [
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15"
+          ],
+          [
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22"
+          ],
+          [
+            "23",
+            "24",
+            "25",
+            "26",
+            "27",
+            "28",
+            "29"
+          ],
+          [
+            "30",
+            "31",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "today_day": "19",
+        "lunar_date": "",
+        "festival": "",
+        "text": "Neka se današnji dan računa."
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "body_align": "top",
+    "body": [
+      {
+        "type": "calendar_grid",
+        "font_size": 16,
+        "header_font_size": 11,
+        "sub_font_size": 7,
+        "reminder_font": "noto_serif_light",
+        "reminder_font_size": 9,
+        "header_gap": 5,
+        "date_line_gap": 2,
+        "margin_x": 10,
+        "cell_height": 34
+      },
+      {
+        "type": "spacer",
+        "height": 16
+      },
+      {
+        "type": "separator",
+        "style": "dashed",
+        "margin_x": 5
+      },
+      {
+        "type": "text",
+        "field": "text",
+        "font_size": 13,
+        "align": "center",
+        "max_lines": 1
+      }
+    ],
+    "footer": {
+      "label": "CALENDAR",
+      "attribution_template": "— InkSight"
+    }
+  }
+}

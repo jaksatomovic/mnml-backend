@@ -1,0 +1,120 @@
+{
+  "mode_id": "WORD_OF_THE_DAY",
+  "display_name": "Riječ dana",
+  "icon": "word",
+  "cacheable": true,
+  "description": "Zanimljiva engleska riječ s definicijom i primjerom",
+  "content": {
+    "type": "llm_json",
+    "prompt_template": "Vi ste stručnjak za jezik. Odaberite zanimljivu, neuobičajenu, ali korisnu englesku riječ i navedite njezinu definiciju i upotrebu.\nIzlazni JSON: {{\"word\": \"The word\", \"phonetic\": \"Phonetic transcription (optional)\", \"definition\": \"Brief definition (under 30 chars)\", \"example\": \"Short example sentence (under 40 chars)\"}}\nOdaberite riječi koje su elegantne, korisne u svakodnevnom životu ili imaju zanimljivu etimologiju.\nKontekst: {context}",
+    "output_schema": {
+      "word": {
+        "type": "string",
+        "default": "Serendipity"
+      },
+      "phonetic": {
+        "type": "string",
+        "default": "/ˌsɛrənˈdɪpɪti/"
+      },
+      "definition": {
+        "type": "string",
+        "default": "Sretna nesreća ili ugodno iznenađenje"
+      },
+      "example": {
+        "type": "string",
+        "default": "Pronalazak te knjige bila je čista slučajnost."
+      }
+    },
+    "temperature": 0.8,
+    "fallback": {
+      "word": "Serendipity",
+      "phonetic": "/ˌsɛrənˈdɪpɪti/",
+      "definition": "Sretna nesreća ili ugodno iznenađenje",
+      "example": "Pronalazak te knjige bila je čista slučajnost."
+    },
+    "fallback_pool": [
+      {
+        "word": "Serendipity",
+        "phonetic": "/ˌsɛrənˈdɪpɪti/",
+        "definition": "Sretna nesreća ili ugodno iznenađenje",
+        "example": "Pronalazak te knjige bila je čista slučajnost."
+      },
+      {
+        "word": "Prolazno",
+        "phonetic": "/ɪˈfɛm(ə)rəl/",
+        "definition": "Traje vrlo kratko",
+        "example": "Ljepota trešnjinih cvjetova je prolazna."
+      },
+      {
+        "word": "Petrichor",
+        "phonetic": "/ˈpɛtrɪkɔːr/",
+        "definition": "Miris zemlje poslije kiše",
+        "example": "Voljela je petrihor u proljetna jutra."
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "layout_engine": "component_tree",
+    "body_preset": "word_card",
+    "preset_props": {
+      "padding_x": 18,
+      "justify": "center",
+      "gap": 8,
+      "word_inset_x": 20,
+      "word_field": "word",
+      "word_font": "noto_serif_bold",
+      "word_font_size": 52,
+      "phonetic_field": "phonetic",
+      "phonetic_font": "noto_serif_light",
+      "phonetic_font_name": "GentiumPlus-Regular.ttf",
+      "phonetic_font_size": 13,
+      "separator_width": 40,
+      "definition_field": "definition",
+      "definition_font": "noto_serif_regular",
+      "definition_font_size": 16,
+      "definition_max_lines": 2,
+      "example_field": "example",
+      "example_font": "noto_serif_light",
+      "example_font_size": 12,
+      "example_max_lines": 2
+    },
+    "footer": {
+      "label": "Riječ dana",
+      "attribution_template": "— Proširite svoj leksikon"
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "preset_props": {
+        "padding_x": 8,
+        "gap": 4,
+        "word_inset_x": 8,
+        "word_font_size": 22,
+        "phonetic_font_size": 8,
+        "separator_width": 30,
+        "definition_font_size": 10,
+        "definition_max_lines": 1,
+        "example_field": null
+      },
+      "footer": {
+        "label": "Riječ dana",
+        "height": 18
+      }
+    },
+    "800x480": {
+      "preset_props": {
+        "padding_x": 28,
+        "gap": 12,
+        "word_inset_x": 40,
+        "word_font_size": 72,
+        "phonetic_font_size": 16,
+        "definition_font_size": 22,
+        "example_font_size": 16
+      }
+    }
+  }
+}

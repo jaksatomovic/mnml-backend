@@ -1,0 +1,81 @@
+{
+  "mode_id": "MEMO",
+  "display_name": "dopis",
+  "icon": "memo",
+  "cacheable": false,
+  "description": "Prikažite svoju prilagođenu poruku na ekranu",
+  "settings_schema": [
+    {
+      "key": "memo_text",
+      "label": "Tekst dopisa",
+      "type": "textarea",
+      "placeholder": "Unesite svoj sadržaj bilješke za ovaj način rada"
+    }
+  ],
+  "content": {
+    "type": "computed",
+    "provider": "memo",
+    "fallback": {
+      "memo_text": "Postavite svoj dopis na stranici za konfiguraciju."
+    },
+    "fallback_pool": [
+      {
+        "memo_text": "Postavite svoj dopis na stranici za konfiguraciju."
+      },
+      {
+        "memo_text": "Ostanite pozitivni i samo tako nastavite!"
+      },
+      {
+        "memo_text": "Usredotočite se na sadašnji trenutak."
+      },
+      {
+        "memo_text": "Ne zaboravite ostati hidrirani."
+      },
+      {
+        "memo_text": "Odmorite se i pogledajte u daljinu."
+      }
+    ]
+  },
+  "layout": {
+    "status_bar": {
+      "line_width": 1,
+      "dashed": false
+    },
+    "layout_engine": "component_tree",
+    "body_preset": "quote_focus_card",
+    "preset_props": {
+      "padding_x": 18,
+      "justify": "center",
+      "quote_inset_x": 30,
+      "quote_field": "memo_text",
+      "quote_font": "noto_serif_light",
+      "quote_font_size": 16,
+      "quote_max_lines": 4
+    },
+    "footer": {
+      "label": "MEMO"
+    }
+  },
+  "layout_overrides": {
+    "296x128": {
+      "preset_props": {
+        "padding_x": 8,
+        "quote_inset_x": 8,
+        "quote_font_size": 13,
+        "quote_max_lines": 3
+      },
+      "footer": {
+        "label": "MEMO",
+        "height": 18
+      }
+    },
+    "800x480": {
+      "preset_props": {
+        "padding_x": 28,
+        "quote_inset_x": 72,
+        "quote_font_size": 26,
+        "quote_max_lines": 4
+      }
+    }
+  }
+}

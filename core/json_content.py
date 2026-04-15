@@ -4,14 +4,17 @@ Get by  JSON content translated LLM translated
 """
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import logging
 import random
+import socket
+from ipaddress import ip_address
 from json import JSONDecodeError
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 import os
 
@@ -50,6 +53,104 @@ DEDUP_MAX_RETRIES = 2
 
 _BACKEND_ROOT = Path(__file__).resolve().parent.parent
 _UPLOAD_DIR = _BACKEND_ROOT / "runtime_uploads"
+
+_HTTP_FETCH_MAX_BYTES = int(os.environ.get("INKSIGHT_HTTP_FETCH_MAX_BYTES", "262144"))
+_HTTP_FETCH_TIMEOUT = float(os.environ.get("INKSIGHT_HTTP_FETCH_TIMEOUT", "10"))
+_HTTP_FETCH_ALLOW_HTTP = os.environ.get("INKSIGHT_HTTP_FETCH_ALLOW_HTTP", "").strip().lower() in (
+    "1",
+    "true",
+    "yes",
+)
+
+
+def _http_fetch_get_path(data: Any, path: str) -> Any:
+    """Read a value from nested dict/list JSON using dot paths (e.g. a.b.0.c)."""
+    if path == "":
+        return data
+    cur: Any = data
+    for part in path.split("."):
+        if part == "":
+            continue
+        if cur is None:
+            return None
+        if isinstance(cur, list):
+            if part.isdigit():
+                idx = int(part)
+                cur = cur[idx] if 0 <= idx < len(cur) else None
+            else:
+                return None
+        elif isinstance(cur, dict):
+            cur = cur.get(part)
+        else:
+            return None
+    return cur
+
+
+def _http_fetch_serialize_value(v: Any) -> str:
+    if v is None:
+        return ""
+    if isinstance(v, bool):
+        return "true" if v else "false"
+    if isinstance(v, (str, int, float)):
+        return str(v)
+    try:
+        s = json.dumps(v, ensure_ascii=False)
+    except (TypeError, ValueError):
+        return ""
+    return s if len(s) <= 8000 else s[:8000]
+
+
+def _normalize_allowed_hosts(entries: list[str]) -> list[str]:
+    out: list[str] = []
+    for e in entries:
+        if not isinstance(e, str):
+            continue
+        s = e.strip().lower()
+        if s:
+            out.append(s)
+    return out
+
+
+def _host_matches_http_fetch_allowlist(host: str, allowed: list[str]) -> bool:
+    host = (host or "").lower().strip()
+    if not host:
+        return False
+    if host in {"localhost", "127.0.0.1", "::1"} or host.endswith(".local"):
+        return False
+    for d in allowed:
+        if host == d or host.endswith(f".{d}"):
+            return True
+    return False
+
+
+def _http_fetch_ip_blocked(addr: str) -> bool:
+    try:
+        ip = ip_address(addr)
+    except ValueError:
+        return True
+    return bool(
+        ip.is_private
+        or ip.is_loopback
+        or ip.is_link_local
+        or ip.is_multicast
+        or ip.is_reserved
+        or ip.is_unspecified
+    )
+
+
+def _http_fetch_resolve_safe(hostname: str) -> bool:
+    """Return True if hostname resolves only to non-blocked addresses."""
+    try:
+        infos = socket.getaddrinfo(hostname, None, type=socket.SOCK_STREAM)
+    except OSError:
+        return False
+    if not infos:
+        return False
+    for info in infos:
+        addr = info[4][0]
+        if _http_fetch_ip_blocked(addr):
+            return False
+    return True
 
 
 def _resolve_uploaded_image_bytes(url: str) -> bytes | None:
@@ -157,6 +258,123 @@ def _validate_content_quality(result: dict, schema: dict | None = None) -> bool:
     return True
 
 
+async def _generate_http_fetch_content(
+    mode_def: dict,
+    content_cfg: dict,
+    fallback: dict,
+    *,
+    date_str: str = "",
+    weather_str: str = "",
+    festival: str = "",
+    daily_word: str = "",
+    upcoming_holiday: str = "",
+    days_until_holiday: int = 0,
+    language: str | None = None,
+    config: dict | None = None,
+    **_: Any,
+) -> dict:
+    """Fetch JSON from an allowlisted HTTPS URL and map fields into layout content."""
+    mode_id = str(mode_def.get("mode_id") or "HTTP_FETCH")
+    raw_url = str(content_cfg.get("url", "")).strip()
+    allowed = _normalize_allowed_hosts(list(content_cfg.get("allowed_hosts") or []))
+    response_map = content_cfg.get("response_map") or {}
+    if not isinstance(response_map, dict) or not response_map:
+        logger.warning("[JSONContent] http_fetch missing response_map for %s", mode_id)
+        return dict(fallback)
+
+    context = _build_context_str(
+        date_str,
+        weather_str,
+        festival,
+        daily_word,
+        upcoming_holiday,
+        days_until_holiday,
+        language=language,
+    )
+    city = ""
+    cfg = config or {}
+    if isinstance(cfg.get("city"), str):
+        city = cfg["city"]
+
+    url = raw_url.replace("{context}", quote(context, safe=""))
+    url = url.replace("{city}", quote(city, safe=""))
+
+    try:
+        parsed = urlparse(url)
+    except ValueError:
+        logger.warning("[JSONContent] http_fetch invalid URL for %s", mode_id)
+        return dict(fallback)
+
+    scheme = (parsed.scheme or "").lower()
+    if scheme == "https":
+        pass
+    elif scheme == "http" and _HTTP_FETCH_ALLOW_HTTP:
+        pass
+    else:
+        logger.warning("[JSONContent] http_fetch rejected scheme for %s", mode_id)
+        return dict(fallback)
+
+    hostname = (parsed.hostname or "").strip()
+    if not hostname:
+        return dict(fallback)
+
+    if not _host_matches_http_fetch_allowlist(hostname, allowed):
+        logger.warning("[JSONContent] http_fetch host not in allowlist: %s", hostname)
+        return dict(fallback)
+
+    safe_resolve = await asyncio.to_thread(_http_fetch_resolve_safe, hostname)
+    if not safe_resolve:
+        logger.warning("[JSONContent] http_fetch DNS/SSRF blocked for %s", hostname)
+        return dict(fallback)
+
+    headers_in = content_cfg.get("headers") or {}
+    headers: dict[str, str] = {}
+    if isinstance(headers_in, dict):
+        for k, v in list(headers_in.items())[:32]:
+            if isinstance(k, str) and isinstance(v, str) and k.strip():
+                headers[k.strip()] = v[:2048]
+
+    timeout = httpx.Timeout(_HTTP_FETCH_TIMEOUT)
+    max_bytes = max(1024, min(_HTTP_FETCH_MAX_BYTES, 2 * 1024 * 1024))
+
+    try:
+        async with httpx.AsyncClient(
+            timeout=timeout,
+            follow_redirects=False,
+        ) as client:
+            async with client.stream("GET", url, headers=headers or None) as resp:
+                resp.raise_for_status()
+                chunks: list[bytes] = []
+                total = 0
+                async for chunk in resp.aiter_bytes():
+                    total += len(chunk)
+                    if total > max_bytes:
+                        raise ValueError("response too large")
+                    chunks.append(chunk)
+        raw_body = b"".join(chunks)
+    except (httpx.HTTPError, ValueError, TypeError) as e:
+        logger.warning("[JSONContent] http_fetch request failed for %s: %s", mode_id, e, exc_info=True)
+        return dict(fallback)
+
+    try:
+        payload = json.loads(raw_body.decode("utf-8", errors="replace"))
+    except JSONDecodeError:
+        logger.warning("[JSONContent] http_fetch invalid JSON for %s", mode_id)
+        return dict(fallback)
+
+    if not isinstance(payload, (dict, list)):
+        return dict(fallback)
+
+    out: dict[str, Any] = dict(fallback)
+    for out_key, json_path in response_map.items():
+        if not isinstance(out_key, str) or not isinstance(json_path, str):
+            continue
+        val = _http_fetch_get_path(payload, json_path.strip())
+        out[out_key] = _http_fetch_serialize_value(val)
+
+    return out
+
+
 async def generate_json_mode_content(
     mode_def: dict,
     *,
@@ -193,6 +411,7 @@ async def generate_json_mode_content(
     - image_gen: generates image data payload (ARTWALL provider)
     - computed: computes content from config/date without LLM
     - composite: merges results from multiple nested content steps
+    - http_fetch: GET JSON from an allowlisted URL; maps fields via response_map
     """
     content_cfg = mode_def.get("content", {})
     ctype = content_cfg.get("type", "static")
@@ -292,6 +511,15 @@ async def generate_json_mode_content(
         return content
     if ctype == "composite":
         content = await _generate_composite_content(mode_def, content_cfg, fallback, **common_args)
+        if isinstance(override, dict) and override:
+            for k, v in override.items():
+                if k in {"city", "llm_provider", "llm_model", "image_provider", "image_model"}:
+                    continue
+                content[k] = v
+        content = await _prefetch_images(content, mode_def)
+        return content
+    if ctype == "http_fetch":
+        content = await _generate_http_fetch_content(mode_def, content_cfg, fallback, **common_args)
         if isinstance(override, dict) and override:
             for k, v in override.items():
                 if k in {"city", "llm_provider", "llm_model", "image_provider", "image_model"}:

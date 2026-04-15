@@ -11,6 +11,7 @@ from pathlib import Path
 
 BACKEND = Path(__file__).resolve().parent.parent
 BUILTIN = BACKEND / "core/modes/builtin"
+ZH = BUILTIN / "zh"
 EN = BUILTIN / "en"
 
 TIER_KEYS = ("slot_lg", "slot_md", "slot_sm", "slot_xs")
@@ -1434,7 +1435,7 @@ def main() -> int:
         print("Builtin modes dir not found", file=sys.stderr)
         return 1
 
-    for path in sorted(BUILTIN.glob("*.json")):
+    for path in sorted(ZH.glob("*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
         mid = str(data.get("mode_id", "")).upper()
         if not mid or mid not in PRESETS:
