@@ -430,15 +430,19 @@ def draw_status_bar(
     elif battery_pct < 50 and "yellow" in available:
         batt_fill = EINK_COLOR_NAME_MAP["yellow"]
 
-    batt_box_w = int(22 * scale)
-    batt_box_h = int(11 * scale)
+    batt_box_w = max(8, int(22 * scale))
+    batt_box_h = max(5, int(11 * scale))
     bx = screen_w - pad_x - batt_text_w - int(6 * scale) - batt_box_w
     by = y + 1
     draw.rectangle([bx, by, bx + batt_box_w, by + batt_box_h], outline=batt_fill, width=1)
     draw.rectangle([bx + batt_box_w, by + int(3 * scale), bx + batt_box_w + int(2 * scale), by + int(8 * scale)], fill=batt_fill)
     fill_w = int((batt_box_w - 4) * battery_pct / 100)
+    fill_w = max(0, min(fill_w, batt_box_w - 4))
     if fill_w > 0:
-        draw.rectangle([bx + 2, by + 2, bx + 2 + fill_w, by + batt_box_h - 2], fill=batt_fill)
+        y0 = by + 2
+        y1 = by + batt_box_h - 2
+        if y1 >= y0:
+            draw.rectangle([bx + 2, y0, bx + 2 + fill_w, y1], fill=batt_fill)
 
     draw.text((bx + batt_box_w + int(6 * scale), y), batt_text, fill=batt_fill, font=font_en)
 
@@ -477,9 +481,8 @@ def draw_footer(
         attr_font_size = int(FONT_SIZES["footer"]["attribution"] * scale)
 
     if footer_height is None:
-        # Legacy fallback for non-JSON callers
-        footer_pct = 0.08 if screen_h < 200 else 0.10
-        footer_height = int(screen_h * footer_pct)
+        # Keep legacy/non-JSON callers consistent with JSON renderer footer size.
+        footer_height = 18
     footer_height = max(1, min(screen_h - 1, int(footer_height)))
     y_line = screen_h - footer_height
     if dashed:

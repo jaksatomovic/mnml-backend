@@ -251,6 +251,11 @@
   },
   "layout_overrides": {
     "376x252": {
+      "footer": {
+        "label": "Vrijeme",
+        "height": 18,
+        "attribution_template": "— Open-Meteo"
+      },
       "body": [
         {
           "type": "spacer",
@@ -461,11 +466,16 @@
       ],
       "footer": {
         "label": "Vrijeme",
-        "height": 20,
+        "height": 18,
         "attribution_template": "— Open-Meteo"
       }
     },
     "185x252": {
+      "footer": {
+        "label": "Vrijeme",
+        "height": 18,
+        "attribution_template": "— Open-Meteo"
+      },
       "body": [
         {
           "type": "spacer",

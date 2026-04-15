@@ -13,33 +13,33 @@
     "provider": "text2image",
     "fallback": {
       "artwork_title": "墨韵天成",
-      "image_url": "/webconfig/assets/art/moyun.png",
+      "image_url": "https://picsum.photos/seed/inksight-moyun/1200/800",
       "description": "今日艺术作品"
     },
     "fallback_pool": [
       {
         "artwork_title": "墨韵天成",
-        "image_url": "/webconfig/assets/art/moyun.png",
+        "image_url": "https://picsum.photos/seed/inksight-moyun/1200/800",
         "description": "今日艺术作品"
       },
       {
         "artwork_title": "山居秋暝",
-        "image_url": "/webconfig/assets/art/shanjuqiuming.png",
+        "image_url": "https://picsum.photos/seed/inksight-mountain/1200/800",
         "description": "水墨山水意境"
       },
       {
         "artwork_title": "竹林七贤",
-        "image_url": "/webconfig/assets/art/zhulinqixian.png",
+        "image_url": "https://picsum.photos/seed/inksight-bamboo/1200/800",
         "description": "古典人物版画"
       },
       {
         "artwork_title": "禅意莲花",
-        "image_url": "/webconfig/assets/art/chanyilianhua.png",
+        "image_url": "https://picsum.photos/seed/inksight-lotus/1200/800",
         "description": "极简禅宗美学"
       },
       {
         "artwork_title": "云卷云舒",
-        "image_url": "/webconfig/assets/art/yunjuanyunshu.png",
+        "image_url": "https://picsum.photos/seed/inksight-clouds/1200/800",
         "description": "黑白云海写意"
       }
     ]
@@ -107,6 +107,60 @@
           "fit": "cover",
           "align_x": "center",
           "align_y": "center"
+        }
+      ]
+    },
+    "400x300": {
+      "body_align": "top",
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "x": 1,
+          "width": 398,
+          "height": 232,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
+          "margin_bottom": 0
+        }
+      ]
+    },
+    "380x77": {
+      "body_align": "top",
+      "footer": {
+        "height": 16
+      },
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "x": 1,
+          "width": 378,
+          "height": 52,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
+          "margin_bottom": 0
+        }
+      ]
+    },
+    "145x68": {
+      "body_align": "top",
+      "footer": {
+        "height": 16
+      },
+      "body": [
+        {
+          "type": "image",
+          "field": "image_url",
+          "x": 1,
+          "width": 143,
+          "height": 44,
+          "fit": "cover",
+          "align_x": "center",
+          "align_y": "center",
+          "margin_bottom": 0
         }
       ]
     },

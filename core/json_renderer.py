@@ -1054,8 +1054,8 @@ def render_json_mode(
         status_bar_pct = 0.10 if screen_h < 200 else 0.12
         status_bar_bottom = int(screen_h * status_bar_pct)
         scale = screen_w / 400.0
-        footer_height = int(ft_layout.get("height", 30))
-        footer_height = max(1, min(screen_h - 1, footer_height))
+        # Keep footer height visually consistent across all slot shapes.
+        footer_height = max(1, min(screen_h - 1, 18))
         footer_top = screen_h - footer_height
 
     body = layout.get("body", [])
