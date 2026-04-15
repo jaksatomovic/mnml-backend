@@ -1,43 +1,121 @@
 {
   "mode_id": "WEATHER",
   "display_name": "Weather",
+  "icon": "weather",
+  "cacheable": false,
+  "description": "Today's weather, forecast, and practical advice",
+  "settings_schema": [
+    {
+      "key": "forecast_days",
+      "label": "Forecast Days",
+      "type": "number",
+      "default": 4,
+      "min": 1,
+      "max": 7,
+      "step": 1
+    }
+  ],
   "content": {
     "type": "external_data",
+    "provider": "weather_forecast",
     "fallback": {
-      "city": "Velika Gorica",
-      "today_temp": "18",
-      "today_desc": "Partly cloudy",
-      "today_code": 2,
-      "today_range": "11° / 20°",
-      "today_humidity": "57",
-      "today_wind_dir": "NW",
-      "today_wind_level": "12 km/h",
-      "sunrise": "06:18",
-      "sunset": "19:41",
-      "advice": "Comfortable weather for a light outfit.",
-      "forecast": [
-        {
-          "day": "Thu",
-          "temp": "18°",
-          "code": 2
-        },
-        {
-          "day": "Fri",
-          "temp": "16°",
-          "code": 61
-        },
-        {
-          "day": "Sat",
-          "temp": "20°",
-          "code": 1
-        },
-        {
-          "day": "Sun",
-          "temp": "22°",
-          "code": 3
-        }
-      ]
-    }
+      "city": "",
+      "today_temp": "--",
+      "today_desc": "No data",
+      "today_code": -1,
+      "today_low": "--",
+      "today_high": "--",
+      "today_range": "-- / --",
+      "today_humidity": "--",
+      "today_wind_dir": "",
+      "today_wind_level": "",
+      "sunrise": "",
+      "sunset": "",
+      "advice": "Dress according to the weather.",
+      "forecast": []
+    },
+    "fallback_pool": [
+      {
+        "city": "",
+        "today_temp": "--",
+        "today_desc": "No data",
+        "today_code": -1,
+        "today_low": "--",
+        "today_high": "--",
+        "today_range": "-- / --",
+        "today_humidity": "--",
+        "today_wind_dir": "",
+        "today_wind_level": "",
+        "sunrise": "",
+        "sunset": "",
+        "advice": "Dress according to the weather.",
+        "forecast": []
+      },
+      {
+        "city": "",
+        "today_temp": "--",
+        "today_desc": "No data",
+        "today_code": -1,
+        "today_low": "--",
+        "today_high": "--",
+        "today_range": "-- / --",
+        "today_humidity": "--",
+        "today_wind_dir": "",
+        "today_wind_level": "",
+        "sunrise": "",
+        "sunset": "",
+        "advice": "Large day-night temperature gap. Bring a jacket.",
+        "forecast": []
+      },
+      {
+        "city": "",
+        "today_temp": "--",
+        "today_desc": "No data",
+        "today_code": -1,
+        "today_low": "--",
+        "today_high": "--",
+        "today_range": "-- / --",
+        "today_humidity": "--",
+        "today_wind_dir": "",
+        "today_wind_level": "",
+        "sunrise": "",
+        "sunset": "",
+        "advice": "Comfortable weather for light clothing.",
+        "forecast": []
+      },
+      {
+        "city": "",
+        "today_temp": "--",
+        "today_desc": "No data",
+        "today_code": -1,
+        "today_low": "--",
+        "today_high": "--",
+        "today_range": "-- / --",
+        "today_humidity": "--",
+        "today_wind_dir": "",
+        "today_wind_level": "",
+        "sunrise": "",
+        "sunset": "",
+        "advice": "Rain is possible. Bring an umbrella.",
+        "forecast": []
+      },
+      {
+        "city": "",
+        "today_temp": "--",
+        "today_desc": "No data",
+        "today_code": -1,
+        "today_low": "--",
+        "today_high": "--",
+        "today_range": "-- / --",
+        "today_humidity": "--",
+        "today_wind_dir": "",
+        "today_wind_level": "",
+        "sunrise": "",
+        "sunset": "",
+        "advice": "It is cold outside. Keep warm.",
+        "forecast": []
+      }
+    ]
   },
   "layout": {
     "status_bar": {
@@ -47,11 +125,16 @@
     "body_align": "top",
     "body": [
       {
+        "type": "spacer",
+        "height": 6
+      },
+      {
         "type": "text",
         "field": "city",
+        "font": "lora_regular",
         "font_size": 16,
         "align": "left",
-        "margin_x": 20,
+        "margin_x": 16,
         "max_lines": 1
       },
       {
@@ -62,14 +145,14 @@
         "type": "two_column",
         "left_width": 168,
         "gap": 8,
-        "left_x": 16,
+        "left_x": 12,
         "left": [
           {
             "type": "big_number",
             "field": "today_temp",
             "font_size": 50,
             "align": "left",
-            "margin_x": 0,
+            "margin_x": -4,
             "unit": "°C"
           },
           {
@@ -80,10 +163,11 @@
             "type": "weather_icon_text",
             "code_field": "today_code",
             "field": "today_desc",
+            "font": "lora_regular",
             "font_size": 15,
             "icon_size": 22,
             "align": "left",
-            "margin_x": 0
+            "margin_x": -4
           },
           {
             "type": "spacer",
@@ -92,12 +176,11 @@
           {
             "type": "text",
             "field": "today_range",
+            "font": "lora_regular",
             "font_size": 13,
             "align": "left",
-            "margin_x": 0,
-            "max_lines": 1,
-            "x": 15,
-            "y": 82
+            "margin_x": -4,
+            "max_lines": 1
           }
         ],
         "right": [
@@ -105,10 +188,9 @@
             "type": "forecast_cards",
             "field": "forecast",
             "max_items": 4,
+            "margin_x": -6,
             "gap": 4,
-            "icon_size": 30,
-            "x": 165,
-            "y": 0
+            "icon_size": 30
           }
         ]
       },
@@ -120,11 +202,10 @@
         "type": "icon_text",
         "icon": "humidity",
         "text": "Humidity {today_humidity}%   {today_wind_dir} {today_wind_level}",
+        "font": "lora_regular",
         "font_size": 12,
         "align": "left",
-        "margin_x": 16,
-        "x": 0,
-        "y": 141
+        "margin_x": 12
       },
       {
         "type": "spacer",
@@ -134,11 +215,10 @@
         "type": "icon_text",
         "icon": "sunrise",
         "text": "Sunrise {sunrise}   Sunset {sunset}",
+        "font": "lora_regular",
         "font_size": 12,
         "align": "left",
-        "margin_x": 16,
-        "x": 0,
-        "y": 158
+        "margin_x": 12
       },
       {
         "type": "spacer",
@@ -148,9 +228,7 @@
         "type": "separator",
         "style": "solid",
         "line_width": 1,
-        "margin_x": 20,
-        "x": 0,
-        "y": 188
+        "margin_x": 16
       },
       {
         "type": "spacer",
@@ -159,17 +237,398 @@
       {
         "type": "text",
         "field": "advice",
+        "font": "lora_regular",
         "font_size": 12,
         "align": "center",
-        "margin_x": 18,
-        "max_lines": 2,
-        "x": 0,
-        "y": 198
+        "margin_x": 14,
+        "max_lines": 2
       }
     ],
     "footer": {
       "label": "Weather",
       "attribution_template": "— Open-Meteo"
+    }
+  },
+  "layout_overrides": {
+    "376x252": {
+      "footer": {
+        "label": "Weather",
+        "height": 18,
+        "attribution_template": "— Open-Meteo"
+      },
+      "body": [
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "field": "city",
+          "font": "lora_regular",
+          "font_size": 16,
+          "align": "left",
+          "margin_x": 16,
+          "max_lines": 1
+        },
+        {
+          "type": "spacer",
+          "height": 8
+        },
+        {
+          "type": "two_column",
+          "left_width": 168,
+          "gap": 8,
+          "left_x": 12,
+          "left": [
+            {
+              "type": "big_number",
+              "field": "today_temp",
+              "font_size": 50,
+              "align": "left",
+              "margin_x": -4,
+              "unit": "°C"
+            },
+            {
+              "type": "spacer",
+              "height": 2
+            },
+            {
+              "type": "weather_icon_text",
+              "code_field": "today_code",
+              "field": "today_desc",
+              "font": "lora_regular",
+              "font_size": 15,
+              "icon_size": 22,
+              "align": "left",
+              "margin_x": -4
+            },
+            {
+              "type": "spacer",
+              "height": 4
+            },
+            {
+              "type": "text",
+              "field": "today_range",
+              "font": "lora_regular",
+              "font_size": 13,
+              "align": "left",
+              "margin_x": -4,
+              "max_lines": 1
+            }
+          ],
+          "right": [
+            {
+              "type": "forecast_cards",
+              "field": "forecast",
+              "max_items": 4,
+              "margin_x": -6,
+              "gap": 4,
+              "icon_size": 30
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "icon_text",
+          "icon": "humidity",
+          "text": "Humidity {today_humidity}%   {today_wind_dir} {today_wind_level}",
+          "font": "lora_regular",
+          "font_size": 12,
+          "align": "left",
+          "margin_x": 12
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "icon_text",
+          "icon": "sunrise",
+          "text": "Sunrise {sunrise}   Sunset {sunset}",
+          "font": "lora_regular",
+          "font_size": 12,
+          "align": "left",
+          "margin_x": 12
+        },
+        {
+          "type": "spacer",
+          "height": 8
+        },
+        {
+          "type": "separator",
+          "style": "solid",
+          "line_width": 1,
+          "margin_x": 16
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "field": "advice",
+          "font": "lora_regular",
+          "font_size": 12,
+          "align": "center",
+          "margin_x": 14,
+          "max_lines": 2
+        }
+      ]
+    },
+    "376x123": {
+      "body": [
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "field": "city",
+          "font": "lora_regular",
+          "font_size": 14,
+          "align": "left",
+          "margin_x": 10,
+          "max_lines": 1
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "two_column",
+          "left_width": 150,
+          "gap": 6,
+          "left_x": 10,
+          "left": [
+            {
+              "type": "big_number",
+              "field": "today_temp",
+              "font_size": 40,
+              "align": "left",
+              "margin_x": -4,
+              "unit": "°C"
+            },
+            {
+              "type": "spacer",
+              "height": 1
+            },
+            {
+              "type": "weather_icon_text",
+              "code_field": "today_code",
+              "field": "today_desc",
+              "font": "lora_regular",
+              "font_size": 12,
+              "icon_size": 18,
+              "align": "left",
+              "margin_x": -4
+            },
+            {
+              "type": "spacer",
+              "height": 2
+            },
+            {
+              "type": "text",
+              "field": "today_range",
+              "font": "lora_regular",
+              "font_size": 11,
+              "align": "left",
+              "margin_x": -4,
+              "max_lines": 1
+            }
+          ],
+          "right": [
+            {
+              "type": "forecast_cards",
+              "field": "forecast",
+              "max_items": 3,
+              "margin_x": -4,
+              "gap": 3,
+              "icon_size": 20
+            }
+          ]
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "icon_text",
+          "icon": "humidity",
+          "text": "{today_humidity}%   {today_wind_dir} {today_wind_level}",
+          "font": "lora_regular",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 10
+        }
+      ],
+      "footer": {
+        "label": "Weather",
+        "height": 18,
+        "attribution_template": "— Open-Meteo"
+      }
+    },
+    "185x252": {
+      "footer": {
+        "label": "Weather",
+        "height": 18,
+        "attribution_template": "— Open-Meteo"
+      },
+      "body": [
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "field": "city",
+          "font": "lora_regular",
+          "font_size": 14,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 1
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "big_number",
+          "field": "today_temp",
+          "font_size": 42,
+          "align": "left",
+          "margin_x": 8,
+          "unit": "°C"
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "weather_icon_text",
+          "code_field": "today_code",
+          "field": "today_desc",
+          "font": "lora_regular",
+          "font_size": 12,
+          "icon_size": 18,
+          "align": "left",
+          "margin_x": 8
+        },
+        {
+          "type": "spacer",
+          "height": 3
+        },
+        {
+          "type": "text",
+          "field": "today_range",
+          "font": "lora_regular",
+          "font_size": 11,
+          "align": "left",
+          "margin_x": 8,
+          "max_lines": 1
+        },
+        {
+          "type": "spacer",
+          "height": 8
+        },
+        {
+          "type": "forecast_cards",
+          "field": "forecast",
+          "max_items": 2,
+          "margin_x": 6,
+          "gap": 4,
+          "icon_size": 22
+        },
+        {
+          "type": "spacer",
+          "height": 8
+        },
+        {
+          "type": "icon_text",
+          "icon": "sunrise",
+          "text": "{sunrise} / {sunset}",
+          "font": "lora_regular",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 8
+        },
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "field": "advice",
+          "font": "lora_regular",
+          "font_size": 10,
+          "align": "center",
+          "margin_x": 6,
+          "max_lines": 3
+        }
+      ]
+    },
+    "185x123": {
+      "body": [
+        {
+          "type": "spacer",
+          "height": 6
+        },
+        {
+          "type": "text",
+          "field": "city",
+          "font": "lora_regular",
+          "font_size": 12,
+          "align": "left",
+          "margin_x": 6,
+          "max_lines": 1
+        },
+        {
+          "type": "spacer",
+          "height": 4
+        },
+        {
+          "type": "big_number",
+          "field": "today_temp",
+          "font_size": 34,
+          "align": "left",
+          "margin_x": 6,
+          "unit": "°C"
+        },
+        {
+          "type": "spacer",
+          "height": 1
+        },
+        {
+          "type": "weather_icon_text",
+          "code_field": "today_code",
+          "field": "today_desc",
+          "font": "lora_regular",
+          "font_size": 11,
+          "icon_size": 16,
+          "align": "left",
+          "margin_x": 6
+        },
+        {
+          "type": "spacer",
+          "height": 2
+        },
+        {
+          "type": "text",
+          "field": "today_range",
+          "font": "lora_regular",
+          "font_size": 10,
+          "align": "left",
+          "margin_x": 6,
+          "max_lines": 1
+        }
+      ],
+      "footer": {
+        "label": "Weather",
+        "height": 18,
+        "attribution_template": "— Open-Meteo"
+      }
     }
   }
 }
