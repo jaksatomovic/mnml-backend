@@ -3,14 +3,13 @@ from __future__ import annotations
 import re
 from datetime import datetime
 
-from core import db_adapter as aiosqlite
 import phonenumbers
 from fastapi import APIRouter, Depends, Response
 from fastapi.responses import JSONResponse
 from phonenumbers.phonenumberutil import NumberParseException
 
 from core.auth import clear_session_cookie, create_session_token, require_user, set_session_cookie
-from core.config_store import authenticate_user, _hash_password, get_user_api_quota
+from core.config_store import authenticate_user, _hash_password
 from core.db import execute_insert_returning_id, get_main_db
 from core.email import send_verification_code, verify_code
 
@@ -215,74 +214,7 @@ async def auth_logout(response: Response):
 
 @router.post("/auth/redeem-invite-code")
 async def auth_redeem_invite_code(body: dict, user_id: int = Depends(require_user)):
-    """translated，translated 50 translated LLM translated"""
-    invite_code = (body.get("invite_code") or "").strip()
-    
-    if not invite_code:
-        return JSONResponse({"error": "translatedcannot be empty"}, status_code=400)
-    
-    db = await get_main_db()
-    
-    try:
-        # translated，translated「translated -> translated -> translated」translated
-        await db.execute("BEGIN")
-        
-        # 1) translated
-        cursor = await db.execute(
-            "SELECT id, code, is_used FROM invitation_codes WHERE code = ? LIMIT 1",
-            (invite_code,),
-        )
-        row = await cursor.fetchone()
-        if not row:
-            await db.rollback()
-            return JSONResponse({"error": "translatedinvalid"}, status_code=400)
-        if row[2]:  # is_used
-            await db.rollback()
-            return JSONResponse({"error": "translated"}, status_code=409)
-        
-        # 2) translated
-        await db.execute(
-            """
-            UPDATE invitation_codes
-            SET is_used = 1, used_by_user_id = ?
-            WHERE code = ?
-            """,
-            (user_id, invite_code),
-        )
-        
-        # 3) translated（+50 translated）
-        # translated api_quotas translated
-        await db.execute(
-            """
-            INSERT OR IGNORE INTO api_quotas (user_id, total_calls_made, free_quota_remaining)
-            VALUES (?, 0, 0)
-            """,
-            (user_id,),
-        )
-        # translated（translated，translated）
-        await db.execute(
-            """
-            UPDATE api_quotas
-            SET free_quota_remaining = free_quota_remaining + 50
-            WHERE user_id = ?
-            """,
-            (user_id,),
-        )
-        
-        await db.commit()
-        
-        # Get translated
-        quota = await get_user_api_quota(user_id)
-        return {
-            "ok": True,
-            "message": "translatedsuccess，translated 50 translated LLM translated",
-            "free_quota_remaining": quota.get("free_quota_remaining", 0) if quota else 0,
-        }
-    except aiosqlite.IntegrityError:
-        await db.rollback()
-        return JSONResponse({"error": "translated"}, status_code=409)
-    except Exception as e:
-        await db.rollback()
-        logger = __import__("logging").getLogger(__name__)
-        logger.error(f"[REDEEM_INVITE] Failed to redeem invite code: {e}", exc_info=True)
-        return JSONResponse({"error": "translatedfailed，please try again later"}, status_code=500)
+    return JSONResponse(
+        {"error": "Invitation-code free quota has been removed. Please configure a device API key."},
+        status_code=410,
+    )

@@ -5,7 +5,10 @@
   "cacheable": false,
   "description": "Prikažite svoju prenesenu fotografiju prilagođenu za e-ink",
   "supported_slot_types": [
-    "FULL"
+    "FULL",
+    "SMALL",
+    "WIDE",
+    "TALL"
   ],
   "content": {
     "type": "static",

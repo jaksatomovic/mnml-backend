@@ -4,7 +4,10 @@
   "description": "上传本地照片，自适应墨水屏显示",
   "icon": "my_adaptive",
   "supported_slot_types": [
-    "FULL"
+    "FULL",
+    "SMALL",
+    "WIDE",
+    "TALL"
   ],
   "cacheable": false,
   "content": {

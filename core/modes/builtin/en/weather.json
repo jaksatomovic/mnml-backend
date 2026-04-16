@@ -630,5 +630,11 @@
         "attribution_template": "— Open-Meteo"
       }
     }
-  }
+  },
+  "supported_slot_types": [
+    "FULL",
+    "SMALL",
+    "WIDE",
+    "TALL"
+  ]
 }

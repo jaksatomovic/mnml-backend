@@ -255,6 +255,14 @@ async def preview_surface(
         await ensure_web_or_device_access(request, mac, x_device_token, ink_session)
 
     device_config = await get_active_config(mac, log_load=False) if mac else None
+    mode_overrides_payload = body.get("mode_overrides")
+    if isinstance(mode_overrides_payload, dict):
+        merged = dict(device_config) if isinstance(device_config, dict) else {}
+        merged_overrides = dict(merged.get("mode_overrides") or {})
+        merged_overrides.update(mode_overrides_payload)
+        merged["mode_overrides"] = merged_overrides
+        merged["modeOverrides"] = merged_overrides
+        device_config = merged
 
     try:
         img = await render_surface_preview_image(

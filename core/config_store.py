@@ -76,6 +76,9 @@ async def init_db():
                 refresh_interval INTEGER DEFAULT 60,
                 llm_provider TEXT DEFAULT 'deepseek',
                 llm_model TEXT DEFAULT 'deepseek-chat',
+                llm_api_key TEXT DEFAULT '',
+                llm_access_mode TEXT DEFAULT 'preset',
+                llm_base_url TEXT DEFAULT '',
                 image_provider TEXT DEFAULT 'deepseek',
                 image_model TEXT DEFAULT '',
                 countdown_events TEXT DEFAULT '[]',
@@ -170,6 +173,9 @@ async def init_db():
         _EXPECTED_COLUMNS = {
             "llm_provider": "TEXT DEFAULT 'deepseek'",
             "llm_model": "TEXT DEFAULT 'deepseek-chat'",
+            "llm_api_key": "TEXT DEFAULT ''",
+            "llm_access_mode": "TEXT DEFAULT 'preset'",
+            "llm_base_url": "TEXT DEFAULT ''",
             "image_provider": "TEXT DEFAULT 'deepseek'",
             "image_model": "TEXT DEFAULT ''",
             "countdown_events": "TEXT DEFAULT '[]'",
@@ -330,72 +336,9 @@ async def init_db():
             except Exception:
                 pass
 
-        # Invitation codes table 
-        await db.execute("""
-            CREATE TABLE IF NOT EXISTS invitation_codes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                code TEXT NOT NULL UNIQUE,
-                is_used INTEGER DEFAULT 0,
-                generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                used_by_user_id INTEGER,
-                FOREIGN KEY (used_by_user_id) REFERENCES users(id)
-            )
-        """)
-        await db.execute(
-            "CREATE INDEX IF NOT EXISTS idx_invitation_codes_used_by ON invitation_codes(used_by_user_id)"
-        )
-        await db.execute(
-            "CREATE UNIQUE INDEX IF NOT EXISTS idx_invitation_codes_code ON invitation_codes(code)"
-        )
-        
-        # Migration: if an older invitation_codes table is missing the id column, rebuild it.
-        try:
-            # Check whether this is the legacy table shape without an id column.
-            column_names = await _table_columns(db, "invitation_codes")
-            
-            if "id" not in column_names:
-                logger.info("[MIGRATION] Migrating invitation_codes table: adding id column")
-                # Create the replacement table.
-                await db.execute("""
-                    CREATE TABLE IF NOT EXISTS invitation_codes_new (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        code TEXT NOT NULL UNIQUE,
-                        is_used INTEGER DEFAULT 0,
-                        generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        used_by_user_id INTEGER,
-                        FOREIGN KEY (used_by_user_id) REFERENCES users(id)
-                    )
-                """)
-                # Copy data into the replacement table.
-                await db.execute("""
-                    INSERT INTO invitation_codes_new (code, is_used, generated_at, used_by_user_id)
-                    SELECT code, is_used, generated_at, used_by_user_id FROM invitation_codes
-                """)
-                # translated
-                await db.execute("DROP TABLE invitation_codes")
-                # translated
-                await db.execute("ALTER TABLE invitation_codes_new RENAME TO invitation_codes")
-                # translated
-                await db.execute(
-                    "CREATE INDEX IF NOT EXISTS idx_invitation_codes_used_by ON invitation_codes(used_by_user_id)"
-                )
-                await db.execute(
-                    "CREATE UNIQUE INDEX IF NOT EXISTS idx_invitation_codes_code ON invitation_codes(code)"
-                )
-                await db.commit()
-                logger.info("[MIGRATION] invitation_codes table migration completed")
-        except Exception as e:
-            logger.warning(f"[MIGRATION] Failed to migrate invitation_codes table: {e}", exc_info=True)
-
-        # API quotas table APItranslated
-        await db.execute("""
-            CREATE TABLE IF NOT EXISTS api_quotas (
-                user_id INTEGER PRIMARY KEY,
-                total_calls_made INTEGER DEFAULT 0,
-                free_quota_remaining INTEGER DEFAULT 5,
-                FOREIGN KEY (user_id) REFERENCES users(id)
-            )
-        """)
+        # Free-quota/invitation system removed: drop legacy tables on startup.
+        await db.execute("DROP TABLE IF EXISTS invitation_codes")
+        await db.execute("DROP TABLE IF EXISTS api_quotas")
         # User LLM config table translatedLLMtranslated
         await db.execute("""
             CREATE TABLE IF NOT EXISTS user_llm_config (
@@ -1528,17 +1471,22 @@ async def save_config(mac: str, data: dict) -> int:
             assigned_surface = _asg_save
         elif device_mode != "surface" and not assigned_mode:
             assigned_mode = _asg_save.upper()
-    # API keys are no longer stored in device configs.
-    # They now live in the user-level user_llm_config table.
+    from .crypto import encrypt_api_key
+    llm_api_key_enc = encrypt_api_key(str(data.get("llmApiKey", "") or "").strip())
+    llm_access_mode = str(data.get("llmAccessMode", "preset") or "preset").strip().lower()
+    if llm_access_mode not in {"preset", "custom_openai"}:
+        llm_access_mode = "preset"
+    llm_base_url = str(data.get("llmBaseUrl", "") or "").strip() if llm_access_mode == "custom_openai" else ""
+
     # We rely on the configs table default for is_active=1 instead of writing it explicitly.
     config_id = await execute_insert_returning_id(
         db,
         """INSERT INTO configs
            (mac, nickname, modes, refresh_strategy, character_tones,
             language, mode_language, content_tone, city, latitude, longitude, timezone, admin1, country,
-            refresh_interval, llm_provider, llm_model, image_provider, image_model,
+            refresh_interval, llm_provider, llm_model, llm_api_key, llm_access_mode, llm_base_url, image_provider, image_model,
             countdown_events, time_slot_rules, memo_text, mode_overrides, device_mode, assigned_mode, assigned_surface, surfaces_json, surface_schedule_json, surface_playlist_json, surface_playback_mode, focus_listening, always_active, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             mac,
             data.get("nickname", ""),
@@ -1557,6 +1505,9 @@ async def save_config(mac: str, data: dict) -> int:
             data.get("refreshInterval", DEFAULT_REFRESH_INTERVAL),
             data.get("llmProvider", DEFAULT_LLM_PROVIDER),
             data.get("llmModel", DEFAULT_LLM_MODEL),
+            llm_api_key_enc,
+            llm_access_mode,
+            llm_base_url,
             data.get("imageProvider", DEFAULT_IMAGE_PROVIDER),
             data.get("imageModel", DEFAULT_IMAGE_MODEL),
             countdown_events_json,
@@ -1640,9 +1591,9 @@ async def update_focus_listening(mac: str, enabled: bool) -> bool:
             await db.execute(
                 """INSERT INTO configs
                    (mac, nickname, modes, refresh_strategy, character_tones,
-                    language, mode_language, content_tone, city, refresh_interval, llm_provider, llm_model, image_provider, image_model,
+                    language, mode_language, content_tone, city, refresh_interval, llm_provider, llm_model, llm_api_key, llm_access_mode, llm_base_url, image_provider, image_model,
                     countdown_events, time_slot_rules, memo_text, mode_overrides, device_mode, assigned_mode, assigned_surface, surfaces_json, surface_schedule_json, surface_playlist_json, surface_playback_mode, focus_listening, always_active, is_active, created_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)""",
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)""",
                 (
                     normalized_mac,
                     prev.get("nickname", "") or "",
@@ -1656,6 +1607,9 @@ async def update_focus_listening(mac: str, enabled: bool) -> bool:
                     int(prev.get("refresh_interval", DEFAULT_REFRESH_INTERVAL) or DEFAULT_REFRESH_INTERVAL),
                     prev.get("llm_provider", DEFAULT_LLM_PROVIDER),
                     prev.get("llm_model", DEFAULT_LLM_MODEL),
+                    prev.get("llm_api_key", "") or "",
+                    prev.get("llm_access_mode", "preset") or "preset",
+                    prev.get("llm_base_url", "") or "",
                     prev.get("image_provider", DEFAULT_IMAGE_PROVIDER),
                     prev.get("image_model", DEFAULT_IMAGE_MODEL),
                     countdown_events_json,
@@ -1734,6 +1688,7 @@ async def validate_alert_token(mac: str, token: str) -> bool:
 
 def _row_to_dict(row, columns) -> dict:
     d = dict(zip(columns, row))
+    from .crypto import decrypt_api_key
     d["modes"] = [m for m in d["modes"].split(",") if m]
     d["character_tones"] = [t for t in d["character_tones"].split(",") if t]
     d["refreshStrategy"] = d.get("refresh_strategy", DEFAULT_REFRESH_STRATEGY)
@@ -1744,6 +1699,13 @@ def _row_to_dict(row, columns) -> dict:
     d["characterTones"] = d.get("character_tones", [])
     d["llmProvider"] = d.get("llm_provider", DEFAULT_LLM_PROVIDER)
     d["llmModel"] = d.get("llm_model", DEFAULT_LLM_MODEL)
+    llm_api_key_enc = d.get("llm_api_key", "") or ""
+    d["llm_api_key"] = decrypt_api_key(llm_api_key_enc) if llm_api_key_enc else ""
+    d["llmApiKey"] = d["llm_api_key"]
+    d["llm_access_mode"] = str(d.get("llm_access_mode", "preset") or "preset").strip().lower() or "preset"
+    d["llmAccessMode"] = d["llm_access_mode"]
+    d["llm_base_url"] = str(d.get("llm_base_url", "") or "")
+    d["llmBaseUrl"] = d["llm_base_url"]
     d["imageProvider"] = d.get("image_provider", DEFAULT_IMAGE_PROVIDER)
     d["imageModel"] = d.get("image_model", DEFAULT_IMAGE_MODEL)
     d["memoText"] = d.get("memo_text", "")

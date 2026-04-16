@@ -234,9 +234,8 @@ def _search_country_code_sequence(query: str, scope: LocationSearchScope) -> lis
         return [_CN_SEARCH_COUNTRY_CODE]
     if scope == "global":
         return [None]
-    if _contains_latin_letters(query):
-        return [None, _CN_SEARCH_COUNTRY_CODE]
-    return [_CN_SEARCH_COUNTRY_CODE, None]
+    # Neutral default for "auto": try global first, then CN fallback.
+    return [None, _CN_SEARCH_COUNTRY_CODE]
 
 
 def _build_location_queries(query: str) -> list[str]:
@@ -308,7 +307,7 @@ def _parse_geocoding_item(item: dict) -> dict | None:
 
     admin1 = _clean_location_text(item.get("admin1"))
     country = _clean_location_text(item.get("country"))
-    timezone = _clean_location_text(item.get("timezone")) or "Asia/Shanghai"
+    timezone = _clean_location_text(item.get("timezone")) or "auto"
     population = 0
     try:
         population = int(item.get("population") or 0)
@@ -456,10 +455,6 @@ def _location_starts_with_query(item: dict, query: str) -> bool:
 
 def _refine_location_items(items: list[dict], query: str) -> list[dict]:
     matched = [item for item in items if _location_matches_query(item, query)]
-    normalized_query = _normalize_place_name(query)
-    if not normalized_query or not _contains_cjk(normalized_query):
-        return matched
-
     has_admin_anchor = any(
         _is_admin_like(item) and _location_starts_with_query(item, query)
         for item in matched
@@ -636,6 +631,8 @@ async def _search_nominatim_locations(
                 if not parsed:
                     continue
                 if country_codes == _CN_SEARCH_COUNTRY_CODE and scope != "global":
+                    # Keep a slight preference for CN pass in auto/cn scopes so city-level
+                    # administrative matches stay above POI-like candidates.
                     parsed["_score"] = int(parsed.get("_score", 0)) + 150
                 results.append(parsed)
     return results
@@ -713,7 +710,16 @@ async def search_locations(
     )
     if should_merge_geocoding:
         geocode_count = max(limit * 2, 8)
-        if scope in {"auto", "cn"}:
+        if scope in {"auto", "global"}:
+            try:
+                data = await _fetch_geocoding(query, count=geocode_count, language=locale)
+                results = data.get("results") if isinstance(data, dict) else None
+                if isinstance(results, list):
+                    geocode_results.extend(results)
+            except (httpx.HTTPError, TypeError, ValueError, JSONDecodeError):
+                logger.warning("[Context] Failed to search global locations for query=%s", query, exc_info=True)
+
+        if not geocode_results and scope in {"auto", "cn"}:
             try:
                 data = await _fetch_geocoding(
                     query,
@@ -726,15 +732,6 @@ async def search_locations(
                     geocode_results.extend(results)
             except (httpx.HTTPError, TypeError, ValueError, JSONDecodeError):
                 logger.warning("[Context] Failed to search CN locations for query=%s", query, exc_info=True)
-
-        if not geocode_results and scope in {"auto", "global"}:
-            try:
-                data = await _fetch_geocoding(query, count=geocode_count, language=locale)
-                results = data.get("results") if isinstance(data, dict) else None
-                if isinstance(results, list):
-                    geocode_results.extend(results)
-            except (httpx.HTTPError, TypeError, ValueError, JSONDecodeError):
-                logger.warning("[Context] Failed to search global locations for query=%s", query, exc_info=True)
 
         for raw in geocode_results:
             parsed = _parse_geocoding_item(raw)

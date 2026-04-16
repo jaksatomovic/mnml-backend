@@ -5,7 +5,10 @@
   "cacheable": false,
   "description": "Display your uploaded photo adapted for e-ink",
   "supported_slot_types": [
-    "FULL"
+    "FULL",
+    "SMALL",
+    "WIDE",
+    "TALL"
   ],
   "content": {
     "type": "static",

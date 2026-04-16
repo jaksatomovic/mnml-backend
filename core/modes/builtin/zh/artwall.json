@@ -6,7 +6,9 @@
   "description": "黑白版画风格 AI 作品",
   "supported_slot_types": [
     "FULL",
-    "SMALL"
+    "SMALL",
+    "WIDE",
+    "TALL"
   ],
   "content": {
     "type": "image_gen",
@@ -60,7 +62,7 @@
       {
         "type": "image",
         "field": "image_url",
-          "pixel_exact": true,
+        "pixel_exact": true,
         "width": 248,
         "height": 166,
         "fit": "cover",

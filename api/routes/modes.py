@@ -36,9 +36,8 @@ router = APIRouter(tags=["modes"])
 
 
 def _billing_enabled() -> bool:
-    """translated：INKSIGHT_BILLING_ENABLED=0 translated。"""
-    value = os.getenv("INKSIGHT_BILLING_ENABLED", "1").strip().lower()
-    return value not in ("0", "false", "no", "off")
+    """Billing/free-quota system is removed; always disabled."""
+    return False
 
 
 @router.get("/modes")

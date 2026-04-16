@@ -406,5 +406,11 @@
     "376x123": {},
     "185x252": {},
     "185x123": {}
-  }
+  },
+  "supported_slot_types": [
+    "FULL",
+    "SMALL",
+    "WIDE",
+    "TALL"
+  ]
 }

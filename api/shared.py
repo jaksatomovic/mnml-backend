@@ -411,36 +411,6 @@ async def build_image(
     current_user_llm_cfg = None
     owner_user_llm_cfg = None
 
-    if current_user_id is not None:
-        try:
-            from core.config_store import get_user_llm_config
-
-            current_user_llm_cfg = await get_user_llm_config(current_user_id)
-        except Exception:
-            current_user_llm_cfg = None
-            logger.warning(
-                "[BUILD_IMAGE] Failed to load user_llm_config for current_user_id=%s (mac=%s)",
-                current_user_id,
-                mac,
-                exc_info=True,
-            )
-
-    if owner_user_id is not None and owner_user_id != current_user_id:
-        try:
-            from core.config_store import get_user_llm_config
-
-            owner_user_llm_cfg = await get_user_llm_config(owner_user_id)
-        except Exception:
-            owner_user_llm_cfg = None
-            logger.warning(
-                "[BUILD_IMAGE] Failed to load user_llm_config for owner_user_id=%s (mac=%s)",
-                owner_user_id,
-                mac,
-                exc_info=True,
-            )
-    elif owner_user_id is not None:
-        owner_user_llm_cfg = current_user_llm_cfg
-
     def apply_user_llm_cfg(user_llm_cfg: dict) -> None:
         llm_access_mode = (user_llm_cfg.get("llm_access_mode") or "preset").strip().lower()
         provider = (user_llm_cfg.get("provider") or "").strip()
@@ -470,9 +440,7 @@ async def build_image(
     if (
         user_api_key and user_api_key.strip()
     ) or (
-        current_user_llm_cfg and (current_user_llm_cfg.get("api_key") or "").strip()
-    ) or (
-        owner_user_llm_cfg and (owner_user_llm_cfg.get("api_key") or "").strip()
+        isinstance(config, dict) and str(config.get("llm_api_key", "")).strip()
     ):
         config = dict(config or {})
 
@@ -481,18 +449,21 @@ async def build_image(
         selected_config_user_id = current_user_id
         usage_source = "current_user_api_key"
         logger.debug("[BUILD_IMAGE] Using user_api_key from request header for user_id=%s", selected_config_user_id)
-    elif current_user_id is not None and current_user_llm_cfg and (current_user_llm_cfg.get("api_key") or "").strip():
-        apply_user_llm_cfg(current_user_llm_cfg)
-        selected_config_user_id = current_user_id
-        usage_source = "current_user_api_key"
-    elif owner_user_llm_cfg and (owner_user_llm_cfg.get("api_key") or "").strip():
-        apply_user_llm_cfg(owner_user_llm_cfg)
-        selected_config_user_id = owner_user_id
-        usage_source = "owner_api_key"
+    elif isinstance(config, dict) and str(config.get("llm_api_key", "")).strip():
+        config["user_api_key"] = str(config.get("llm_api_key") or "").strip()
+        mode_access = str(config.get("llm_access_mode") or "preset").strip().lower()
+        if mode_access == "custom_openai":
+            provider = str(config.get("llm_provider") or "").strip().lower()
+            if provider in {"openai_compat", "openai"}:
+                config["llm_provider"] = "openai_compat"
+            base_url = str(config.get("llm_base_url") or "").strip()
+            if base_url:
+                config["llm_base_url"] = base_url
+        usage_source = "device_api_key"
     elif not mac and current_user_id is not None:
-        usage_source = "current_user_free_quota"
+        usage_source = "server_api_key"
     elif mac:
-        usage_source = "owner_free_quota"
+        usage_source = "server_api_key"
 
     # translated LLM translated JSON mode（translated）
     # translated content translated，translated composite modetranslated steps
@@ -660,12 +631,8 @@ async def build_image(
 
     cache_hit = False
     quota_exhausted = False
-    billing_enabled = os.getenv("INKSIGHT_BILLING_ENABLED", "1").strip().lower() not in (
-        "0",
-        "false",
-        "no",
-        "off",
-    )
+    # Free-quota/billing flow removed.
+    billing_enabled = False
 
     if mac and config and is_mode_cacheable and not skip_cache:
         if not intent_only:

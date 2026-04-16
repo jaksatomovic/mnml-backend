@@ -9,13 +9,24 @@ from typing import Any
 from PIL import Image, ImageDraw
 
 from core.context import extract_location_settings, get_date_context, get_weather
+from core.json_renderer import (
+    _localized_footer_attribution,
+    _localized_footer_label,
+    _resolve_template,
+)
+from core.layout_presets import expand_layout_presets
+from core.mode_registry import get_registry
 from core.patterns.utils import (
     apply_text_fontmode,
     draw_status_bar,
+    get_mode_icon,
+    get_weather_icon,
+    has_cjk,
     load_font,
+    paste_icon_onto,
 )
 from core.pipeline import generate_and_render
-from core.render_tiers import surface_mosaic_inner_rect
+from core.render_tiers import merge_layout_for_screen, surface_mosaic_inner_rect
 from core.surface_engine import build_surface_render_payload
 from core.surface_grid import (
     body_slot_rects_px,
@@ -126,6 +137,38 @@ def _fit_tile(tile: Image.Image, tw: int, th: int) -> Image.Image:
     if tile.size == (tw, th):
         return tile
     return tile.resize((tw, th), Image.Resampling.LANCZOS)
+
+
+def _normalize_gathered_tile(
+    entry: Any,
+    tw: int,
+    th: int,
+    err_label: str,
+) -> tuple[Image.Image, dict | None]:
+    """Turn one asyncio.gather result into (PIL.Image, content).
+
+    Handles rare nested returns ``((Image, dict), dict)`` so the first element is not left
+    as a bare tuple (which breaks :func:`_fit_tile`).
+    """
+    slot_content: dict | None = None
+    if isinstance(entry, tuple) and len(entry) == 2:
+        tile, slot_content = entry[0], entry[1]
+    elif isinstance(entry, Image.Image):
+        tile = entry
+    else:
+        return _draw_error_tile(tw, th, err_label), None
+
+    # Unwrap mistaken (Image, dict) still sitting in the "image" slot
+    if isinstance(tile, tuple) and len(tile) >= 1 and hasattr(tile[0], "mode"):
+        if len(tile) >= 2 and isinstance(tile[1], dict):
+            slot_content = tile[1]
+        tile = tile[0]
+
+    if not isinstance(tile, Image.Image):
+        return _draw_error_tile(tw, th, err_label), slot_content
+    if tile.size != (tw, th):
+        tile = _fit_tile(tile, tw, th)
+    return tile, slot_content
 
 
 def _cell_slot_id_equal(a: str | None, b: str | None) -> bool:
@@ -290,10 +333,66 @@ def _draw_dotted_top_arc(
         draw.point((x, y), fill=fill)
 
 
+def _slot_footer_fields(
+    mode_id: str,
+    content: dict | None,
+    screen_w: int,
+    screen_h: int,
+    slot_type: str | None,
+    language: str,
+) -> tuple[str, str, int | None]:
+    """Resolve footer label, attribution, and optional weather code (WEATHER tile icon)."""
+    raw_id = (mode_id or "WIDGET").strip().upper() or "WIDGET"
+    data = content if isinstance(content, dict) else {}
+    weather_code: int | None = None
+    if raw_id == "WEATHER":
+        try:
+            wc = data.get("today_code", data.get("code"))
+            if wc is not None:
+                weather_code = int(wc)
+        except (TypeError, ValueError):
+            weather_code = None
+
+    registry = get_registry()
+    if not registry.is_json_mode(raw_id):
+        label = _localized_footer_label(raw_id, raw_id, language)
+        return (label or raw_id).upper(), "", weather_code
+
+    jm = registry.get_json_mode(raw_id, None, language=language)
+    if not jm:
+        return raw_id.upper(), "", weather_code
+
+    mode_def = jm.definition
+    base_layout = mode_def.get("layout") if isinstance(mode_def.get("layout"), dict) else {}
+    overrides_raw = mode_def.get("layout_overrides")
+    overrides = overrides_raw if isinstance(overrides_raw, dict) else {}
+    _variants = mode_def.get("variants")
+    layout = merge_layout_for_screen(
+        base_layout,
+        overrides,
+        screen_w=screen_w,
+        screen_h=screen_h,
+        shape_variants=_variants if isinstance(_variants, dict) else None,
+        slot_type=slot_type,
+    )
+    layout = expand_layout_presets(layout)
+    ft = layout.get("footer") if isinstance(layout.get("footer"), dict) else {}
+    label = _localized_footer_label(raw_id, ft.get("label", raw_id), language)
+    tmpl = ft.get("attribution_template") or ""
+    attribution = ""
+    if tmpl:
+        attribution = _resolve_template(data, str(tmpl))
+        attribution = _localized_footer_attribution(raw_id, attribution, language)
+    return (label or raw_id).upper(), attribution, weather_code
+
+
 def _draw_slot_chrome(
     img: Image.Image,
     rect: tuple[int, int, int, int],
     mode_label: str,
+    content: dict | None,
+    slot_type: str | None,
+    language: str,
 ) -> None:
     x0, y0, x1, y1 = rect
     w = max(1, x1 - x0)
@@ -322,24 +421,82 @@ def _draw_slot_chrome(
     draw.rectangle([left, footer_top + 1, right, bottom], fill=0)
     _draw_dotted_line_h(draw, left + 3, right - 3, footer_top, step=3, fill=255)
 
-    font = load_font("inter_medium", max(9, min(12, int(w / 16))))
-    raw_label = (mode_label or "WIDGET").strip()
-    label = raw_label.replace("_", " ").lower().title()
-    bbox = draw.textbbox((0, 0), label, font=font)
-    tw = bbox[2] - bbox[0]
-    tx = left + 10
-    if tw > w - (tx - left) - 8:
-        while label and tw > w - (tx - left) - 10:
-            label = label[:-1]
-            bbox = draw.textbbox((0, 0), f"{label}...", font=font)
-            tw = bbox[2] - bbox[0]
-        label = f"{label}..." if label else "..."
-    text_h = bbox[3] - bbox[1]
+    st = str(slot_type or "").strip().upper() or None
+    if st == "FULL":
+        st = None
+    label_text, attribution, weather_code = _slot_footer_fields(
+        mode_label, content, w, h, st, language
+    )
+
+    pad = max(6, min(10, w // 40))
+    icon_sz = max(10, min(15, w // 26))
     footer_inner_top = footer_top + 1
     footer_inner_bottom = bottom
     footer_inner_h = max(1, footer_inner_bottom - footer_inner_top + 1)
+
+    mode_upper = (mode_label or "WIDGET").strip().upper()
+    mode_icon = None
+    if mode_upper == "WEATHER" and weather_code is not None:
+        try:
+            mode_icon = get_weather_icon(int(weather_code))
+        except (TypeError, ValueError):
+            mode_icon = None
+    if mode_icon is None:
+        mode_icon = get_mode_icon(mode_upper)
+    if mode_icon is not None and max(mode_icon.size) != icon_sz:
+        mode_icon = mode_icon.resize((icon_sz, icon_sz), Image.LANCZOS)
+
+    font_label = load_font("inter_medium", max(9, min(12, int(w / 16))))
+    attr_size = max(7, min(10, int(w / 22)))
+    attr_text = attribution or ""
+    font_attr = (
+        load_font("noto_serif_bold", attr_size)
+        if attr_text and has_cjk(attr_text)
+        else load_font("lora_regular", attr_size)
+    )
+
+    icon_x = left + pad
+    icon_y = footer_inner_top + max(0, (footer_inner_h - icon_sz) // 2)
+    label_x = icon_x
+    if mode_icon:
+        paste_icon_onto(img, mode_icon, (icon_x, icon_y), fill=255)
+        label_x = icon_x + icon_sz + max(3, pad // 2)
+
+    inner_right = right - pad
+    attr_left = inner_right
+
+    def _fit_line(text: str, font, max_w: int) -> str:
+        if not text or max_w <= 0:
+            return ""
+        t = text
+        ell = "..."
+        while t:
+            bb = draw.textbbox((0, 0), t, font=font)
+            if bb[2] - bb[0] <= max_w:
+                return t
+            if len(t) <= len(ell):
+                return ell if draw.textbbox((0, 0), ell, font=font)[2] - draw.textbbox((0, 0), ell, font=font)[0] <= max_w else ""
+            t = t[:-1]
+        return ""
+
+    if attr_text:
+        max_attr = max(24, int(w * 0.42))
+        attr_text = _fit_line(attr_text, font_attr, max_attr)
+        if attr_text:
+            ab = draw.textbbox((0, 0), attr_text, font=font_attr)
+            aw = ab[2] - ab[0]
+            ah = ab[3] - ab[1]
+            ax = inner_right - aw
+            ay = footer_inner_top + max(0, (footer_inner_h - ah) // 2) - 2
+            draw.text((ax, ay), attr_text, fill=255, font=font_attr)
+            attr_left = ax - pad
+
+    label_max_w = max(12, attr_left - label_x - pad)
+    fitted = _fit_line(label_text, font_label, label_max_w) or "…"
+    lb = draw.textbbox((0, 0), fitted, font=font_label)
+    text_h = lb[3] - lb[1]
     ty = footer_inner_top + max(0, (footer_inner_h - text_h) // 2) - 3
-    draw.text((tx, ty), label, fill=255, font=font)
+    draw.text((label_x, ty), fitted, fill=255, font=font_label)
 
 
 async def render_surface_preview_image(
@@ -368,6 +525,10 @@ async def render_surface_preview_image(
 
     cfg = device_config if isinstance(device_config, dict) else None
     surface_id = str(meta.get("surface") or normalized.get("id") or "").strip()
+
+    lang = "zh"
+    if isinstance(cfg, dict):
+        lang = str(cfg.get("mode_language") or cfg.get("modeLanguage") or "zh").strip() or "zh"
 
     img = Image.new("L", (screen_w, screen_h), 255)
 
@@ -409,7 +570,7 @@ async def render_surface_preview_image(
         persona: str,
         rect: tuple[int, int, int, int],
         slot_type: str | None,
-    ) -> Image.Image:
+    ) -> tuple[Image.Image, dict | None]:
         rx0, ry0, rx1, ry1 = rect
         tw = max(96, rx1 - rx0)
         th = max(72, ry1 - ry0)
@@ -419,7 +580,7 @@ async def render_surface_preview_image(
         if st == "FULL":
             st = None
         try:
-            tile, _c = await generate_and_render(
+            tile, content = await generate_and_render(
                 persona,
                 cfg,
                 date_ctx,
@@ -432,10 +593,10 @@ async def render_surface_preview_image(
                 omit_chrome=True,
                 slot_type=st,
             )
-            return _fit_tile(tile, tw, th)
+            return _fit_tile(tile, tw, th), content
         except Exception:
             logger.warning("[surface_preview] tile render failed persona=%s", persona, exc_info=True)
-            return _draw_error_tile(tw, th, persona[:10])
+            return _draw_error_tile(tw, th, persona[:10]), None
 
     rects: list[tuple[int, int, int, int]] = []
     personas: list[str] = []
@@ -452,24 +613,24 @@ async def render_surface_preview_image(
             rects.append(_frac_to_rect(body, preset[i], gutter))
             slot_types.append(None)
 
-    tiles = await asyncio.gather(
+    tile_results = await asyncio.gather(
         *[_one_tile(personas[i], rects[i], slot_types[i]) for i in range(len(personas))]
     )
 
     for i, rect in enumerate(rects):
         rx0, ry0, rx1, ry1 = rect
         tw, th = rx1 - rx0, ry1 - ry0
-        tile = tiles[i]
-        tile = _fit_tile(tile, tw, th)
+        tile, slot_content = _normalize_gathered_tile(
+            tile_results[i],
+            tw,
+            th,
+            (personas[i] or "?")[:10],
+        )
         img.paste(tile, (rx0, ry0))
-        _draw_slot_chrome(img, rect, personas[i])
+        _draw_slot_chrome(img, rect, personas[i], slot_content, slot_types[i], lang)
 
     # Grid separators between cells are intentionally omitted.
     # Each tile now draws its own border chrome.
-
-    lang = "zh"
-    if isinstance(cfg, dict):
-        lang = str(cfg.get("mode_language") or cfg.get("modeLanguage") or "zh").strip() or "zh"
     has_weather_tile = any((p or "").upper() == "WEATHER" for p in personas)
     _draw_surface_chrome(
         img,

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from core import db_adapter as aiosqlite
 from typing import Optional
 
 from fastapi import APIRouter, Cookie, Depends, Request
@@ -17,8 +16,6 @@ from core.config_store import (
     get_device_members,
     get_device_owner,
     get_pending_requests_for_owner,
-    get_user_api_quota,
-    init_user_api_quota,
     get_user_by_username,
     get_user_devices,
     get_user_llm_config,
@@ -142,12 +139,6 @@ async def get_user_profile(user_id: int = Depends(require_user)):
     if not user_row:
         return JSONResponse({"error": "User not found"}, status_code=404)
 
-    quota = await get_user_api_quota(user_id)
-    if quota is None:
-        # Backfill legacy users that don't yet have an api_quotas row.
-        await init_user_api_quota(user_id, free_quota=50)
-        quota = await get_user_api_quota(user_id)
-
     llm_config = await get_user_llm_config(user_id)
     llm_config_updated_at = ""
     if llm_config:
@@ -167,7 +158,7 @@ async def get_user_profile(user_id: int = Depends(require_user)):
         "phone": user_row[2] or "",
         "email": user_row[3] or "",
         "role": user_row[4] or "user",
-        "free_quota_remaining": quota.get("free_quota_remaining", 0) if quota else 0,
+        "free_quota_remaining": 0,
         "llm_config": llm_config,
         "llm_config_updated_at": llm_config_updated_at,
     }
@@ -253,78 +244,10 @@ async def delete_user_llm_config_route(user_id: int = Depends(require_user)):
 
 @router.post("/user/redeem")
 async def redeem_invite_code(body: dict, user_id: int = Depends(require_user)):
-    """Redeem an invite code to add 50 free LLM calls for the current user."""
-    invite_code = (body.get("invite_code") or "").strip()
-    
-    if not invite_code:
-        return JSONResponse({"error": "Invite code is required"}, status_code=400)
-    
-    db = await get_main_db()
-    
-    try:
-        # Start an explicit transaction for atomic redeem flow.
-        await db.execute("BEGIN")
-        
-        # 1) Validate invite code exists and is unused.
-        cursor = await db.execute(
-            "SELECT id, code, is_used FROM invitation_codes WHERE code = ? LIMIT 1",
-            (invite_code,),
-        )
-        row = await cursor.fetchone()
-        if not row:
-            await db.rollback()
-            return JSONResponse({"error": "Invalid invite code"}, status_code=400)
-        if row[2]:  # is_used
-            await db.rollback()
-            return JSONResponse({"error": "Invite code has already been used"}, status_code=409)
-        
-        # 2) Mark invite code as used by current user.
-        await db.execute(
-            """
-            UPDATE invitation_codes
-            SET is_used = 1, used_by_user_id = ?
-            WHERE code = ?
-            """,
-            (user_id, invite_code),
-        )
-        
-        # 3) Add free quota (+50 calls).
-        # Ensure api_quotas row exists first.
-        await db.execute(
-            """
-            INSERT OR IGNORE INTO api_quotas (user_id, total_calls_made, free_quota_remaining)
-            VALUES (?, 0, 0)
-            """,
-            (user_id,),
-        )
-        # Atomic increment to avoid race conditions.
-        await db.execute(
-            """
-            UPDATE api_quotas
-            SET free_quota_remaining = free_quota_remaining + 50
-            WHERE user_id = ?
-            """,
-            (user_id,),
-        )
-        
-        await db.commit()
-        
-        # Fetch updated quota.
-        quota = await get_user_api_quota(user_id)
-        return {
-            "ok": True,
-            "message": "Invite code redeemed successfully. You have received 50 free LLM calls.",
-            "free_quota_remaining": quota.get("free_quota_remaining", 0) if quota else 0,
-        }
-    except aiosqlite.IntegrityError:
-        await db.rollback()
-        return JSONResponse({"error": "Invite code has already been used"}, status_code=409)
-    except Exception as e:
-        await db.rollback()
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"[REDEEM_INVITE] Failed to redeem invite code: {e}", exc_info=True)
-        return JSONResponse({"error": "Redemption failed, please try again later"}, status_code=500)
+    return JSONResponse(
+        {"error": "Invitation-code free quota has been removed. Please configure a device API key."},
+        status_code=410,
+    )
 
 
 @router.post("/user/bind-email/send-code")

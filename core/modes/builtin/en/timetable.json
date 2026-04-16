@@ -159,5 +159,11 @@
         }
       ]
     }
-  }
+  },
+  "supported_slot_types": [
+    "FULL",
+    "SMALL",
+    "WIDE",
+    "TALL"
+  ]
 }
