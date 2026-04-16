@@ -342,6 +342,14 @@ def _slot_footer_fields(
     language: str,
 ) -> tuple[str, str, int | None]:
     """Resolve footer label, attribution, and optional weather code (WEATHER tile icon)."""
+    def _footer_name_case(text: str) -> str:
+        s = str(text or "").strip()
+        if not s:
+            return ""
+        if has_cjk(s):
+            return s
+        return s[:1].upper() + s[1:].lower()
+
     raw_id = (mode_id or "WIDGET").strip().upper() or "WIDGET"
     data = content if isinstance(content, dict) else {}
     weather_code: int | None = None
@@ -356,11 +364,11 @@ def _slot_footer_fields(
     registry = get_registry()
     if not registry.is_json_mode(raw_id):
         label = _localized_footer_label(raw_id, raw_id, language)
-        return (label or raw_id).upper(), "", weather_code
+        return _footer_name_case(label or raw_id), "", weather_code
 
     jm = registry.get_json_mode(raw_id, None, language=language)
     if not jm:
-        return raw_id.upper(), "", weather_code
+        return _footer_name_case(raw_id), "", weather_code
 
     mode_def = jm.definition
     base_layout = mode_def.get("layout") if isinstance(mode_def.get("layout"), dict) else {}
@@ -383,7 +391,7 @@ def _slot_footer_fields(
     if tmpl:
         attribution = _resolve_template(data, str(tmpl))
         attribution = _localized_footer_attribution(raw_id, attribution, language)
-    return (label or raw_id).upper(), attribution, weather_code
+    return _footer_name_case(label or raw_id), attribution, weather_code
 
 
 def _draw_slot_chrome(
