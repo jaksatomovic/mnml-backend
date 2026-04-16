@@ -26,7 +26,7 @@ _VALID_TONES = {"positive", "neutral", "deep", "humor"}
 
 # allowed refresh strategy
 _VALID_STRATEGIES = {"random", "cycle", "time_slot", "smart"}
-_VALID_DEVICE_RENDER_MODES = {"mode", "surface"}
+_VALID_DEVICE_RENDER_MODES = {"surface"}
 
 # translatedtonetranslated：translated、translated、translated
 _SAFE_TONE_RE = re.compile(
@@ -97,7 +97,7 @@ class ConfigRequest(BaseModel):
         default=False,
         description="translated",
     )
-    deviceMode: str = Field(default="mode", description="Device render mode: mode | surface")
+    deviceMode: str = Field(default="surface", description="Device render mode: surface")
     assignedMode: str = Field(default="", description="Assigned legacy mode id")
     assignedSurface: str = Field(default="", description="Assigned surface id")
     surfaces: list[dict] = Field(default_factory=list, max_length=50, description="Surface definitions")
@@ -126,7 +126,7 @@ class ConfigRequest(BaseModel):
             data["deviceMode"] = str(rm).strip().lower()
         asg = data.get("assigned")
         if asg is not None and str(asg).strip():
-            dm = str(data.get("deviceMode") or data.get("device_mode") or "mode").strip().lower()
+            dm = str(data.get("deviceMode") or data.get("device_mode") or "surface").strip().lower()
             if dm == "surface" and not str(data.get("assignedSurface") or data.get("assigned_surface") or "").strip():
                 data["assignedSurface"] = str(asg).strip()
             elif dm != "surface" and not str(data.get("assignedMode") or data.get("assigned_mode") or "").strip():
@@ -285,9 +285,11 @@ class ConfigRequest(BaseModel):
     @classmethod
     def validate_device_mode(cls, v: str) -> str:
         mode = str(v or "").strip().lower()
+        if mode == "mode":
+            return "surface"
         if mode not in _VALID_DEVICE_RENDER_MODES:
-            raise ValueError("deviceMode must be 'mode' or 'surface'")
-        return mode
+            raise ValueError("deviceMode must be 'surface'")
+        return "surface"
 
     @field_validator("surfacePlaybackMode")
     @classmethod

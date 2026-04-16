@@ -53,6 +53,34 @@ async def _table_exists(db, table: str) -> bool:
     return (await cursor.fetchone()) is not None
 
 
+async def _sync_configs_id_sequence(db) -> None:
+    """
+    Keep configs.id sequence aligned with MAX(id) for Postgres.
+    Handles cases where table migration left sequence/default detached.
+    """
+    try:
+        cursor = await db.execute("SELECT pg_get_serial_sequence('configs', 'id')")
+        row = await cursor.fetchone()
+        seq_name = (row[0] if row and row[0] else "")
+        if not seq_name:
+            await db.execute("CREATE SEQUENCE IF NOT EXISTS configs_id_seq")
+            await db.execute("ALTER SEQUENCE configs_id_seq OWNED BY configs.id")
+            await db.execute("ALTER TABLE configs ALTER COLUMN id SET DEFAULT nextval('configs_id_seq')")
+            seq_name = "configs_id_seq"
+        await db.execute(
+            """
+            SELECT setval(
+                CAST(? AS regclass),
+                COALESCE((SELECT MAX(id) FROM configs), 1),
+                true
+            )
+            """,
+            (seq_name,),
+        )
+    except Exception:
+        logger.warning("[MIGRATION] Failed to sync configs.id sequence", exc_info=True)
+
+
 async def init_db():
     db = await get_main_db()
     try:
@@ -85,7 +113,7 @@ async def init_db():
                 time_slot_rules TEXT DEFAULT '[]',
                 memo_text TEXT DEFAULT '',
                 mode_overrides TEXT DEFAULT '{}',
-                device_mode TEXT DEFAULT 'mode',
+                device_mode TEXT DEFAULT 'surface',
                 assigned_mode TEXT DEFAULT '',
                 assigned_surface TEXT DEFAULT '',
                 surfaces_json TEXT DEFAULT '[]',
@@ -132,7 +160,7 @@ async def init_db():
                         time_slot_rules TEXT DEFAULT '[]',
                         memo_text TEXT DEFAULT '',
                         mode_overrides TEXT DEFAULT '{}',
-                        device_mode TEXT DEFAULT 'mode',
+                        device_mode TEXT DEFAULT 'surface',
                         assigned_mode TEXT DEFAULT '',
                         assigned_surface TEXT DEFAULT '',
                         surfaces_json TEXT DEFAULT '[]',
@@ -164,6 +192,7 @@ async def init_db():
                 await db.execute("DROP TABLE configs")
                 await db.execute("ALTER TABLE configs_new RENAME TO configs")
                 await db.execute("CREATE INDEX IF NOT EXISTS idx_configs_mac ON configs(mac)")
+                await _sync_configs_id_sequence(db)
                 await db.commit()
                 logger.info("[MIGRATION] configs table migration completed")
         except Exception as e:
@@ -183,7 +212,7 @@ async def init_db():
             "memo_text": "TEXT DEFAULT ''",
             "mode_overrides": "TEXT DEFAULT '{}'",
             "mode_language": "TEXT DEFAULT ''",
-            "device_mode": "TEXT DEFAULT 'mode'",
+            "device_mode": "TEXT DEFAULT 'surface'",
             "assigned_mode": "TEXT DEFAULT ''",
             "assigned_surface": "TEXT DEFAULT ''",
             "surfaces_json": "TEXT DEFAULT '[]'",
@@ -204,6 +233,7 @@ async def init_db():
                 if col not in existing:
                     await db.execute(f"ALTER TABLE configs ADD COLUMN {col} {typedef}")
                     logger.info("[MIGRATION] Added column configs.%s", col)
+            await _sync_configs_id_sequence(db)
             await db.commit()
         except Exception as e:
             logger.warning("[MIGRATION] Failed to add missing columns: %s", e, exc_info=True)
@@ -1427,9 +1457,10 @@ async def save_config(mac: str, data: dict) -> int:
     )
     if not _dm and prev:
         _dm = prev.get("device_mode") or ""
-    device_mode = str(_dm or "mode").strip().lower()
-    if device_mode not in ("mode", "surface"):
-        device_mode = "mode"
+    # Legacy "mode" render path removed; surface is always canonical.
+    device_mode = str(_dm or "surface").strip().lower()
+    if device_mode != "surface":
+        device_mode = "surface"
 
     rs_in = data.get("refreshStrategy")
     if rs_in is None:
@@ -1479,6 +1510,7 @@ async def save_config(mac: str, data: dict) -> int:
     llm_base_url = str(data.get("llmBaseUrl", "") or "").strip() if llm_access_mode == "custom_openai" else ""
 
     # We rely on the configs table default for is_active=1 instead of writing it explicitly.
+    await _sync_configs_id_sequence(db)
     config_id = await execute_insert_returning_id(
         db,
         """INSERT INTO configs
@@ -1616,7 +1648,7 @@ async def update_focus_listening(mac: str, enabled: bool) -> bool:
                     time_slot_rules_json,
                     str(prev.get("memo_text", "") or ""),
                     mode_overrides_json,
-                    str(prev.get("device_mode", "mode") or "mode").strip().lower(),
+                    "surface",
                     str(prev.get("assigned_mode", "") or "").strip().upper(),
                     str(prev.get("assigned_surface", "") or "").strip(),
                     surfaces_json,
@@ -1738,8 +1770,8 @@ def _row_to_dict(row, columns) -> dict:
         mo = {}
     d["mode_overrides"] = mo
     d["modeOverrides"] = mo
-    _dm = str(d.get("render_mode") or d.get("device_mode") or "mode") or "mode"
-    d["device_mode"] = _dm.strip().lower()
+    _dm = str(d.get("render_mode") or d.get("device_mode") or "surface") or "surface"
+    d["device_mode"] = "surface" if _dm.strip().lower() != "surface" else "surface"
     d["deviceMode"] = d["device_mode"]
     d["render_mode"] = d["device_mode"]
     d["renderMode"] = d["device_mode"]
@@ -2276,7 +2308,7 @@ async def list_active_surface_device_configs() -> list[dict]:
     db = await get_main_db()
     db.row_factory = None
     cursor = await db.execute(
-        "SELECT * FROM configs WHERE is_active = 1 AND LOWER(COALESCE(device_mode, 'mode')) = 'surface'"
+        "SELECT * FROM configs WHERE is_active = 1 AND LOWER(COALESCE(device_mode, 'surface')) = 'surface'"
     )
     rows = await cursor.fetchall()
     if not rows:

@@ -199,8 +199,13 @@ def _get_client(
     base_url: str | None = None,
 ) -> tuple[AsyncOpenAI, int]:
     """Get OpenAI client for specified provider and return max_tokens"""
-    # DeepSeek/OpenAI-only backend: fallback to deepseek for unsupported providers.
+    # Normalize provider aliases used by config APIs/UI.
     provider = (provider or "").strip().lower()
+    provider_aliases = {
+        "openai_compat": "openai",
+        "openai-compatible": "openai",
+    }
+    provider = provider_aliases.get(provider, provider)
     if provider not in {"deepseek", "openai"}:
         provider = "deepseek"
     user_provided_key = api_key is not None  # translated api_key（translated）
@@ -226,7 +231,8 @@ def _get_client(
             )
 
     config = LLM_CONFIGS.get(provider, LLM_CONFIGS["deepseek"])
-    resolved_base_url = config["base_url"]
+    # Respect caller-provided base_url for OpenAI-compatible endpoints.
+    resolved_base_url = (base_url or "").strip() or config["base_url"]
     model_config = config["models"].get(model, {"max_tokens": 120})
     max_tokens = model_config["max_tokens"]
 
